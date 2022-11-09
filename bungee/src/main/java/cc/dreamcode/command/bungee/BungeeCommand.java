@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class BungeeCommand extends Command implements TabExecutor, DreamCommand<CommandSender, ProxiedPlayer> {
 
     @Setter private Injector injector;
-    @Getter @Setter private String permissionMessage;
+    @Getter @Setter private String noPermissionMessage;
     @Getter @Setter private String notPlayerMessage;
 
     private final List<Class<? extends DreamArgument<CommandSender, ProxiedPlayer>>> argumentHandlers = new ArrayList<>();
@@ -40,11 +40,11 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
             if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
                     ? "rpl." + this.getName()
                     : requiredPermission.permission())) {
-                if (this.permissionMessage == null) {
+                if (this.noPermissionMessage == null) {
                     throw new CommandException("Permission message in command " + this.getName() + " is not provided.");
                 }
 
-                throw new CommandException(this.permissionMessage);
+                throw new CommandException(this.noPermissionMessage);
             }
 
             RequiredPlayer requiredPlayer = commandPlatform.getClass().getAnnotation(RequiredPlayer.class);
@@ -104,4 +104,8 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
         this.argumentHandlers.add(argumentClass);
     }
 
+    @Override
+    protected void setPermissionMessage(String permissionMessage) {
+        this.setNoPermissionMessage(permissionMessage);
+    }
 }

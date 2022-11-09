@@ -24,7 +24,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
     @Setter private Plugin plugin;
     @Setter private Injector injector;
-    @Getter @Setter private String permissionMessage;
+    @Getter @Setter private String noPermissionMessage;
     @Getter @Setter private String notPlayerMessage;
     private final List<Class<? extends BukkitArgument>> argumentHandlers = new ArrayList<>();
 
@@ -49,11 +49,11 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
                     ? "rpl." + this.getName()
                     : requiredPermission.permission())) {
-                if (this.permissionMessage == null) {
+                if (this.noPermissionMessage == null) {
                     throw new CommandException("Permission message in command " + this.getName() + " is not provided.");
                 }
 
-                throw new CommandException(this.permissionMessage);
+                throw new CommandException(this.noPermissionMessage);
             }
 
             RequiredPlayer requiredPlayer = commandPlatform.getClass().getAnnotation(RequiredPlayer.class);
