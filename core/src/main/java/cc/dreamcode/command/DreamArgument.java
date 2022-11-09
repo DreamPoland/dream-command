@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public abstract class ArgumentHandler<C, P> implements CommandPlatform<C, P> {
+public abstract class DreamArgument<C, P> implements DreamCommand<C, P> {
 
     private final String name;
     private final int arg;

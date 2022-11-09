@@ -9,7 +9,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 
 @RequiredArgsConstructor
-public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommandHandler> {
+public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommand> {
 
     private final Plugin plugin;
     private final Injector injector;
@@ -19,14 +19,14 @@ public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommand
     }
 
     @Override
-    public void addCommand(@NonNull Class<BukkitCommandHandler> bukkitCommandPlatformClass) {
-        this.addCommand(this.injector.createInstance(bukkitCommandPlatformClass));
+    public void addCommand(@NonNull Class<BukkitCommand> bukkitCommandClass) {
+        this.addCommand(this.injector.createInstance(bukkitCommandClass));
     }
 
     @Override
-    public void addCommand(@NonNull BukkitCommandHandler commandHandler) {
-        commandHandler.setPlugin(this.plugin);
-        commandHandler.setInjector(this.injector);
+    public void addCommand(@NonNull BukkitCommand command) {
+        command.setPlugin(this.plugin);
+        command.setInjector(this.injector);
 
         SimpleCommandMap simpleCommandMap = BukkitCommandReflection.getSimpleCommandMap(this.plugin.getServer());
 
@@ -34,6 +34,6 @@ public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommand
             throw new CommandException("SimpleCommandMap not found by reflection.");
         }
 
-        simpleCommandMap.register(this.plugin.getDescription().getName(), commandHandler);
+        simpleCommandMap.register(this.plugin.getDescription().getName(), command);
     }
 }
