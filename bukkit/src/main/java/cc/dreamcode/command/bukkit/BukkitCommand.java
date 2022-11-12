@@ -113,4 +113,8 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
         this.argumentHandlers.add(argumentClass);
     }
 
+    public <T> T createInstance(@NonNull Class<T> type) {
+        return this.injector.createInstance(type);
+    }
+
 }

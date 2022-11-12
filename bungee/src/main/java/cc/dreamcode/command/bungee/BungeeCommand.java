@@ -104,6 +104,10 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
         this.argumentHandlers.add(argumentClass);
     }
 
+    public <T> T createInstance(@NonNull Class<T> type) {
+        return this.injector.createInstance(type);
+    }
+
     @Override
     protected void setPermissionMessage(String permissionMessage) {
         this.setNoPermissionMessage(permissionMessage);
