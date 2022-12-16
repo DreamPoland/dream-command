@@ -4,6 +4,8 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
+import cc.dreamcode.notice.NoticeType;
+import cc.dreamcode.notice.bukkit.BukkitNotice;
 import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
@@ -24,8 +26,8 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
     @Setter private Plugin plugin;
     @Setter private Injector injector;
-    @Getter @Setter private String noPermissionMessage;
-    @Getter @Setter private String notPlayerMessage;
+    @Getter @Setter private BukkitNotice noPermissionMessage;
+    @Getter @Setter private BukkitNotice noPlayerMessage;
     private final List<Class<? extends BukkitArgument>> argumentHandlers = new ArrayList<>();
 
     public BukkitCommand(@NonNull String name, String... aliases) {
@@ -50,7 +52,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
                     ? "rpl." + this.getName()
                     : requiredPermission.permission())) {
                 if (this.noPermissionMessage == null) {
-                    throw new CommandException("Permission message in command " + this.getName() + " is not provided.");
+                    throw new CommandException(new BukkitNotice(NoticeType.CHAT, "Permission message in command " + this.getName() + " is not provided."));
                 }
 
                 throw new CommandException(this.noPermissionMessage);
@@ -58,11 +60,11 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
             RequiredPlayer requiredPlayer = commandPlatform.getClass().getAnnotation(RequiredPlayer.class);
             if (requiredPlayer != null && !(sender instanceof Player)) {
-                if (this.notPlayerMessage == null) {
-                    throw new CommandException("Not player message in command " + this.getName() + " is not provided.");
+                if (this.noPlayerMessage == null) {
+                    throw new CommandException(new BukkitNotice(NoticeType.CHAT, "Not player message in command " + this.getName() + " is not provided."));
                 }
 
-                throw new CommandException(this.notPlayerMessage);
+                throw new CommandException(this.noPlayerMessage);
             }
 
             commandPlatform.content(sender, arguments);
