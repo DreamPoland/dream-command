@@ -10,7 +10,6 @@ import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginIdentifiableCommand;
@@ -22,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@SuppressWarnings("unchecked")
 public abstract class BukkitCommand extends Command implements PluginIdentifiableCommand, DreamCommand<CommandSender, Player> {
 
     @Setter private Plugin plugin;
@@ -70,7 +70,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             commandPlatform.content(sender, arguments);
         }
         catch (CommandException e) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', e.getMessage()));
+            e.getNotice().send(sender);
         }
         return true;
     }

@@ -11,9 +11,7 @@ import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
@@ -22,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@SuppressWarnings("unchecked")
 public abstract class BungeeCommand extends Command implements TabExecutor, DreamCommand<CommandSender, ProxiedPlayer> {
 
     @Setter private Injector injector;
@@ -61,7 +60,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
             commandPlatform.content(sender, arguments);
         }
         catch (CommandException e) {
-            sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', e.getMessage())));
+            e.getNotice().send(sender);
         }
     }
 
