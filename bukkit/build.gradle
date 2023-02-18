@@ -5,11 +5,11 @@ dependencies {
 
     implementation 'eu.okaeri:okaeri-injector:2.1.0'
 
-    implementation "cc.dreamcode.notice:core:1.2.1"
-    implementation "cc.dreamcode.notice:bukkit:1.2.1"
+    implementation "cc.dreamcode.notice:core:1.2.2"
+    implementation "cc.dreamcode.notice:bukkit:1.2.2"
 
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.24'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testCompileOnly 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
 }
