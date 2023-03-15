@@ -5,8 +5,8 @@ dependencies {
 
     implementation 'eu.okaeri:okaeri-injector:2.1.0'
 
-    implementation "cc.dreamcode.notice:core:1.2.2"
-    implementation "cc.dreamcode.notice:bukkit:1.2.2"
+    implementation "cc.dreamcode.notice:core:1.2.3"
+    implementation "cc.dreamcode.notice:bukkit:1.2.3"
 
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
