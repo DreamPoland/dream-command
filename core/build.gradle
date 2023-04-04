@@ -1,5 +1,5 @@
 dependencies {
-    implementation "cc.dreamcode.notice:core:1.2.3"
+    implementation "cc.dreamcode.notice:core:1.2.5"
 
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'

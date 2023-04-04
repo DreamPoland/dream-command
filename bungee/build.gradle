@@ -1,3 +1,8 @@
+repositories {
+    maven { url "https://repo.codemc.io/repository/nms" }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
 dependencies {
     implementation project(":core")
 
@@ -5,8 +10,8 @@ dependencies {
 
     implementation 'eu.okaeri:okaeri-injector:2.1.0'
 
-    implementation "cc.dreamcode.notice:core:1.2.3"
-    implementation "cc.dreamcode.notice:bungee:1.2.3"
+    implementation "cc.dreamcode.notice:core:1.2.5"
+    implementation "cc.dreamcode.notice:bungee:1.2.5"
 
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
