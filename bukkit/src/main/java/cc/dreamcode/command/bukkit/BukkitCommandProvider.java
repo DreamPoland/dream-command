@@ -15,8 +15,8 @@ public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommand
     private final Plugin plugin;
     private final Injector injector;
 
-    @Setter private BukkitNotice noPermissionMessage;
-    @Setter private BukkitNotice noPlayerMessage;
+    @Setter private BukkitNotice requiredPermissionMessage;
+    @Setter private BukkitNotice requiredPlayerMessage;
 
     public static BukkitCommandProvider create(@NonNull Plugin plugin, @NonNull Injector injector) {
         return new BukkitCommandProvider(plugin, injector);
@@ -32,12 +32,12 @@ public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommand
         command.setPlugin(this.plugin);
         command.setInjector(this.injector);
 
-        if (this.noPermissionMessage != null) {
-            command.setNoPermissionMessage(this.noPermissionMessage);
+        if (this.requiredPermissionMessage != null) {
+            command.setRequiredPermissionMessage(this.requiredPermissionMessage);
         }
 
-        if (this.noPlayerMessage != null) {
-            command.setNoPlayerMessage(this.noPlayerMessage);
+        if (this.requiredPlayerMessage != null) {
+            command.setRequiredPlayerMessage(this.requiredPlayerMessage);
         }
 
         SimpleCommandMap simpleCommandMap = BukkitCommandReflection.getSimpleCommandMap(this.plugin.getServer());

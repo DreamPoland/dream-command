@@ -8,7 +8,7 @@ public interface DreamCommandProvider<P, N> {
 
     void addCommand(@NonNull P p);
 
-    void setNoPermissionMessage(@NonNull N notice);
+    void setRequiredPermissionMessage(@NonNull N notice);
 
-    void setNoPlayerMessage(@NonNull N notice);
+    void setRequiredPlayerMessage(@NonNull N notice);
 }

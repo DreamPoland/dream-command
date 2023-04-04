@@ -14,8 +14,8 @@ public class BungeeCommandProvider implements DreamCommandProvider<BungeeCommand
     private final Plugin plugin;
     private final Injector injector;
 
-    @Setter private BungeeNotice noPermissionMessage;
-    @Setter private BungeeNotice noPlayerMessage;
+    @Setter private BungeeNotice requiredPermissionMessage;
+    @Setter private BungeeNotice requiredPlayerMessage;
 
     public static BungeeCommandProvider create(@NonNull Plugin plugin, @NonNull Injector injector) {
         return new BungeeCommandProvider(plugin, injector);
@@ -30,12 +30,12 @@ public class BungeeCommandProvider implements DreamCommandProvider<BungeeCommand
     public void addCommand(@NonNull BungeeCommand bungeeCommand) {
         bungeeCommand.setInjector(this.injector);
 
-        if (this.noPermissionMessage != null) {
-            bungeeCommand.setNoPermissionMessage(this.noPermissionMessage);
+        if (this.requiredPermissionMessage != null) {
+            bungeeCommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
         }
 
-        if (this.noPlayerMessage != null) {
-            bungeeCommand.setNoPlayerMessage(this.noPlayerMessage);
+        if (this.requiredPlayerMessage != null) {
+            bungeeCommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
         }
 
         this.plugin.getProxy().getPluginManager().registerCommand(this.plugin, bungeeCommand);

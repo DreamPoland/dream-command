@@ -1,7 +1,6 @@
 package cc.dreamcode.command.bungee;
 
 import cc.dreamcode.command.CommandException;
-import cc.dreamcode.command.DreamArgument;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
@@ -18,16 +17,13 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("unchecked")
-public abstract class BungeeCommand extends Command implements TabExecutor, DreamCommand<CommandSender, ProxiedPlayer> {
+public abstract class BungeeCommand extends Command implements TabExecutor, DreamCommand<CommandSender> {
 
     @Setter private Injector injector;
-    @Getter @Setter private BungeeNotice noPermissionMessage;
-    @Getter @Setter private BungeeNotice noPlayerMessage;
-
-    private final List<Class<? extends DreamArgument<CommandSender, ProxiedPlayer>>> argumentHandlers = new ArrayList<>();
+    @Getter @Setter private BungeeNotice requiredPermissionMessage;
+    @Getter @Setter private BungeeNotice requiredPlayerMessage;
 
     public BungeeCommand(@NonNull String name, String... aliases) {
         super(name, null, aliases);
@@ -35,29 +31,28 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
 
     @Override
     public void execute(CommandSender sender, String[] arguments) {
-        final DreamCommand<CommandSender, ProxiedPlayer> commandPlatform = this.getCommandMethods(arguments);
         try {
-            RequiredPermission requiredPermission = commandPlatform.getClass().getAnnotation(RequiredPermission.class);
+            RequiredPermission requiredPermission = this.getClass().getAnnotation(RequiredPermission.class);
             if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
-                    ? "rpl." + this.getName()
+                    ? "dream." + this.getName()
                     : requiredPermission.permission())) {
-                if (this.noPermissionMessage == null) {
+                if (this.requiredPermissionMessage == null) {
                     throw new CommandException(new BungeeNotice(NoticeType.CHAT, "Permission message in command " + this.getName() + " is not provided."));
                 }
 
-                throw new CommandException(this.noPermissionMessage);
+                throw new CommandException(this.requiredPermissionMessage);
             }
 
-            RequiredPlayer requiredPlayer = commandPlatform.getClass().getAnnotation(RequiredPlayer.class);
+            RequiredPlayer requiredPlayer = this.getClass().getAnnotation(RequiredPlayer.class);
             if (requiredPlayer != null && !(sender instanceof ProxiedPlayer)) {
-                if (this.noPlayerMessage == null) {
+                if (this.requiredPlayerMessage == null) {
                     throw new CommandException(new BungeeNotice(NoticeType.CHAT, "Not player message in command " + this.getName() + " is not provided."));
                 }
 
-                throw new CommandException(this.noPlayerMessage);
+                throw new CommandException(this.requiredPlayerMessage);
             }
 
-            commandPlatform.content(sender, arguments);
+            this.content(sender, arguments);
         }
         catch (CommandException e) {
             e.getNotice().send(sender);
@@ -66,43 +61,21 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        final List<String> completions = new ArrayList<>();
-        final List<String> commandCompletions = this.getCommandMethods(args).tab((ProxiedPlayer) sender, args);
-        if (commandCompletions != null) {
-            completions.addAll(commandCompletions);
+        List<String> tabCompletions = this.tab(sender, args);
+
+        if (tabCompletions == null ||
+                tabCompletions.isEmpty()) {
+            return new ArrayList<>();
         }
 
-        this.argumentHandlers
-                .stream()
-                .map(this.injector::createInstance)
-                .filter(argumentHandler -> args.length == argumentHandler.getArg())
-                .forEach(argumentHandler -> {
-                    RequiredPermission requiredPermission = argumentHandler.getClass().getAnnotation(RequiredPermission.class);
-                    if (requiredPermission == null || !sender.hasPermission(requiredPermission.permission())) {
-                        return;
-                    }
+        RequiredPermission requiredPermission = this.getClass().getAnnotation(RequiredPermission.class);
+        if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
+                ? "dream." + this.getName()
+                : requiredPermission.permission())) {
+            return new ArrayList<>();
+        }
 
-                    completions.add(argumentHandler.getName());
-                });
-
-        return completions;
-    }
-
-    private DreamCommand<CommandSender, ProxiedPlayer> getCommandMethods(@NonNull String[] args) {
-        final AtomicReference<DreamCommand<CommandSender, ProxiedPlayer>> commandMethodsReference = new AtomicReference<>(this);
-        this.argumentHandlers
-                .stream()
-                .map(this.injector::createInstance)
-                .filter(argumentHandler -> args.length >= argumentHandler.getArg() &&
-                        args[argumentHandler.getArg() - 1].equalsIgnoreCase(argumentHandler.getName()))
-                .findFirst()
-                .ifPresent(commandMethodsReference::set);
-
-        return commandMethodsReference.get();
-    }
-
-    public void addArgument(@NonNull Class<? extends DreamArgument<CommandSender, ProxiedPlayer>> argumentClass) {
-        this.argumentHandlers.add(argumentClass);
+        return tabCompletions;
     }
 
     public <T> T createInstance(@NonNull Class<T> type) {
@@ -111,6 +84,6 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
 
     @Override
     protected void setPermissionMessage(String permissionMessage) {
-        this.setNoPermissionMessage(new BungeeNotice(NoticeType.CHAT, permissionMessage));
+        this.setRequiredPermissionMessage(new BungeeNotice(NoticeType.CHAT, permissionMessage));
     }
 }
