@@ -4,8 +4,6 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
-import cc.dreamcode.notice.NoticeType;
-import cc.dreamcode.notice.bukkit.BukkitNotice;
 import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
@@ -20,13 +18,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 public abstract class BukkitCommand extends Command implements PluginIdentifiableCommand, DreamCommand<CommandSender> {
 
     @Setter private Plugin plugin;
     @Setter private Injector injector;
-    @Getter @Setter private BukkitNotice requiredPermissionMessage;
-    @Getter @Setter private BukkitNotice requiredPlayerMessage;
+    @Getter @Setter private String requiredPermissionMessage;
+    @Getter @Setter private String requiredPlayerMessage;
 
     public BukkitCommand(@NonNull String name, String... aliases) {
         super(name);
@@ -49,7 +46,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
                     ? "dream." + this.getName()
                     : requiredPermission.permission())) {
                 if (this.requiredPermissionMessage == null) {
-                    throw new CommandException(new BukkitNotice(NoticeType.CHAT, "Permission message in command " + this.getName() + " is not provided."));
+                    return false;
                 }
 
                 throw new CommandException(this.requiredPermissionMessage);
@@ -58,7 +55,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             RequiredPlayer requiredPlayer = this.getClass().getAnnotation(RequiredPlayer.class);
             if (requiredPlayer != null && !(sender instanceof Player)) {
                 if (this.requiredPlayerMessage == null) {
-                    throw new CommandException(new BukkitNotice(NoticeType.CHAT, "Not player message in command " + this.getName() + " is not provided."));
+                    return false;
                 }
 
                 throw new CommandException(this.requiredPlayerMessage);
@@ -68,7 +65,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             return true;
         }
         catch (CommandException e) {
-            e.getNotice().send(sender);
+            sender.sendMessage(e.getNotice());
             return false;
         }
     }

@@ -1,7 +1,6 @@
 package cc.dreamcode.command.bukkit;
 
 import cc.dreamcode.command.DreamCommandProvider;
-import cc.dreamcode.notice.bukkit.BukkitNotice;
 import eu.okaeri.injector.Injector;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +9,13 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 
 @RequiredArgsConstructor
-public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommand, BukkitNotice> {
+public class BukkitCommandProvider implements DreamCommandProvider<BukkitCommand> {
 
     private final Plugin plugin;
     private final Injector injector;
 
-    @Setter private BukkitNotice requiredPermissionMessage;
-    @Setter private BukkitNotice requiredPlayerMessage;
+    @Setter private String requiredPermissionMessage;
+    @Setter private String requiredPlayerMessage;
 
     public static BukkitCommandProvider create(@NonNull Plugin plugin, @NonNull Injector injector) {
         return new BukkitCommandProvider(plugin, injector);

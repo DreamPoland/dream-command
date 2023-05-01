@@ -1,5 +1,5 @@
 rootProject.name = 'dream-command'
 
-include 'core'
-include 'bukkit'
-include 'bungee'
+include ':core'
+include ':bukkit'
+include ':bungee'

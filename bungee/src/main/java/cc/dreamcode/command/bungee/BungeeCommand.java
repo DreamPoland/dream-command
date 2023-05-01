@@ -4,8 +4,6 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
-import cc.dreamcode.notice.NoticeType;
-import cc.dreamcode.notice.bungee.BungeeNotice;
 import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
@@ -18,12 +16,11 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 public abstract class BungeeCommand extends Command implements TabExecutor, DreamCommand<CommandSender> {
 
     @Setter private Injector injector;
-    @Getter @Setter private BungeeNotice requiredPermissionMessage;
-    @Getter @Setter private BungeeNotice requiredPlayerMessage;
+    @Getter @Setter private String requiredPermissionMessage;
+    @Getter @Setter private String requiredPlayerMessage;
 
     public BungeeCommand(@NonNull String name, String... aliases) {
         super(name, null, aliases);
@@ -37,7 +34,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
                     ? "dream." + this.getName()
                     : requiredPermission.permission())) {
                 if (this.requiredPermissionMessage == null) {
-                    throw new CommandException(new BungeeNotice(NoticeType.CHAT, "Permission message in command " + this.getName() + " is not provided."));
+                    return;
                 }
 
                 throw new CommandException(this.requiredPermissionMessage);
@@ -46,7 +43,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
             RequiredPlayer requiredPlayer = this.getClass().getAnnotation(RequiredPlayer.class);
             if (requiredPlayer != null && !(sender instanceof ProxiedPlayer)) {
                 if (this.requiredPlayerMessage == null) {
-                    throw new CommandException(new BungeeNotice(NoticeType.CHAT, "Not player message in command " + this.getName() + " is not provided."));
+                    return;
                 }
 
                 throw new CommandException(this.requiredPlayerMessage);
@@ -55,7 +52,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
             this.content(sender, arguments);
         }
         catch (CommandException e) {
-            e.getNotice().send(sender);
+            sender.sendMessage(e.getNotice());
         }
     }
 
@@ -82,8 +79,9 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
         return this.injector.createInstance(type);
     }
 
+    @Deprecated
     @Override
     protected void setPermissionMessage(String permissionMessage) {
-        this.setRequiredPermissionMessage(new BungeeNotice(NoticeType.CHAT, permissionMessage));
+        // empty
     }
 }

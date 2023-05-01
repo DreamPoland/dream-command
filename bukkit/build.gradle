@@ -6,12 +6,11 @@ repositories {
 dependencies {
     implementation project(":core")
 
+    // -- spigot api -- (base)
     compileOnly 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
 
+    // -- injector --
     implementation 'eu.okaeri:okaeri-injector:2.1.0'
-
-    implementation "cc.dreamcode.notice:core:1.2.5"
-    implementation "cc.dreamcode.notice:bukkit:1.2.5"
 
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'

@@ -2,13 +2,13 @@ package cc.dreamcode.command;
 
 import lombok.NonNull;
 
-public interface DreamCommandProvider<P, N> {
+public interface DreamCommandProvider<P> {
 
     void addCommand(@NonNull Class<P> pClass);
 
     void addCommand(@NonNull P p);
 
-    void setRequiredPermissionMessage(@NonNull N notice);
+    void setRequiredPermissionMessage(@NonNull String notice);
 
-    void setRequiredPlayerMessage(@NonNull N notice);
+    void setRequiredPlayerMessage(@NonNull String notice);
 }
