@@ -4,11 +4,14 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
+import cc.dreamcode.utilities.builder.MapBuilder;
+import cc.dreamcode.utilities.bungee.ChatUtil;
 import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
@@ -37,7 +40,11 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
                     return;
                 }
 
-                throw new CommandException(this.requiredPermissionMessage);
+                throw new CommandException(ChatUtil.fixColor(this.requiredPermissionMessage, new MapBuilder<String, Object>()
+                        .put("permission", requiredPermission.permission().equals("")
+                                ? "dream." + this.getName()
+                                : requiredPermission.permission())
+                        .build()));
             }
 
             RequiredPlayer requiredPlayer = this.getClass().getAnnotation(RequiredPlayer.class);
@@ -46,13 +53,13 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
                     return;
                 }
 
-                throw new CommandException(this.requiredPlayerMessage);
+                throw new CommandException(ChatUtil.fixColor(this.requiredPlayerMessage));
             }
 
             this.content(sender, arguments);
         }
         catch (CommandException e) {
-            sender.sendMessage(e.getNotice());
+            sender.sendMessage(new TextComponent(e.getNotice()));
         }
     }
 

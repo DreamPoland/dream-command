@@ -4,6 +4,8 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
+import cc.dreamcode.utilities.builder.MapBuilder;
+import cc.dreamcode.utilities.bukkit.ChatUtil;
 import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
@@ -49,7 +51,11 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
                     return false;
                 }
 
-                throw new CommandException(this.requiredPermissionMessage);
+                throw new CommandException(ChatUtil.fixColor(this.requiredPermissionMessage, new MapBuilder<String, Object>()
+                        .put("permission", requiredPermission.permission().equals("")
+                                ? "dream." + this.getName()
+                                : requiredPermission.permission())
+                        .build()));
             }
 
             RequiredPlayer requiredPlayer = this.getClass().getAnnotation(RequiredPlayer.class);
@@ -58,7 +64,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
                     return false;
                 }
 
-                throw new CommandException(this.requiredPlayerMessage);
+                throw new CommandException(ChatUtil.fixColor(this.requiredPlayerMessage));
             }
 
             this.content(sender, arguments);
