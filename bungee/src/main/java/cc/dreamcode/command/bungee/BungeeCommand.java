@@ -4,6 +4,7 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
+import cc.dreamcode.utilities.builder.ListBuilder;
 import cc.dreamcode.utilities.builder.MapBuilder;
 import cc.dreamcode.utilities.bungee.ChatUtil;
 import eu.okaeri.injector.Injector;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public abstract class BungeeCommand extends Command implements TabExecutor, DreamCommand<CommandSender> {
 
@@ -27,6 +29,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
     @Getter @Setter private String requiredPermissionMessage;
     @Getter @Setter private String requiredPlayerMessage;
 
+    @Setter private boolean applySubcommandsToTabCompleter = false;
     private final List<BungeeCommand> subcommands = new ArrayList<>();
     private final List<Class<? extends BungeeCommand>> subcommandClasses = new ArrayList<>();
 
@@ -111,7 +114,16 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
             }
         }
 
-        final List<String> tabCompletions = this.tab(sender, args);
+        final List<String> tabCompletions = new ListBuilder<String>()
+                .addAll(this.tab(sender, args))
+                .addAll(this.applySubcommandsToTabCompleter && args.length == 1
+                        ? this.subcommands.stream()
+                                .map(Command::getName)
+                                .filter(name -> name.startsWith(args[0]))
+                                .collect(Collectors.toList())
+                        : new ArrayList<>())
+                .build();
+
         if (tabCompletions == null ||
                 tabCompletions.isEmpty()) {
             return new ArrayList<>();
