@@ -28,6 +28,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
     @Getter @Setter private String requiredPlayerMessage;
 
     private final List<BungeeCommand> subcommands = new ArrayList<>();
+    private final List<Class<? extends BungeeCommand>> subcommandClasses = new ArrayList<>();
 
     public BungeeCommand(@NonNull String name, String... aliases) {
         super(name, null, aliases);
@@ -35,6 +36,8 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
 
     @Override
     public void execute(CommandSender sender, String[] arguments) {
+        this.buildSubcommands();
+
         try {
             RequiredPermission requiredPermission = this.getClass().getAnnotation(RequiredPermission.class);
             if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
@@ -88,7 +91,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        List<String> tabCompletions = this.tab(sender, args);
+        this.buildSubcommands();
 
         if (args.length > 0) {
             final Optional<BungeeCommand> optionalSubcommand = this.subcommands
@@ -108,7 +111,7 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
             }
         }
 
-
+        final List<String> tabCompletions = this.tab(sender, args);
         if (tabCompletions == null ||
                 tabCompletions.isEmpty()) {
             return new ArrayList<>();
@@ -125,23 +128,39 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
     }
 
     public <T> T createInstance(@NonNull Class<T> type) {
+        if (this.injector == null) {
+            throw new RuntimeException("Injector cannot be null");
+        }
+
         return this.injector.createInstance(type);
     }
 
     public void registerSubcommand(@NonNull Class<? extends BungeeCommand> subcommandClass) {
-        final BungeeCommand subcommand = this.createInstance(subcommandClass);
-        subcommand.setInjector(this.injector);
-
-        if (this.requiredPermissionMessage != null) {
-            subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
-        }
-
-        if (this.requiredPlayerMessage != null) {
-            subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
-        }
-
-        this.subcommands.add(subcommand);
+        this.subcommandClasses.add(subcommandClass);
     }
+
+    private void buildSubcommands() {
+        if (this.subcommands.size() == this.subcommandClasses.size()) {
+            return;
+        }
+
+        this.subcommands.clear();
+        this.subcommandClasses.forEach(subclass -> {
+            final BungeeCommand subcommand = this.createInstance(subclass);
+            subcommand.setInjector(this.injector);
+
+            if (this.requiredPermissionMessage != null) {
+                subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
+            }
+
+            if (this.requiredPlayerMessage != null) {
+                subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
+            }
+
+            this.subcommands.add(subcommand);
+        });
+    }
+
 
     @Deprecated
     @Override

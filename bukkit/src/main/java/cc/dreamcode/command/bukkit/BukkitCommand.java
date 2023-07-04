@@ -29,6 +29,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     @Getter @Setter private String requiredPlayerMessage;
 
     private final List<BukkitCommand> subcommands = new ArrayList<>();
+    private final List<Class<? extends BukkitCommand>> subcommandClasses = new ArrayList<>();
 
     public BukkitCommand(@NonNull String name, String... aliases) {
         super(name);
@@ -45,6 +46,8 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
     @Override
     public boolean execute(@NonNull CommandSender sender, @NonNull String commandLabel, @NonNull String[] arguments) {
+        this.buildSubcommands();
+
         try {
             RequiredPermission requiredPermission = this.getClass().getAnnotation(RequiredPermission.class);
             if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
@@ -100,7 +103,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     }
 
     public @NonNull List<String> tabComplete(@NonNull CommandSender sender, @NonNull String label, @NonNull String[] args) {
-        List<String> tabCompletions = this.tab(sender, args);
+        this.buildSubcommands();
 
         if (args.length > 0) {
             final Optional<BukkitCommand> optionalSubcommand = this.subcommands
@@ -121,6 +124,7 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             }
         }
 
+        final List<String> tabCompletions = this.tab(sender, args);
         if (tabCompletions == null ||
                 tabCompletions.isEmpty()) {
             return new ArrayList<>();
@@ -137,23 +141,38 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     }
 
     public <T> T createInstance(@NonNull Class<T> type) {
+        if (this.injector == null) {
+            throw new RuntimeException("Injector cannot be null");
+        }
+
         return this.injector.createInstance(type);
     }
 
     public void registerSubcommand(@NonNull Class<? extends BukkitCommand> subcommandClass) {
-        final BukkitCommand subcommand = this.createInstance(subcommandClass);
-        subcommand.setPlugin(this.plugin);
-        subcommand.setInjector(this.injector);
+        this.subcommandClasses.add(subcommandClass);
+    }
 
-        if (this.requiredPermissionMessage != null) {
-            subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
+    private void buildSubcommands() {
+        if (this.subcommands.size() == this.subcommandClasses.size()) {
+            return;
         }
 
-        if (this.requiredPlayerMessage != null) {
-            subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
-        }
+        this.subcommands.clear();
+        this.subcommandClasses.forEach(subclass -> {
+            final BukkitCommand subcommand = this.createInstance(subclass);
+            subcommand.setPlugin(this.plugin);
+            subcommand.setInjector(this.injector);
 
-        this.subcommands.add(subcommand);
+            if (this.requiredPermissionMessage != null) {
+                subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
+            }
+
+            if (this.requiredPlayerMessage != null) {
+                subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
+            }
+
+            this.subcommands.add(subcommand);
+        });
     }
 
 }
