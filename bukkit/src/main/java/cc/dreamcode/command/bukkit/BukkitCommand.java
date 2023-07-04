@@ -142,6 +142,17 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
     public void registerSubcommand(@NonNull Class<? extends BukkitCommand> subcommandClass) {
         final BukkitCommand subcommand = this.createInstance(subcommandClass);
+        subcommand.setPlugin(this.plugin);
+        subcommand.setInjector(this.injector);
+
+        if (this.requiredPermissionMessage != null) {
+            subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
+        }
+
+        if (this.requiredPlayerMessage != null) {
+            subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
+        }
+
         this.subcommands.add(subcommand);
     }
 

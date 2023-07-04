@@ -130,6 +130,16 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
 
     public void registerSubcommand(@NonNull Class<? extends BungeeCommand> subcommandClass) {
         final BungeeCommand subcommand = this.createInstance(subcommandClass);
+        subcommand.setInjector(this.injector);
+
+        if (this.requiredPermissionMessage != null) {
+            subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
+        }
+
+        if (this.requiredPlayerMessage != null) {
+            subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
+        }
+
         this.subcommands.add(subcommand);
     }
 
