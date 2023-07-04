@@ -4,6 +4,7 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
+import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import cc.dreamcode.utilities.builder.MapBuilder;
 import cc.dreamcode.utilities.bukkit.ChatUtil;
@@ -30,7 +31,9 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     @Getter @Setter private String requiredPermissionMessage;
     @Getter @Setter private String requiredPlayerMessage;
 
-    @Setter private boolean applySubcommandsToTabCompleter = false;
+    @Setter private boolean applySubcommandsToTabCompleter = true;
+    @Setter private boolean applyTabStartWithFilter = true;
+
     private final List<BukkitCommand> subcommands = new ArrayList<>();
     private final List<Class<? extends BukkitCommand>> subcommandClasses = new ArrayList<>();
 
@@ -158,7 +161,10 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             return new ArrayList<>();
         }
 
-        return tabCompletions;
+        final String joinArgs = StringUtil.join(args, " ");
+        return tabCompletions.stream()
+                .filter(text -> !this.applyTabStartWithFilter || text.startsWith(joinArgs))
+                .collect(Collectors.toList());
     }
 
     public <T> T createInstance(@NonNull Class<T> type) {
