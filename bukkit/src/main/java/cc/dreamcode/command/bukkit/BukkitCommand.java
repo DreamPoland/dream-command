@@ -19,6 +19,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BukkitCommand extends Command implements PluginIdentifiableCommand, DreamCommand<CommandSender> {
 
@@ -26,6 +27,8 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     @Setter private Injector injector;
     @Getter @Setter private String requiredPermissionMessage;
     @Getter @Setter private String requiredPlayerMessage;
+
+    private final List<BukkitCommand> subcommands = new ArrayList<>();
 
     public BukkitCommand(@NonNull String name, String... aliases) {
         super(name);
@@ -67,6 +70,26 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
                 throw new CommandException(ChatUtil.fixColor(this.requiredPlayerMessage));
             }
 
+            if (arguments.length > 0) {
+                final Optional<BukkitCommand> optionalSubcommand = this.subcommands
+                        .stream()
+                        .filter(bukkitCommand -> bukkitCommand.getName().equalsIgnoreCase(arguments[0]) ||
+                                bukkitCommand.getAliases()
+                                        .stream()
+                                        .anyMatch(alias -> alias.equalsIgnoreCase(arguments[0])))
+                        .findAny();
+
+                if (optionalSubcommand.isPresent()) {
+                    final BukkitCommand bukkitCommand = optionalSubcommand.get();
+
+                    final String[] subArguments = new String[arguments.length - 1];
+                    System.arraycopy(arguments, 1, subArguments, 0, arguments.length - 1);
+
+                    bukkitCommand.execute(sender, commandLabel, subArguments);
+                    return true;
+                }
+            }
+
             this.content(sender, arguments);
             return true;
         }
@@ -78,6 +101,25 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
     public @NonNull List<String> tabComplete(@NonNull CommandSender sender, @NonNull String label, @NonNull String[] args) {
         List<String> tabCompletions = this.tab(sender, args);
+
+        if (args.length > 0) {
+            final Optional<BukkitCommand> optionalSubcommand = this.subcommands
+                    .stream()
+                    .filter(bukkitCommand -> bukkitCommand.getName().equalsIgnoreCase(args[0]) ||
+                            bukkitCommand.getAliases()
+                                    .stream()
+                                    .anyMatch(alias -> alias.equalsIgnoreCase(args[0])))
+                    .findAny();
+
+            if (optionalSubcommand.isPresent()) {
+                final BukkitCommand bukkitCommand = optionalSubcommand.get();
+
+                final String[] subArguments = new String[args.length - 1];
+                System.arraycopy(args, 1, subArguments, 0, args.length - 1);
+
+                return bukkitCommand.tabComplete(sender, label, subArguments);
+            }
+        }
 
         if (tabCompletions == null ||
                 tabCompletions.isEmpty()) {
@@ -96,6 +138,11 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
     public <T> T createInstance(@NonNull Class<T> type) {
         return this.injector.createInstance(type);
+    }
+
+    public void registerSubcommand(@NonNull Class<? extends BukkitCommand> subcommandClass) {
+        final BukkitCommand subcommand = this.createInstance(subcommandClass);
+        this.subcommands.add(subcommand);
     }
 
 }

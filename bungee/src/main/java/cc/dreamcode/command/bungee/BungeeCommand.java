@@ -17,13 +17,17 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BungeeCommand extends Command implements TabExecutor, DreamCommand<CommandSender> {
 
     @Setter private Injector injector;
     @Getter @Setter private String requiredPermissionMessage;
     @Getter @Setter private String requiredPlayerMessage;
+
+    private final List<BungeeCommand> subcommands = new ArrayList<>();
 
     public BungeeCommand(@NonNull String name, String... aliases) {
         super(name, null, aliases);
@@ -56,6 +60,25 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
                 throw new CommandException(ChatUtil.fixColor(this.requiredPlayerMessage));
             }
 
+            if (arguments.length > 0) {
+                final Optional<BungeeCommand> optionalSubcommand = this.subcommands
+                        .stream()
+                        .filter(bungeeCommand -> bungeeCommand.getName().equalsIgnoreCase(arguments[0]) ||
+                                Arrays.stream(bungeeCommand.getAliases())
+                                        .anyMatch(alias -> alias.equalsIgnoreCase(arguments[0])))
+                        .findAny();
+
+                if (optionalSubcommand.isPresent()) {
+                    final BungeeCommand bungeeCommand = optionalSubcommand.get();
+
+                    final String[] subArguments = new String[arguments.length - 1];
+                    System.arraycopy(arguments, 1, subArguments, 0, arguments.length - 1);
+
+                    bungeeCommand.execute(sender, subArguments);
+                    return;
+                }
+            }
+
             this.content(sender, arguments);
         }
         catch (CommandException e) {
@@ -66,6 +89,25 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         List<String> tabCompletions = this.tab(sender, args);
+
+        if (args.length > 0) {
+            final Optional<BungeeCommand> optionalSubcommand = this.subcommands
+                    .stream()
+                    .filter(bungeeCommand -> bungeeCommand.getName().equalsIgnoreCase(args[0]) ||
+                            Arrays.stream(bungeeCommand.getAliases())
+                                    .anyMatch(alias -> alias.equalsIgnoreCase(args[0])))
+                    .findAny();
+
+            if (optionalSubcommand.isPresent()) {
+                final BungeeCommand bungeeCommand = optionalSubcommand.get();
+
+                final String[] subArguments = new String[args.length - 1];
+                System.arraycopy(args, 1, subArguments, 0, args.length - 1);
+
+                return bungeeCommand.onTabComplete(sender, subArguments);
+            }
+        }
+
 
         if (tabCompletions == null ||
                 tabCompletions.isEmpty()) {
@@ -86,9 +128,14 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
         return this.injector.createInstance(type);
     }
 
+    public void registerSubcommand(@NonNull Class<? extends BungeeCommand> subcommandClass) {
+        final BungeeCommand subcommand = this.createInstance(subcommandClass);
+        this.subcommands.add(subcommand);
+    }
+
     @Deprecated
     @Override
     protected void setPermissionMessage(String permissionMessage) {
-        // empty
+        this.requiredPermissionMessage = permissionMessage;
     }
 }
