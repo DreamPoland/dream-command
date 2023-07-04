@@ -127,8 +127,11 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             }
         }
 
+        final List<String> commandTab = this.tab(sender, args);
         final List<String> tabCompletions = new ListBuilder<String>()
-                .addAll(this.tab(sender, args))
+                .addAll(commandTab != null
+                        ? commandTab
+                        : new ArrayList<>())
                 .addAll(this.applySubcommandsToTabCompleter && args.length == 1
                         ? this.subcommands.stream()
                                 .map(Command::getName)
