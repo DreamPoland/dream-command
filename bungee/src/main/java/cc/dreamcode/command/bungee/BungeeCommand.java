@@ -121,6 +121,12 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
                         : new ArrayList<>())
                 .addAll(this.applySubcommandsToTabCompleter && args.length == 1
                         ? this.subcommands.stream()
+                                .filter(bukkitCommand -> {
+                                    RequiredPermission requiredPermission = bukkitCommand.getClass().getAnnotation(RequiredPermission.class);
+                                    return requiredPermission == null || sender.hasPermission(requiredPermission.permission().equals("")
+                                            ? "dream." + this.getName()
+                                            : requiredPermission.permission());
+                                })
                                 .map(Command::getName)
                                 .filter(name -> name.startsWith(args[0]))
                                 .collect(Collectors.toList())
