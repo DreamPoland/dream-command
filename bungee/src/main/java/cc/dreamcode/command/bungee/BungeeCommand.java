@@ -131,7 +131,6 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
                                             : requiredPermission.permission());
                                 })
                                 .map(Command::getName)
-                                .filter(name -> name.startsWith(args[0]))
                                 .collect(Collectors.toList())
                         : new ArrayList<>())
                 .build();
@@ -150,7 +149,13 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
 
         final String joinArgs = StringUtil.join(args, " ");
         return tabCompletions.stream()
-                .filter(text -> !this.applyTabStartWithFilter || text.startsWith(joinArgs))
+                .filter(text -> {
+                    if (!this.applyTabStartWithFilter) {
+                        return true;
+                    }
+
+                    return text.startsWith(joinArgs);
+                })
                 .collect(Collectors.toList());
     }
 
