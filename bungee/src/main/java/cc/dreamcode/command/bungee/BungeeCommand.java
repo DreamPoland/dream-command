@@ -4,7 +4,6 @@ import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
-import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import cc.dreamcode.utilities.builder.MapBuilder;
 import cc.dreamcode.utilities.bungee.ChatUtil;
@@ -147,14 +146,13 @@ public abstract class BungeeCommand extends Command implements TabExecutor, Drea
             return new ArrayList<>();
         }
 
-        final String joinArgs = StringUtil.join(args, " ");
         return tabCompletions.stream()
                 .filter(text -> {
                     if (!this.applyTabStartWithFilter) {
                         return true;
                     }
 
-                    return text.startsWith(joinArgs);
+                    return text.startsWith(args[args.length - 1]);
                 })
                 .collect(Collectors.toList());
     }
