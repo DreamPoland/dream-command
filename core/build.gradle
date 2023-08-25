@@ -1,0 +1,4 @@
+dependencies {
+    // -- dream-utilities --
+    implementation "cc.dreamcode:utilities:1.2.15"
+}
