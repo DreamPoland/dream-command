@@ -1,12 +1,8 @@
-package cc.dreamcode.command.registry;
+package cc.dreamcode.command;
 
-import cc.dreamcode.command.DreamCommandContext;
-import cc.dreamcode.command.DreamCommandExecutor;
 import lombok.NonNull;
 
 public interface DreamCommandRegistry {
-
-    String getBaseName();
 
     void registerCommand(@NonNull DreamCommandContext context, @NonNull DreamCommandExecutor executor);
 

@@ -1,0 +1,21 @@
+repositories {
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
+dependencies {
+    // -- command core --
+    implementation project(":core")
+
+    // -- spigot api -- (base)
+    compileOnly 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
+
+    // -- dream-utilities --
+    implementation "cc.dreamcode:utilities:1.2.15"
+    implementation "cc.dreamcode:utilities-bukkit:1.2.15"
+
+    // -- tests --
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
