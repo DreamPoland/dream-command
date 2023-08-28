@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public interface DreamCommandExecutor {
-    default void invokeMethod(@NonNull ExtensionManager extensionManager, @NonNull CommandPath commandPath) {
+    default boolean invokeMethod(@NonNull ExtensionManager extensionManager, @NonNull CommandPath commandPath) {
         for (Method declaredMethod : Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.getAnnotation(Path.class) != null)
                 .collect(Collectors.toList())) {
@@ -44,7 +44,7 @@ public interface DreamCommandExecutor {
 
             try {
                 declaredMethod.invoke(this, invokeObjects);
-                return;
+                return true;
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new CommandException("Cannot invoke path method", e);
             }
@@ -79,12 +79,11 @@ public interface DreamCommandExecutor {
                 ? usageFallback.get()
                 : usageDefaultFallback.get();
 
-        if (usageMethod != null) {
-            try {
-                usageMethod.invoke(this);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new CommandException("Cannot invoke usage method", e);
-            }
+        try {
+            usageMethod.invoke(this);
+            return false;
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new CommandException("Cannot invoke usage method", e);
         }
     }
 }

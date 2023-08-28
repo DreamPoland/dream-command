@@ -16,12 +16,14 @@ import java.util.Map;
 
 public class BukkitCommandRegistry implements DreamCommandRegistry {
 
+    private final BukkitCommand bukkitCommand;
     private final Plugin plugin;
     private final SimpleCommandMap bukkitCommandMap;
 
     private final Map<DreamCommandContext, BukkitCommandExecutorWrapper> commandMap;
 
-    public BukkitCommandRegistry(@NonNull Plugin plugin, @NonNull Server server) {
+    public BukkitCommandRegistry(@NonNull BukkitCommand bukkitCommand, @NonNull Plugin plugin, @NonNull Server server) {
+        this.bukkitCommand = bukkitCommand;
         this.plugin = plugin;
 
         final SimpleCommandMap simpleCommandMap = BukkitCommandReflection.getSimpleCommandMap(server);
@@ -46,7 +48,7 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
 
     @Override
     public void registerCommand(@NonNull DreamCommandContext context, @NonNull DreamCommandExecutor executor) {
-        final BukkitCommandExecutorWrapper wrapper = new BukkitCommandExecutorWrapper(this.plugin, context, executor);
+        final BukkitCommandExecutorWrapper wrapper = new BukkitCommandExecutorWrapper(this.plugin, context, executor, this.bukkitCommand.getExtensions());
 
         this.bukkitCommandMap.register(context.getLabel(), this.plugin.getName(), wrapper);
         this.commandMap.put(context, wrapper);

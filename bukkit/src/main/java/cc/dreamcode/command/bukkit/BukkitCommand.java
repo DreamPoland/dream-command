@@ -11,6 +11,6 @@ public class BukkitCommand extends DreamCommandImpl {
     private final BukkitCommandRegistry commandRegistry;
 
     public BukkitCommand(@NonNull Plugin plugin) {
-        this.commandRegistry = new BukkitCommandRegistry(plugin, plugin.getServer());
+        this.commandRegistry = new BukkitCommandRegistry(this, plugin, plugin.getServer());
     }
 }
