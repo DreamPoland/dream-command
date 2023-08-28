@@ -1,7 +1,6 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
-import cc.dreamcode.command.annotation.Path;
 import cc.dreamcode.command.annotation.Usage;
 import cc.dreamcode.command.exception.CommandException;
 import cc.dreamcode.command.exception.NoSuchCommandPathException;
@@ -18,15 +17,10 @@ import java.util.stream.Collectors;
 
 public interface DreamCommandExecutor {
     default boolean invokeMethod(@NonNull ExtensionManager extensionManager, @NonNull CommandPath commandPath) {
-        for (Method declaredMethod : Arrays.stream(this.getClass().getDeclaredMethods())
-                .filter(method -> method.getAnnotation(Path.class) != null)
-                .collect(Collectors.toList())) {
-
+        for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
             if (!commandPath.isValid(declaredMethod)) {
                 continue;
             }
-
-            declaredMethod.setAccessible(true);
 
             final int annotationCount = (int) AnnotationUtil.countAnnotation(declaredMethod, Arg.class);
 
