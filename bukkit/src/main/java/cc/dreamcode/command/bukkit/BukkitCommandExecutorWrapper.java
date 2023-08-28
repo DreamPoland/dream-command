@@ -1,4 +1,4 @@
-package cc.dreamcode.command.bukkit.wrapper;
+package cc.dreamcode.command.bukkit;
 
 import cc.dreamcode.command.DreamCommandContext;
 import cc.dreamcode.command.DreamCommandExecutor;

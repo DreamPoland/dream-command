@@ -5,7 +5,6 @@ import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.exception.CommandException;
 import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandRegistry;
-import cc.dreamcode.command.bukkit.wrapper.BukkitCommandExecutorWrapper;
 import lombok.NonNull;
 import org.bukkit.Server;
 import org.bukkit.command.SimpleCommandMap;
