@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(staticName = "of")
 public class DreamCommandContext {
 
-    private final String name;
+    private final String label;
     private final String description;
     private final List<String> aliases;
 

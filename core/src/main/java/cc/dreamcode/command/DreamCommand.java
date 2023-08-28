@@ -1,10 +1,10 @@
 package cc.dreamcode.command;
 
-import lombok.NonNull;
+import cc.dreamcode.command.extension.ExtensionManager;
 
 public interface DreamCommand {
 
     DreamCommandRegistry getCommandRegistry();
 
-    void registerCommand(@NonNull DreamCommandExecutor executor);
+    ExtensionManager getExtensions();
 }

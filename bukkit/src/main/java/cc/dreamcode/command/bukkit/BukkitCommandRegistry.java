@@ -1,7 +1,8 @@
 package cc.dreamcode.command.bukkit;
 
 import cc.dreamcode.command.DreamCommandContext;
-import cc.dreamcode.command.DreamCommandException;
+import cc.dreamcode.command.annotation.Command;
+import cc.dreamcode.command.exception.CommandException;
 import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandRegistry;
 import cc.dreamcode.command.bukkit.wrapper.BukkitCommandExecutorWrapper;
@@ -25,7 +26,7 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
 
         final SimpleCommandMap simpleCommandMap = BukkitCommandReflection.getSimpleCommandMap(server);
         if (simpleCommandMap == null) {
-            throw new DreamCommandException("Cannot get a simple command map from bukkit.");
+            throw new CommandException("Cannot get a simple command map from bukkit.");
         }
 
         this.bukkitCommandMap = simpleCommandMap;
@@ -33,16 +34,27 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
     }
 
     @Override
+    public void registerCommand(@NonNull DreamCommandExecutor executor) {
+        final Command command = executor.getClass().getAnnotation(Command.class);
+        if (command == null) {
+            throw new CommandException("Cannot resolve command annotation with context. If you don't want to use annotations, you can also log commands via command registry class.");
+        }
+
+        final DreamCommandContext context = DreamCommandContext.of(command);
+        this.registerCommand(context, executor);
+    }
+
+    @Override
     public void registerCommand(@NonNull DreamCommandContext context, @NonNull DreamCommandExecutor executor) {
         final BukkitCommandExecutorWrapper wrapper = new BukkitCommandExecutorWrapper(this.plugin, context, executor);
 
-        this.bukkitCommandMap.register(context.getName(), this.plugin.getName(), wrapper);
+        this.bukkitCommandMap.register(context.getLabel(), this.plugin.getName(), wrapper);
         this.commandMap.put(context, wrapper);
     }
 
     @Override
     public void disposeCommand(@NonNull DreamCommandContext context) {
-        this.bukkitCommandMap.getCommand(context.getName()).unregister(this.bukkitCommandMap);
+        this.bukkitCommandMap.getCommand(context.getLabel()).unregister(this.bukkitCommandMap);
         this.commandMap.remove(context);
     }
 

@@ -1,18 +1,14 @@
 package cc.dreamcode.command;
 
-import cc.dreamcode.command.annotation.Command;
-import lombok.NonNull;
+import cc.dreamcode.command.extension.ExtensionManager;
+import lombok.Getter;
 
+@Getter
 public abstract class DreamCommandImpl implements DreamCommand {
 
-    @Override
-    public void registerCommand(@NonNull DreamCommandExecutor executor) {
-        final Command command = executor.getClass().getAnnotation(Command.class);
-        if (command == null) {
-            throw new DreamCommandException("Cannot resolve command annotation with context. If you don't want to use annotations, you can also log commands via command registry class.");
-        }
+    private final ExtensionManager extensions;
 
-        final DreamCommandContext context = DreamCommandContext.of(command);
-        this.getCommandRegistry().registerCommand(context, executor);
+    public DreamCommandImpl() {
+        this.extensions = new ExtensionManager();
     }
 }

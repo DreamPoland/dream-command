@@ -17,7 +17,7 @@ public class BukkitCommandExecutorWrapper extends Command implements PluginIdent
     private final DreamCommandExecutor executor;
 
     public BukkitCommandExecutorWrapper(@NonNull Plugin plugin, @NonNull DreamCommandContext context, @NonNull DreamCommandExecutor executor) {
-        super(context.getName());
+        super(context.getLabel());
 
         this.plugin = plugin;
         this.context = context;

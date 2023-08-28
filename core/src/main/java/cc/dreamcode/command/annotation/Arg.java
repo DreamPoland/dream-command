@@ -5,14 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE})
+@Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Command {
+public @interface Arg {
 
-    String label();
-
-    String description() default "";
-
-    String[] aliases() default {};
-
+    String name() default "";
 }

@@ -5,14 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE})
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Command {
+public @interface Usage {
 
-    String label();
-
-    String description() default "";
-
-    String[] aliases() default {};
-
+    /**
+     * Zero value designates the default method for all command syntax.
+     */
+    int arg() default 0;
 }
