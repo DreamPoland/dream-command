@@ -11,14 +11,34 @@ import lombok.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public interface DreamCommandExecutor {
     default boolean invokeMethod(@NonNull ExtensionManager extensionManager, @NonNull CommandPath commandPath) {
+        final int arguments = commandPath.getArguments().length;
+
+        final AtomicReference<Method> usageDefaultFallback = new AtomicReference<>();
+        final AtomicReference<Method> usageFallback = new AtomicReference<>();
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
+
             if (!commandPath.isValid(declaredMethod)) {
+                final Usage usage = declaredMethod.getAnnotation(Usage.class);
+                if (usage == null) {
+                    continue;
+                }
+
+                if (usage.arg() == 0) {
+                    usageDefaultFallback.set(declaredMethod);
+                }
+
+                if (usage.arg() == arguments) {
+                    if (arguments == 0) {
+                        break;
+                    }
+
+                    usageFallback.set(declaredMethod);
+                }
+
                 continue;
             }
 
@@ -37,31 +57,11 @@ public interface DreamCommandExecutor {
             }
 
             try {
+                declaredMethod.setAccessible(true);
                 declaredMethod.invoke(this, invokeObjects);
                 return true;
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new CommandException("Cannot invoke path method", e);
-            }
-        }
-
-        final int arguments = commandPath.getArguments().length;
-        final AtomicReference<Method> usageDefaultFallback = new AtomicReference<>();
-        final AtomicReference<Method> usageFallback = new AtomicReference<>();
-        for (Method usageMethod : Arrays.stream(this.getClass().getDeclaredMethods())
-                .filter(method -> method.getAnnotation(Usage.class) != null)
-                .collect(Collectors.toList())) {
-
-            final Usage usage = usageMethod.getAnnotation(Usage.class);
-            if (usage.arg() == 0) {
-                usageDefaultFallback.set(usageMethod);
-            }
-
-            if (usage.arg() == arguments) {
-                if (arguments == 0) {
-                    break;
-                }
-
-                usageFallback.set(usageMethod);
             }
         }
 
@@ -74,6 +74,7 @@ public interface DreamCommandExecutor {
                 : usageDefaultFallback.get();
 
         try {
+            usageMethod.setAccessible(true);
             usageMethod.invoke(this);
             return false;
         } catch (IllegalAccessException | InvocationTargetException e) {
