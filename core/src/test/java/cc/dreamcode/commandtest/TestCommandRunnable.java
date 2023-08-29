@@ -1,6 +1,7 @@
 package cc.dreamcode.commandtest;
 
-import cc.dreamcode.command.path.CommandPath;
+import cc.dreamcode.command.DreamCommandValidator;
+import cc.dreamcode.command.context.CommandInvokeContext;
 import cc.dreamcode.commandtest.command.SimpleCommand;
 import lombok.NonNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,12 +21,14 @@ public final class TestCommandRunnable {
 
     @Test
     public void test_command() {
-        this.parseCommand("simple block kox2");
+        this.parseCommand("simple player info test");
     }
 
     public void parseCommand(@NonNull String input) {
-        final CommandPath commandPath = new CommandPath(input);
-        this.testCommand.getCommandRegistry().getCommand(commandPath)
-                .invokeMethod(this.testCommand.getExtensions(), commandPath);
+        final CommandInvokeContext commandInvokeContext = new CommandInvokeContext(input);
+        final TestCommandSender sender = new TestCommandSender();
+
+        this.testCommand.getCommandRegistry().getCommand(new DreamCommandValidator(commandInvokeContext))
+                .invokeMethod(sender, commandInvokeContext);
     }
 }

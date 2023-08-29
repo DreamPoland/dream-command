@@ -1,6 +1,6 @@
 package cc.dreamcode.command.bukkit;
 
-import cc.dreamcode.command.DreamCommandContext;
+import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.exception.CommandException;
 import cc.dreamcode.command.DreamCommandExecutor;
@@ -15,14 +15,12 @@ import java.util.Map;
 
 public class BukkitCommandRegistry implements DreamCommandRegistry {
 
-    private final BukkitCommand bukkitCommand;
     private final Plugin plugin;
     private final SimpleCommandMap bukkitCommandMap;
 
-    private final Map<DreamCommandContext, BukkitCommandExecutorWrapper> commandMap;
+    private final Map<CommandContext, BukkitCommandExecutorWrapper> commandMap;
 
-    public BukkitCommandRegistry(@NonNull BukkitCommand bukkitCommand, @NonNull Plugin plugin, @NonNull Server server) {
-        this.bukkitCommand = bukkitCommand;
+    public BukkitCommandRegistry(@NonNull Plugin plugin, @NonNull Server server) {
         this.plugin = plugin;
 
         final SimpleCommandMap simpleCommandMap = BukkitCommandReflection.getSimpleCommandMap(server);
@@ -41,20 +39,20 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
             throw new CommandException("Cannot resolve command annotation with context. If you don't want to use annotations, you can also log commands via command registry class.");
         }
 
-        final DreamCommandContext context = DreamCommandContext.of(command);
+        final CommandContext context = CommandContext.of(command);
         this.registerCommand(context, executor);
     }
 
     @Override
-    public void registerCommand(@NonNull DreamCommandContext context, @NonNull DreamCommandExecutor executor) {
-        final BukkitCommandExecutorWrapper wrapper = new BukkitCommandExecutorWrapper(this.plugin, context, executor, this.bukkitCommand.getExtensions());
+    public void registerCommand(@NonNull CommandContext context, @NonNull DreamCommandExecutor executor) {
+        final BukkitCommandExecutorWrapper wrapper = new BukkitCommandExecutorWrapper(this.plugin, context, executor);
 
         this.bukkitCommandMap.register(context.getLabel(), this.plugin.getName(), wrapper);
         this.commandMap.put(context, wrapper);
     }
 
     @Override
-    public void disposeCommand(@NonNull DreamCommandContext context) {
+    public void disposeCommand(@NonNull CommandContext context) {
         this.bukkitCommandMap.getCommand(context.getLabel()).unregister(this.bukkitCommandMap);
         this.commandMap.remove(context);
     }

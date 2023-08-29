@@ -5,14 +5,23 @@ import lombok.experimental.UtilityClass;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @UtilityClass
 public class AnnotationUtil {
-    public static long countAnnotation(@NonNull Method method, @NonNull Class<? extends Annotation> annotationClass) {
-        return Arrays.stream(method.getParameterAnnotations())
-                .filter(annotations -> Arrays.stream(annotations)
-                        .anyMatch(annotation -> annotation.annotationType().equals(annotationClass)))
-                .count();
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> List<T> getAnnotation(@NonNull Method method, @NonNull Class<T> annotationClass) {
+        final List<T> annotationList = new ArrayList<>();
+
+        for (Annotation[] parameterAnnotation : method.getParameterAnnotations()) {
+            Arrays.stream(parameterAnnotation)
+                    .filter(annotation -> annotation.annotationType().equals(annotationClass))
+                    .findAny()
+                    .ifPresent(annotation -> annotationList.add((T) annotation));
+        }
+
+        return annotationList;
     }
 }

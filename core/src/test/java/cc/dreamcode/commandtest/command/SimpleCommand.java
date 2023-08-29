@@ -4,20 +4,19 @@ import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Path;
-import cc.dreamcode.command.annotation.Usage;
 
 @Command(label = "simple", description = "Simple command.")
-public class SimpleCommand implements DreamCommandExecutor {
-    @Usage
-    void usage() {
+public class SimpleCommand extends DreamCommandExecutor {
+    @Path(name = "dirt")
+    void simpleBlock() {
         System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Poprawne uzycie: /simple [block, player]");
+        System.out.println("[DEBUG] Dirt!");
     }
 
     @Path(name = "block")
-    void simpleBlock() {
+    void simpleBlockWithName(@Arg(name = "name") String name, @Arg(name = "name2") String name2) {
         System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Simple block command execute");
+        System.out.println("[DEBUG] Simple block command execute: " + name + " and " + name2);
     }
 
     @Path(name = "player")
@@ -26,15 +25,9 @@ public class SimpleCommand implements DreamCommandExecutor {
         System.out.println("[DEBUG] Simple player command execute");
     }
 
-    @Path(name = "player", aliases = "info")
-    void simplePlayerWithName(@Arg String name) {
+    @Path(name = "player info")
+    void simplePlayerInfo(@Arg(name = "name") String playerInfo) {
         System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Simple player command execute, named: " + name);
-    }
-
-    @Path(name = "player", aliases = "info")
-    void simplePlayerWithName(@Arg String name, @Arg String name2) {
-        System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Simple player command execute, named: " + name + " and " + name2);
+        System.out.println("[DEBUG] Simple player info: " + playerInfo);
     }
 }

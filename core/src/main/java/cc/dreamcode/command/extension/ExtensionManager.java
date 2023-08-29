@@ -11,7 +11,7 @@ public class ExtensionManager {
 
     private final Map<Class<?>, ExtensionResolver<?>> extensionResolverMap = new HashMap<>();
 
-    public Map<Class<?>, ExtensionResolver<?>> getExtensionResolverMap() {
+    public Map<Class<?>, ExtensionResolver<?>> getExtensionMap() {
         return Collections.unmodifiableMap(this.extensionResolverMap);
     }
 
@@ -29,7 +29,7 @@ public class ExtensionManager {
 
     @SuppressWarnings("unchecked")
     public <T> Optional<T> resolveObject(@NonNull Class<T> argumentClass, @NonNull String input) {
-        final Map<Class<?>, ExtensionResolver<?>> argumentHandlerMap = this.getExtensionResolverMap();
+        final Map<Class<?>, ExtensionResolver<?>> argumentHandlerMap = this.getExtensionMap();
 
         return (Optional<T>) argumentHandlerMap.entrySet()
                 .stream()
