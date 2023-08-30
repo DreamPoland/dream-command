@@ -4,5 +4,5 @@ import lombok.NonNull;
 
 public interface ExtensionResolver<A> {
 
-    @NonNull A resolveArgument(@NonNull String input);
+    @NonNull A resolveArgument(@NonNull String input) throws IllegalArgumentException;
 }

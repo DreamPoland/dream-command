@@ -7,6 +7,11 @@ import java.io.PrintStream;
 
 public class TestCommandSender implements DreamCommandSender<PrintStream> {
     @Override
+    public String getName() {
+        return "CONSOLE";
+    }
+
+    @Override
     public void sendMessage(@NonNull String text) {
         System.out.println(text);
     }

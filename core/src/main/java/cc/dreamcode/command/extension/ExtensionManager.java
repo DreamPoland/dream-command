@@ -15,8 +15,11 @@ public class ExtensionManager {
         return Collections.unmodifiableMap(this.extensionResolverMap);
     }
 
-    public <T> void registerExtension(@NonNull Class<T> argumentClass, @NonNull ExtensionResolver<T> extensionResolver) {
-        this.extensionResolverMap.put(argumentClass, extensionResolver);
+    @SafeVarargs
+    public final <T> void registerExtension(@NonNull ExtensionResolver<T> extensionResolver, @NonNull Class<T>... argumentsClass) {
+        for (Class<T> argumentClass : argumentsClass) {
+            this.extensionResolverMap.put(argumentClass, extensionResolver);
+        }
     }
 
     public void registerExtension(@NonNull ExtensionRegistry registry) {
@@ -28,14 +31,18 @@ public class ExtensionManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> resolveObject(@NonNull Class<T> argumentClass, @NonNull String input) {
+    public <T> Optional<T> resolveObject(@NonNull Class<T> argumentClass, @NonNull String input) throws IllegalArgumentException {
         final Map<Class<?>, ExtensionResolver<?>> argumentHandlerMap = this.getExtensionMap();
 
-        return (Optional<T>) argumentHandlerMap.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().isAssignableFrom(argumentClass)) // TODO: 26.08.2023 maybe bad practice
-                .map(Map.Entry::getValue)
-                .map(extensionResolver -> extensionResolver.resolveArgument(input))
-                .findAny();
+        for (Map.Entry<Class<?>, ExtensionResolver<?>> entry : argumentHandlerMap.entrySet()) {
+            if (!entry.getKey().isAssignableFrom(argumentClass)) {
+                continue;
+            }
+
+            final ExtensionResolver<?> extensionResolver = entry.getValue();
+            return (Optional<T>) Optional.of(extensionResolver.resolveArgument(input));
+        }
+
+        return Optional.empty();
     }
 }

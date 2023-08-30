@@ -21,7 +21,7 @@ public final class TestCommandRunnable {
 
     @Test
     public void test_command() {
-        this.parseCommand("simple player info test");
+        this.parseCommand("simple reply test 5");
     }
 
     public void parseCommand(@NonNull String input) {

@@ -11,6 +11,11 @@ public class BukkitCommandSender implements DreamCommandSender<CommandSender> {
     private final CommandSender sender;
 
     @Override
+    public String getName() {
+        return this.sender.getName();
+    }
+
+    @Override
     public void sendMessage(@NonNull String text) {
         this.sender.sendMessage(text);
     }

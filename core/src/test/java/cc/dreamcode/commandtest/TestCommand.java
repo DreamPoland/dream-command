@@ -3,6 +3,7 @@ package cc.dreamcode.commandtest;
 import cc.dreamcode.command.DreamCommandImpl;
 import cc.dreamcode.command.extension.DefaultExtensionRegistry;
 import cc.dreamcode.command.handler.HandlerType;
+import cc.dreamcode.commandtest.handler.InvalidInputValueHandler;
 import cc.dreamcode.commandtest.handler.InvalidUsageHandler;
 import lombok.Getter;
 
@@ -14,6 +15,8 @@ public class TestCommand extends DreamCommandImpl {
     public TestCommand() {
         this.commandRegistry = new TestCommandRegistry(this.getExtensions(), this.getHandlers());
         this.getExtensions().registerExtension(new DefaultExtensionRegistry());
+
         this.getHandlers().registerHandler(HandlerType.INVALID_USAGE, new InvalidUsageHandler());
+        this.getHandlers().registerHandler(HandlerType.INVALID_INPUT_VALUE, new InvalidInputValueHandler());
     }
 }

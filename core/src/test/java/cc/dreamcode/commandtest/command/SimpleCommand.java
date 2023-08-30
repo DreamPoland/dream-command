@@ -4,8 +4,9 @@ import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Path;
+import cc.dreamcode.commandtest.TestCommandSender;
 
-@Command(label = "simple", description = "Simple command.")
+@Command(label = "simple", description = "Simple command.")    // EXAMPLE
 public class SimpleCommand extends DreamCommandExecutor {
     @Path(name = "dirt")
     void simpleBlock() {
@@ -29,5 +30,12 @@ public class SimpleCommand extends DreamCommandExecutor {
     void simplePlayerInfo(@Arg(name = "name") String playerInfo) {
         System.out.println("[DEBUG] ");
         System.out.println("[DEBUG] Simple player info: " + playerInfo);
+    }
+
+    @Path(name = "reply")
+    void simpleReply(@Arg(name = "info") String info, TestCommandSender sender, @Arg(name = "number") int number) {
+        sender.sendMessage("[" + sender.getName() + "] Reply word: " + info);
+        sender.sendMessage("[" + sender.getName() + "] HasPermission: " + sender.hasPermission("test"));
+        sender.sendMessage("[" + sender.getName() + "] Number: " + number);
     }
 }
