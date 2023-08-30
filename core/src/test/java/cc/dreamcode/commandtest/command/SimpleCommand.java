@@ -14,28 +14,19 @@ public class SimpleCommand extends DreamCommandExecutor {
         System.out.println("[DEBUG] Dirt!");
     }
 
-    @Path(name = "block")
-    void simpleBlockWithName(@Arg(name = "name") String name, @Arg(name = "name2") String name2) {
-        System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Simple block command execute: " + name + " and " + name2);
-    }
-
     @Path(name = "player")
-    void simplePlayer() {
-        System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Simple player command execute");
+    void simplePlayer(TestCommandSender sender) {
+        sender.sendMessage("[" + sender.getName() + "] Simple player command execute");
     }
 
     @Path(name = "player info")
-    void simplePlayerInfo(@Arg(name = "name") String playerInfo) {
-        System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Simple player info: " + playerInfo);
+    void simplePlayerInfo(TestCommandSender sender, @Arg(name = "name") String playerInfo) {
+        sender.sendMessage("[" + sender.getName() + "] Simple player info: " + playerInfo);
     }
 
-    @Path(name = "reply")
-    void simpleReply(@Arg(name = "info") String info, TestCommandSender sender, @Arg(name = "number") int number) {
-        sender.sendMessage("[" + sender.getName() + "] Reply word: " + info);
-        sender.sendMessage("[" + sender.getName() + "] HasPermission: " + sender.hasPermission("test"));
+    @Path(name = "number info")
+    void simpleNumberInfo(TestCommandSender sender, @Arg(name = "info") String info, @Arg(name = "number") int number) {
+        sender.sendMessage("[" + sender.getName() + "] Info word: " + info);
         sender.sendMessage("[" + sender.getName() + "] Number: " + number);
     }
 }
