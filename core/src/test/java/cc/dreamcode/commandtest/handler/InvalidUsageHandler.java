@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class InvalidUsageHandler implements InvalidUsage {
     @Override     // EXAMPLE
     public void handle(@NonNull DreamCommandSender<?> sender, @NonNull DreamCommandExecutor executor, @NonNull List<CommandPathContext> commandPathContextList, @NonNull CommandInvokeContext commandInvokeContext) {
-        final StringBuilder usage = new StringBuilder("[ERR] Poprawne uzycie: /" + executor.getContext().getLabel());
+        final StringBuilder usage = new StringBuilder("/" + executor.getContext().getLabel());
 
         final DreamCommandValidator validator = new DreamCommandValidator(commandInvokeContext);
         final Optional<CommandPathContext> similarOptionalPath = validator.findSimilarPath(commandPathContextList);

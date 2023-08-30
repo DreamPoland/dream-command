@@ -15,11 +15,8 @@ public class ExtensionManager {
         return Collections.unmodifiableMap(this.extensionResolverMap);
     }
 
-    @SafeVarargs
-    public final <T> void registerExtension(@NonNull ExtensionResolver<T> extensionResolver, @NonNull Class<T>... argumentsClass) {
-        for (Class<T> argumentClass : argumentsClass) {
-            this.extensionResolverMap.put(argumentClass, extensionResolver);
-        }
+    public final <T> void registerExtension(@NonNull ExtensionResolver<T> extensionResolver, @NonNull Class<T> argumentClass) {
+        this.extensionResolverMap.put(argumentClass, extensionResolver);
     }
 
     public void registerExtension(@NonNull ExtensionRegistry registry) {

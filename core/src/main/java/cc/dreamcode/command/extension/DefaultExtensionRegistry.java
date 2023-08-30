@@ -9,7 +9,9 @@ public class DefaultExtensionRegistry implements ExtensionRegistry {
     @Override
     public void register(@NonNull ExtensionManager extensionManager) {
         extensionManager.registerExtension(new StringExtension(), String.class);
-        extensionManager.registerExtension(new IntegerExtension(), Integer.class, int.class);
-        extensionManager.registerExtension(new BooleanExtension(), Boolean.class, boolean.class);
+        extensionManager.registerExtension(new IntegerExtension(), Integer.class);
+        extensionManager.registerExtension(new IntegerExtension(), int.class);
+        extensionManager.registerExtension(new BooleanExtension(), Boolean.class);
+        extensionManager.registerExtension(new BooleanExtension(), boolean.class);
     }
 }
