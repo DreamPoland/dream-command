@@ -36,6 +36,6 @@ public class InvalidUsageHandler implements InvalidUsage {
                     .collect(Collectors.joining(", "))).append("]");
         }
 
-        System.out.println("[ERR] Poprawne uzycie: " + usage);
+        sender.sendMessage("[ERR] Poprawne uzycie: " + usage);
     }
 }
