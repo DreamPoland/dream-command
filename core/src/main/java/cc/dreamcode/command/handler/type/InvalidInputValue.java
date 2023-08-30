@@ -12,5 +12,5 @@ public interface InvalidInputValue extends CommandHandler {
         return HandlerType.INVALID_INPUT_VALUE;
     }
 
-    void handle(@NonNull DreamCommandSender<?> sender, @NonNull Class<?> requiredClass, @NonNull String argument);
+    void handle(@NonNull DreamCommandSender<?> sender, @NonNull Class<?> requiredClass, @NonNull String argument, int index);
 }

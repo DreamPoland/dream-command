@@ -64,9 +64,10 @@ public abstract class DreamCommandExecutor {
                             .orElseThrow(() -> new CommandException("Cannot find extension resolver for class " + objectClass.getSimpleName()));
                 }
                 catch (IllegalArgumentException e) {
+                    final int finalIndexRaw = indexRaw;
                     this.handlerManager.getCommandHandler(HandlerType.INVALID_INPUT_VALUE).ifPresent(commandHandler -> {
                         final InvalidInputValue invalidInputValue = (InvalidInputValue) commandHandler;
-                        invalidInputValue.handle(sender, objectClass, input);
+                        invalidInputValue.handle(sender, objectClass, input, finalIndexRaw);
                     });
 
                     return false;
