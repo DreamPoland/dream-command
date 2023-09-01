@@ -137,7 +137,7 @@ public abstract class DreamCommandExecutor {
         return suggestions.stream()
                 .distinct()
                 .filter(text -> {
-                    if (text.startsWith("<")) {
+                    if (text.startsWith("<") && text.endsWith(">")) {
                         return true;
                     }
 
