@@ -1,5 +1,6 @@
 package cc.dreamcode.commandtest;
 
+import cc.dreamcode.command.bind.BindManager;
 import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandRegistry;
@@ -20,6 +21,7 @@ public class TestCommandRegistry implements DreamCommandRegistry {
 
     private final ExtensionManager extensionManager;
     private final HandlerManager handlerManager;
+    private final BindManager bindManager;
 
     private final Map<CommandContext, DreamCommandExecutor> commandMap = new HashMap<>();
 
@@ -39,6 +41,7 @@ public class TestCommandRegistry implements DreamCommandRegistry {
         executor.setContext(context);
         executor.setExtensionManager(this.extensionManager);
         executor.setHandlerManager(this.handlerManager);
+        executor.setBindManager(this.bindManager);
 
         this.commandMap.put(context, executor);
     }

@@ -8,10 +8,6 @@ public class ExtensionManager {
 
     private final Map<Class<?>, ExtensionResolver<?>> extensionResolverMap = new HashMap<>();
 
-    public Map<Class<?>, ExtensionResolver<?>> getExtensionMap() {
-        return Collections.unmodifiableMap(this.extensionResolverMap);
-    }
-
     public final <T> void registerExtension(@NonNull ExtensionResolver<T> extensionResolver, @NonNull Class<T> argumentClass) {
         this.extensionResolverMap.put(argumentClass, extensionResolver);
     }
@@ -26,9 +22,7 @@ public class ExtensionManager {
 
     @SuppressWarnings("unchecked")
     public <T> Optional<T> resolveObject(@NonNull Class<T> argumentClass, @NonNull String input) throws IllegalArgumentException {
-        final Map<Class<?>, ExtensionResolver<?>> argumentHandlerMap = this.getExtensionMap();
-
-        for (Map.Entry<Class<?>, ExtensionResolver<?>> entry : argumentHandlerMap.entrySet()) {
+        for (Map.Entry<Class<?>, ExtensionResolver<?>> entry : this.extensionResolverMap.entrySet()) {
             if (!entry.getKey().isAssignableFrom(argumentClass)) {
                 continue;
             }
@@ -41,9 +35,7 @@ public class ExtensionManager {
     }
 
     public Optional<List<String>> resolveSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) throws IllegalArgumentException {
-        final Map<Class<?>, ExtensionResolver<?>> argumentHandlerMap = this.getExtensionMap();
-
-        for (Map.Entry<Class<?>, ExtensionResolver<?>> entry : argumentHandlerMap.entrySet()) {
+        for (Map.Entry<Class<?>, ExtensionResolver<?>> entry : this.extensionResolverMap.entrySet()) {
             if (!entry.getKey().isAssignableFrom(argumentClass)) {
                 continue;
             }

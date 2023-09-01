@@ -2,6 +2,7 @@ package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Path;
+import cc.dreamcode.command.bind.BindManager;
 import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.context.CommandInvokeContext;
 import cc.dreamcode.command.context.CommandPathContext;
@@ -33,6 +34,7 @@ public abstract class DreamCommandExecutor {
     private @Getter CommandContext context;
     private ExtensionManager extensionManager;
     private HandlerManager handlerManager;
+    private BindManager bindManager;
 
     public boolean invokeMethod(@NonNull DreamCommandSender<?> sender, @NonNull CommandInvokeContext commandInvokeContext) {
         final DreamCommandValidator validator = new DreamCommandValidator(commandInvokeContext);
@@ -54,8 +56,9 @@ public abstract class DreamCommandExecutor {
             for (int indexRaw = 0; indexRaw < declaredMethod.getParameterCount(); indexRaw++) {
                 final Class<?> objectClass = declaredMethod.getParameterTypes()[indexRaw];
 
-                if (DreamCommandSender.class.isAssignableFrom(objectClass)) {
-                    invokeObjects[indexRaw] = sender;
+                final Optional<?> optionalObject = this.bindManager.resolveBind(objectClass, sender);
+                if (optionalObject.isPresent()) {
+                    invokeObjects[indexRaw] = optionalObject.get();
                     otherParams.incrementAndGet();
                     continue;
                 }
