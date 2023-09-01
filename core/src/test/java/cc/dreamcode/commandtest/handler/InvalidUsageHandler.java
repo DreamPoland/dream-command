@@ -5,7 +5,7 @@ import cc.dreamcode.command.DreamCommandSender;
 import cc.dreamcode.command.DreamCommandValidator;
 import cc.dreamcode.command.context.CommandInvokeContext;
 import cc.dreamcode.command.context.CommandPathContext;
-import cc.dreamcode.command.handler.type.InvalidUsage;
+import cc.dreamcode.command.handler.type.InvalidUsageType;
 import cc.dreamcode.utilities.StringUtil;
 import lombok.NonNull;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class InvalidUsageHandler implements InvalidUsage {
+public class InvalidUsageHandler implements InvalidUsageType {
     @Override     // EXAMPLE
     public void handle(@NonNull DreamCommandSender<?> sender, @NonNull DreamCommandExecutor executor, @NonNull List<CommandPathContext> commandPathContextList, @NonNull CommandInvokeContext commandInvokeContext) {
         final StringBuilder usage = new StringBuilder("/" + executor.getContext().getLabel());

@@ -4,8 +4,10 @@ import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Path;
+import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.commandtest.TestCommandSender;
 
+@Permission(name = "simple.command")
 @Command(label = "simple", description = "Simple command.")    // EXAMPLE
 public class SimpleCommand extends DreamCommandExecutor {
     @Path(name = "dirt")
@@ -30,6 +32,7 @@ public class SimpleCommand extends DreamCommandExecutor {
         sender.sendMessage("[" + sender.getName() + "] Number: " + number);
     }
 
+    @Permission(name = "simple.numberinfo")
     @Path(name = "number info")
     void simpleNumberInfo(TestCommandSender sender, @Arg(name = "info2") String info, @Arg(name = "number2") int number, @Arg(name = "value") boolean bool) {
         sender.sendMessage("[" + sender.getName() + "] Info word: " + info);

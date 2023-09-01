@@ -5,12 +5,12 @@ import cc.dreamcode.command.handler.CommandHandler;
 import cc.dreamcode.command.handler.HandlerType;
 import lombok.NonNull;
 
-public interface InvalidInputValue extends CommandHandler {
+public interface NoPermissionType extends CommandHandler {
 
     @Override
     default HandlerType getHandlerType() {
-        return HandlerType.INVALID_INPUT_VALUE;
+        return HandlerType.NO_PERMISSION;
     }
 
-    void handle(@NonNull DreamCommandSender<?> sender, @NonNull Class<?> requiredClass, @NonNull String argument, int index);
+    void handle(@NonNull DreamCommandSender<?> sender, @NonNull String permission);
 }

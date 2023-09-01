@@ -10,7 +10,7 @@ import lombok.NonNull;
 
 import java.util.List;
 
-public interface InvalidUsage extends CommandHandler {
+public interface InvalidUsageType extends CommandHandler {
 
     @Override
     default HandlerType getHandlerType() {

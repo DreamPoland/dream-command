@@ -2,6 +2,7 @@ package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Path;
+import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.command.bind.BindManager;
 import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.context.CommandInvokeContext;
@@ -10,8 +11,9 @@ import cc.dreamcode.command.exception.CommandException;
 import cc.dreamcode.command.extension.ExtensionManager;
 import cc.dreamcode.command.handler.HandlerManager;
 import cc.dreamcode.command.handler.HandlerType;
-import cc.dreamcode.command.handler.type.InvalidInputValue;
-import cc.dreamcode.command.handler.type.InvalidUsage;
+import cc.dreamcode.command.handler.type.InvalidInputValueType;
+import cc.dreamcode.command.handler.type.InvalidUsageType;
+import cc.dreamcode.command.handler.type.NoPermissionType;
 import cc.dreamcode.command.shared.AnnotationUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,11 +39,31 @@ public abstract class DreamCommandExecutor {
     private BindManager bindManager;
 
     public boolean invokeMethod(@NonNull DreamCommandSender<?> sender, @NonNull CommandInvokeContext commandInvokeContext) {
+        final Permission permission = this.getClass().getAnnotation(Permission.class);
+        if (permission != null && !sender.hasPermission(permission.name())) {
+            this.handlerManager.getCommandHandler(HandlerType.NO_PERMISSION).ifPresent(commandHandler -> {
+                final NoPermissionType noPermissionType = (NoPermissionType) commandHandler;
+                noPermissionType.handle(sender, permission.name());
+            });
+
+            return false;
+        }
+
         final DreamCommandValidator validator = new DreamCommandValidator(commandInvokeContext);
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
 
             if (!validator.isValid(this.context, declaredMethod)) {
                 continue;
+            }
+
+            final Permission methodPermission = declaredMethod.getAnnotation(Permission.class);
+            if (methodPermission != null && !sender.hasPermission(methodPermission.name())) {
+                this.handlerManager.getCommandHandler(HandlerType.NO_PERMISSION).ifPresent(commandHandler -> {
+                    final NoPermissionType noPermissionType = (NoPermissionType) commandHandler;
+                    noPermissionType.handle(sender, methodPermission.name());
+                });
+
+                return false;
             }
 
             final CommandPathContext commandPathContext = new CommandPathContext(this.context, declaredMethod);
@@ -71,8 +93,8 @@ public abstract class DreamCommandExecutor {
                 catch (IllegalArgumentException e) {
                     final int finalIndexRaw = indexRaw;
                     this.handlerManager.getCommandHandler(HandlerType.INVALID_INPUT_VALUE).ifPresent(commandHandler -> {
-                        final InvalidInputValue invalidInputValue = (InvalidInputValue) commandHandler;
-                        invalidInputValue.handle(sender, objectClass, input, finalIndexRaw);
+                        final InvalidInputValueType invalidInputValueType = (InvalidInputValueType) commandHandler;
+                        invalidInputValueType.handle(sender, objectClass, input, finalIndexRaw);
                     });
 
                     return false;
@@ -89,14 +111,19 @@ public abstract class DreamCommandExecutor {
         }
 
         this.handlerManager.getCommandHandler(HandlerType.INVALID_USAGE).ifPresent(commandHandler -> {
-            final InvalidUsage invalidUsage = (InvalidUsage) commandHandler;
-            invalidUsage.handle(sender, this, this.getCommandPathList(), commandInvokeContext);
+            final InvalidUsageType invalidUsageType = (InvalidUsageType) commandHandler;
+            invalidUsageType.handle(sender, this, this.getCommandPathList(), commandInvokeContext);
         });
         return false;
     }
 
-    public List<String> getSuggestion(@NonNull CommandInvokeContext commandInvokeContext) {
+    public List<String> getSuggestion(@NonNull DreamCommandSender<?> sender, @NonNull CommandInvokeContext commandInvokeContext) {
         final List<String> suggestions = new ArrayList<>();
+
+        final Permission permission = this.getClass().getAnnotation(Permission.class);
+        if (permission != null && !sender.hasPermission(permission.name())) {
+            return suggestions;
+        }
 
         final String lastWord = commandInvokeContext.getArguments()[commandInvokeContext.getArguments().length - 1];
         final String[] trimmedInvoke = new String[commandInvokeContext.getArguments().length - 1];
@@ -108,6 +135,11 @@ public abstract class DreamCommandExecutor {
 
             if (!validator.canBeSuggestion(this.context, declaredMethod)) {
                 continue;
+            }
+
+            final Permission methodPermission = declaredMethod.getAnnotation(Permission.class);
+            if (methodPermission != null && !sender.hasPermission(methodPermission.name())) {
+                return suggestions;
             }
 
             final CommandPathContext commandPathContext = new CommandPathContext(this.context, declaredMethod);

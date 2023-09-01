@@ -1,10 +1,10 @@
 package cc.dreamcode.commandtest.handler;
 
 import cc.dreamcode.command.DreamCommandSender;
-import cc.dreamcode.command.handler.type.InvalidInputValue;
+import cc.dreamcode.command.handler.type.InvalidInputValueType;
 import lombok.NonNull;
 
-public class InvalidInputValueHandler implements InvalidInputValue {
+public class InvalidInputValueHandler implements InvalidInputValueType {
     @Override    // EXAMPLE
     public void handle(@NonNull DreamCommandSender<?> sender, @NonNull Class<?> requiredClass, @NonNull String argument, int index) {
         if (requiredClass.isAssignableFrom(Integer.class) || requiredClass.isAssignableFrom(int.class)) {

@@ -40,7 +40,9 @@ public class BukkitCommandExecutorWrapper extends Command implements PluginIdent
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+        final BukkitCommandSender dreamSender = new BukkitCommandSender(sender);
         final CommandInvokeContext commandInvokeContext = CommandInvokeContext.of(this.context.getLabel(), args);
-        return this.executor.getSuggestion(commandInvokeContext);
+
+        return this.executor.getSuggestion(dreamSender, commandInvokeContext);
     }
 }

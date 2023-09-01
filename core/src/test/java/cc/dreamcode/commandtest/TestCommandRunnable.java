@@ -31,6 +31,6 @@ public final class TestCommandRunnable {
 
         final DreamCommandExecutor executor = this.testCommand.getCommandRegistry().getCommand(new DreamCommandValidator(commandInvokeContext));
         executor.invokeMethod(sender, commandInvokeContext);
-        System.out.println(executor.getSuggestion(commandInvokeContext));
+        System.out.println(executor.getSuggestion(sender, commandInvokeContext));
     }
 }

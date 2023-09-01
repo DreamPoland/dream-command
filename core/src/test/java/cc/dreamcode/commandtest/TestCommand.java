@@ -2,10 +2,10 @@ package cc.dreamcode.commandtest;
 
 import cc.dreamcode.command.DreamCommandImpl;
 import cc.dreamcode.command.extension.DefaultExtensionRegistry;
-import cc.dreamcode.command.handler.HandlerType;
 import cc.dreamcode.commandtest.bind.TestCommandBindRegistry;
 import cc.dreamcode.commandtest.handler.InvalidInputValueHandler;
 import cc.dreamcode.commandtest.handler.InvalidUsageHandler;
+import cc.dreamcode.commandtest.handler.NoPermissionHandler;
 import lombok.Getter;
 
 @Getter
@@ -18,7 +18,8 @@ public class TestCommand extends DreamCommandImpl {
         this.getExtensions().registerExtension(new DefaultExtensionRegistry());
         this.getBinds().registerBind(new TestCommandBindRegistry());
 
-        this.getHandlers().registerHandler(HandlerType.INVALID_USAGE, new InvalidUsageHandler());
-        this.getHandlers().registerHandler(HandlerType.INVALID_INPUT_VALUE, new InvalidInputValueHandler());
+        this.getHandlers().registerHandler(new InvalidUsageHandler());
+        this.getHandlers().registerHandler(new InvalidInputValueHandler());
+        this.getHandlers().registerHandler(new NoPermissionHandler());
     }
 }
