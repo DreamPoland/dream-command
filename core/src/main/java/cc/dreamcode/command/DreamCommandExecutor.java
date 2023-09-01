@@ -19,8 +19,10 @@ import lombok.Setter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -36,7 +38,7 @@ public abstract class DreamCommandExecutor {
         final DreamCommandValidator validator = new DreamCommandValidator(commandInvokeContext);
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
 
-            if (!validator.isSimilar(this.context, declaredMethod)) {
+            if (!validator.isValid(this.context, declaredMethod)) {
                 continue;
             }
 
@@ -88,6 +90,60 @@ public abstract class DreamCommandExecutor {
             invalidUsage.handle(sender, this, this.getCommandPathList(), commandInvokeContext);
         });
         return false;
+    }
+
+    public List<String> getSuggestion(@NonNull CommandInvokeContext commandInvokeContext) {
+        final List<String> suggestions = new ArrayList<>();
+
+        final String lastWord = commandInvokeContext.getArguments()[commandInvokeContext.getArguments().length - 1];
+        final String[] trimmedInvoke = new String[commandInvokeContext.getArguments().length - 1];
+        System.arraycopy(commandInvokeContext.getArguments(), 0, trimmedInvoke, 0, trimmedInvoke.length);
+
+        final CommandInvokeContext trimmedInvokeContext = CommandInvokeContext.of(commandInvokeContext.getLabel(), trimmedInvoke);
+        final DreamCommandValidator validator = new DreamCommandValidator(trimmedInvokeContext);
+        for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
+
+            if (!validator.canBeSuggestion(this.context, declaredMethod)) {
+                continue;
+            }
+
+            final CommandPathContext commandPathContext = new CommandPathContext(this.context, declaredMethod);
+            for (String pathName : commandPathContext.getPathNameAndAliases()) {
+                final String[] pathNameRow = pathName.split(" ");
+
+                if (trimmedInvokeContext.getArguments().length - pathNameRow.length >= commandPathContext.getMethodArgs().length) {
+                    continue;
+                }
+
+                if (pathNameRow.length <= trimmedInvokeContext.getArguments().length) {
+                    final Class<?> paramClass = declaredMethod.getParameterTypes()[trimmedInvokeContext.getArguments().length - pathNameRow.length + 1];
+
+                    final Optional<List<String>> extensionSuggestion = this.extensionManager.resolveSuggestion(paramClass, lastWord);
+                    if (extensionSuggestion.isPresent() && !extensionSuggestion.get().isEmpty()) {
+                        suggestions.addAll(extensionSuggestion.get());
+                        continue;
+                    }
+
+                    final String methodSuggestion = commandPathContext.getMethodArgs()[trimmedInvokeContext.getArguments().length - pathNameRow.length];
+                    suggestions.add("<" + methodSuggestion + ">");
+                    continue;
+                }
+
+                final String suggestion = pathNameRow[trimmedInvokeContext.getArguments().length];
+                suggestions.add(suggestion);
+            }
+        }
+
+        return suggestions.stream()
+                .distinct()
+                .filter(text -> {
+                    if (text.startsWith("<")) {
+                        return true;
+                    }
+
+                    return text.toLowerCase().startsWith(lastWord.toLowerCase());
+                })
+                .collect(Collectors.toList());
     }
 
     public List<CommandPathContext> getCommandPathList() {

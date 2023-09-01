@@ -4,7 +4,10 @@ import cc.dreamcode.command.extension.ExtensionResolver;
 import cc.dreamcode.utilities.ParseUtil;
 import lombok.NonNull;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BooleanExtension implements ExtensionResolver<Boolean> {
     @Override
@@ -15,5 +18,12 @@ public class BooleanExtension implements ExtensionResolver<Boolean> {
         }
 
         return value.get();
+    }
+
+    @Override
+    public @NonNull List<String> getSuggestion(@NonNull String input) {
+        return Stream.of("true", "false")
+                .filter(text -> text.startsWith(input))
+                .collect(Collectors.toList());
     }
 }

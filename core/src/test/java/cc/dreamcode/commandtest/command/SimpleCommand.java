@@ -25,8 +25,15 @@ public class SimpleCommand extends DreamCommandExecutor {
     }
 
     @Path(name = "number info")
-    void simpleNumberInfo(TestCommandSender sender, @Arg(name = "info") String info, @Arg(name = "number") int number) {
+    void simpleNumberInfo(TestCommandSender sender, @Arg(name = "info3") String info, @Arg(name = "number3") int number) {
         sender.sendMessage("[" + sender.getName() + "] Info word: " + info);
         sender.sendMessage("[" + sender.getName() + "] Number: " + number);
+    }
+
+    @Path(name = "number info")
+    void simpleNumberInfo(TestCommandSender sender, @Arg(name = "info2") String info, @Arg(name = "number2") int number, @Arg(name = "value") boolean bool) {
+        sender.sendMessage("[" + sender.getName() + "] Info word: " + info);
+        sender.sendMessage("[" + sender.getName() + "] Number: " + number);
+        sender.sendMessage("[" + sender.getName() + "] Boolean: " + bool);
     }
 }

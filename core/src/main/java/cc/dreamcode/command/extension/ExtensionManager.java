@@ -2,10 +2,7 @@ package cc.dreamcode.command.extension;
 
 import lombok.NonNull;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class ExtensionManager {
 
@@ -38,6 +35,21 @@ public class ExtensionManager {
 
             final ExtensionResolver<?> extensionResolver = entry.getValue();
             return (Optional<T>) Optional.of(extensionResolver.resolveArgument(input));
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<List<String>> resolveSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) throws IllegalArgumentException {
+        final Map<Class<?>, ExtensionResolver<?>> argumentHandlerMap = this.getExtensionMap();
+
+        for (Map.Entry<Class<?>, ExtensionResolver<?>> entry : argumentHandlerMap.entrySet()) {
+            if (!entry.getKey().isAssignableFrom(argumentClass)) {
+                continue;
+            }
+
+            final ExtensionResolver<?> extensionResolver = entry.getValue();
+            return Optional.of(extensionResolver.getSuggestion(input));
         }
 
         return Optional.empty();

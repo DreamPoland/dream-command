@@ -19,7 +19,9 @@ public class InvalidUsageHandler implements InvalidUsage {
         final StringBuilder usage = new StringBuilder("/" + executor.getContext().getLabel());
 
         final DreamCommandValidator validator = new DreamCommandValidator(commandInvokeContext);
-        final Optional<CommandPathContext> similarOptionalPath = validator.findSimilarPath(commandPathContextList);
+        final Optional<CommandPathContext> similarOptionalPath = commandPathContextList.stream()
+                .filter(validator::canBeSuggestion)
+                .findAny();
 
         if (similarOptionalPath.isPresent()) {
             final CommandPathContext similarPath = similarOptionalPath.get();

@@ -5,6 +5,7 @@ import cc.dreamcode.command.annotation.Path;
 import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.context.CommandInvokeContext;
 import cc.dreamcode.command.context.CommandPathContext;
+import cc.dreamcode.utilities.StringUtil;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Data
 @RequiredArgsConstructor
@@ -31,18 +31,36 @@ public class DreamCommandValidator {
                 .anyMatch(alias -> alias.equalsIgnoreCase(this.commandInvokeContext.getLabel()));
     }
 
-    public boolean isSimilar(@NonNull CommandContext context, @NonNull Method method) {
+    public boolean canBeSuggestion(@NonNull CommandContext context, @NonNull Method method) {
         final Path path = method.getAnnotation(Path.class);
         if (path == null) {
             return false;
         }
 
-        return this.isSimilar(new CommandPathContext(context, method));
+        return this.canBeSuggestion(new CommandPathContext(context, method));
     }
 
-    public boolean isSimilar(@NonNull CommandPathContext commandPathContext) {
+    public boolean canBeSuggestion(@NonNull CommandPathContext commandPathContext) {
         for (String pathName : commandPathContext.getPathNameAndAliases()) {
-            if (this.isSimilar(pathName, commandPathContext.getMethodArgs().length)) {
+            final String[] splitPath = pathName.split(" ");
+
+            // path name suggestion
+            if (splitPath.length >= this.getCommandInvokeContext().getArguments().length) {
+                final String trimPathName = StringUtil.join(splitPath, " ", 0, this.getCommandInvokeContext().getArguments().length);
+                final String joinArguments = StringUtil.join(this.commandInvokeContext.getArguments(), " ");
+
+                if (trimPathName.toLowerCase().startsWith(joinArguments.toLowerCase())) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            // method param suggestion
+            final String[] trimPathNameRow = new String[splitPath.length];
+            System.arraycopy(this.getCommandInvokeContext().getArguments(), 0, trimPathNameRow, 0, trimPathNameRow.length);
+
+            if (Arrays.equals(splitPath, trimPathNameRow)) {
                 return true;
             }
         }
@@ -50,7 +68,30 @@ public class DreamCommandValidator {
         return false;
     }
 
-    public boolean isSimilar(@NonNull String path, int arguments) {
+    public boolean isValid(@NonNull CommandContext context, @NonNull Method method) {
+        final Path path = method.getAnnotation(Path.class);
+        if (path == null) {
+            return false;
+        }
+
+        return this.isValid(new CommandPathContext(context, method));
+    }
+
+    public boolean isValid(@NonNull CommandPathContext commandPathContext) {
+        return this.isValid(commandPathContext, commandPathContext.getMethodArgs().length);
+    }
+
+    public boolean isValid(@NonNull CommandPathContext commandPathContext, int args) {
+        for (String pathName : commandPathContext.getPathNameAndAliases()) {
+            if (this.isValid(pathName, args)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isValid(@NonNull String path, int arguments) {
         final String[] splitPath = path.split(" ");
         if (splitPath.length + arguments != this.commandInvokeContext.getArguments().length) {
             return false;
@@ -69,36 +110,7 @@ public class DreamCommandValidator {
         final List<String> args = commandPathContext.getPathNameAndAliases();
 
         return args.stream()
-                .filter(arg -> this.isSimilar(arg, commandPathContext.getMethodArgs().length))
+                .filter(arg -> this.isValid(arg, commandPathContext.getMethodArgs().length))
                 .findAny();
-    }
-
-    /**
-     * Get a most similar command path, which can used in invalid usage handler.
-     */
-    public Optional<CommandPathContext> findSimilarPath(@NonNull List<CommandPathContext> commandPathContextList) {
-        final AtomicReference<CommandPathContext> mostSimilar = new AtomicReference<>();
-        for (int invokeIndex = 0; invokeIndex < this.commandInvokeContext.getArguments().length; invokeIndex++) {
-            for (CommandPathContext pathContext : commandPathContextList) {
-
-                for (String pathName : pathContext.getPathNameAndAliases()) {
-                    final String[] split = pathName.split(" ");
-
-                    final String invokeParam = this.commandInvokeContext.getArguments()[invokeIndex];
-                    if (split.length <= invokeIndex) {
-                        continue;
-                    }
-
-                    final String pathParam = split[invokeIndex];
-                    if (!invokeParam.equalsIgnoreCase(pathParam)) {
-                        continue;
-                    }
-
-                    mostSimilar.set(pathContext);
-                }
-            }
-        }
-
-        return Optional.ofNullable(mostSimilar.get());
     }
 }

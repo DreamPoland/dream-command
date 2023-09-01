@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +40,7 @@ public class BukkitCommandExecutorWrapper extends Command implements PluginIdent
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-        return new ArrayList<>(); // TODO: 28.08.2023
+        final CommandInvokeContext commandInvokeContext = CommandInvokeContext.of(this.context.getLabel(), args);
+        return this.executor.getSuggestion(commandInvokeContext);
     }
 }

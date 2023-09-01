@@ -1,5 +1,6 @@
 package cc.dreamcode.commandtest;
 
+import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandValidator;
 import cc.dreamcode.command.context.CommandInvokeContext;
 import cc.dreamcode.commandtest.command.SimpleCommand;
@@ -21,14 +22,15 @@ public final class TestCommandRunnable {
 
     @Test
     public void test_command() {
-        this.parseCommand("simple number info test");
+        this.parseCommand("simple number info test 3 true");
     }
 
     public void parseCommand(@NonNull String input) {
         final CommandInvokeContext commandInvokeContext = new CommandInvokeContext(input);
         final TestCommandSender sender = new TestCommandSender();
 
-        this.testCommand.getCommandRegistry().getCommand(new DreamCommandValidator(commandInvokeContext))
-                .invokeMethod(sender, commandInvokeContext);
+        final DreamCommandExecutor executor = this.testCommand.getCommandRegistry().getCommand(new DreamCommandValidator(commandInvokeContext));
+        executor.invokeMethod(sender, commandInvokeContext);
+        System.out.println(executor.getSuggestion(commandInvokeContext));
     }
 }
