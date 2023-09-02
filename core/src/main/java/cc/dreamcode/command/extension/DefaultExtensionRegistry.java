@@ -26,5 +26,6 @@ public class DefaultExtensionRegistry implements ExtensionRegistry {
         extensionManager.registerExtension(new ShortExtension(), Short.class);
         extensionManager.registerExtension(new ShortExtension(), short.class);
         extensionManager.registerExtension(new StringExtension(), String.class);
+        extensionManager.registerExtension(new EnumExtension(), Enum.class);
     }
 }

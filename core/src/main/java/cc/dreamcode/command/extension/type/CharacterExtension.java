@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class CharacterExtension implements ExtensionResolver<Character> {
     @Override
-    public @NonNull Character resolveArgument(@NonNull String input) {
+    public @NonNull Character resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Character> optionalCharacter = ParseUtil.parseChar(input);
         if (!optionalCharacter.isPresent()) {
             throw new IllegalArgumentException("Input are not character value: " + input);
@@ -20,7 +20,7 @@ public class CharacterExtension implements ExtensionResolver<Character> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }

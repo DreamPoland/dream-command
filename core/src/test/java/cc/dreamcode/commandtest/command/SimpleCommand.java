@@ -6,6 +6,7 @@ import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Path;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.commandtest.TestCommandSender;
+import cc.dreamcode.commandtest.TestValue;
 
 @Permission(name = "simple.command")
 @Command(label = "simple", description = "Simple command.")    // EXAMPLE
@@ -34,9 +35,9 @@ public class SimpleCommand extends DreamCommandExecutor {
 
     @Permission(name = "simple.numberinfo")
     @Path(name = "number info")
-    void simpleNumberInfo(TestCommandSender sender, @Arg(name = "info2") String info, @Arg(name = "number2") int number, @Arg(name = "value") boolean bool) {
+    void simpleNumberInfo(TestCommandSender sender, @Arg(name = "info2") String info, @Arg(name = "number2") int number, @Arg(name = "value") TestValue value) {
         sender.sendMessage("[" + sender.getName() + "] Info word: " + info);
         sender.sendMessage("[" + sender.getName() + "] Number: " + number);
-        sender.sendMessage("[" + sender.getName() + "] Boolean: " + bool);
+        sender.sendMessage("[" + sender.getName() + "] Value: " + value.name());
     }
 }

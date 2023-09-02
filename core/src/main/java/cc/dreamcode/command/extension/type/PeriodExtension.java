@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class PeriodExtension implements ExtensionResolver<Duration> {
     @Override
-    public @NonNull Duration resolveArgument(@NonNull String input) {
+    public @NonNull Duration resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Duration> optionalPeriod = ParseUtil.parsePeriod(input);
         if (!optionalPeriod.isPresent()) {
             throw new IllegalArgumentException("Input are not duration value: " + input);
@@ -21,7 +21,7 @@ public class PeriodExtension implements ExtensionResolver<Duration> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }

@@ -28,7 +28,7 @@ public class ExtensionManager {
             }
 
             final ExtensionResolver<?> extensionResolver = entry.getValue();
-            return (Optional<T>) Optional.of(extensionResolver.resolveArgument(input));
+            return (Optional<T>) Optional.of(extensionResolver.resolveArgument(argumentClass, input));
         }
 
         return Optional.empty();
@@ -41,7 +41,7 @@ public class ExtensionManager {
             }
 
             final ExtensionResolver<?> extensionResolver = entry.getValue();
-            return Optional.of(extensionResolver.getSuggestion(input));
+            return Optional.of(extensionResolver.getSuggestion(argumentClass, input));
         }
 
         return Optional.empty();

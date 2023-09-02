@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class ShortExtension implements ExtensionResolver<Short> {
     @Override
-    public @NonNull Short resolveArgument(@NonNull String input) {
+    public @NonNull Short resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Short> optionalShort = ParseUtil.parseShort(input);
         if (!optionalShort.isPresent()) {
             throw new IllegalArgumentException("Input are not short value: " + input);
@@ -20,7 +20,7 @@ public class ShortExtension implements ExtensionResolver<Short> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }

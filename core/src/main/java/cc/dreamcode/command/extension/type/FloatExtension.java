@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class FloatExtension implements ExtensionResolver<Float> {
     @Override
-    public @NonNull Float resolveArgument(@NonNull String input) {
+    public @NonNull Float resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Float> optionalFloat = ParseUtil.parseFloat(input);
         if (!optionalFloat.isPresent()) {
             throw new IllegalArgumentException("Input are not float value: " + input);
@@ -20,7 +20,7 @@ public class FloatExtension implements ExtensionResolver<Float> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }

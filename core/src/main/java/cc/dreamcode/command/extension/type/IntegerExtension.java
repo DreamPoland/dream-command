@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class IntegerExtension implements ExtensionResolver<Integer> {
     @Override
-    public @NonNull Integer resolveArgument(@NonNull String input) {
+    public @NonNull Integer resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Integer> optionalInteger = ParseUtil.parseInteger(input);
         if (!optionalInteger.isPresent()) {
             throw new IllegalArgumentException("Input are not int value: " + input);
@@ -20,7 +20,7 @@ public class IntegerExtension implements ExtensionResolver<Integer> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }

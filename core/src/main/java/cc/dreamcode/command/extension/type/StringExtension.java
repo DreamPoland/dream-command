@@ -8,12 +8,12 @@ import java.util.List;
 
 public class StringExtension implements ExtensionResolver<String> {
     @Override
-    public @NonNull String resolveArgument(@NonNull String input) {
+    public @NonNull String resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         return input;
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class DoubleExtension implements ExtensionResolver<Double> {
     @Override
-    public @NonNull Double resolveArgument(@NonNull String input) {
+    public @NonNull Double resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Double> optionalDouble = ParseUtil.parseDouble(input);
         if (!optionalDouble.isPresent()) {
             throw new IllegalArgumentException("Input are not double value: " + input);
@@ -20,7 +20,7 @@ public class DoubleExtension implements ExtensionResolver<Double> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }

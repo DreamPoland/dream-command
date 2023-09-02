@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class ByteExtension implements ExtensionResolver<Byte> {
     @Override
-    public @NonNull Byte resolveArgument(@NonNull String input) {
+    public @NonNull Byte resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Byte> optionalByte = ParseUtil.parseByte(input);
         if (!optionalByte.isPresent()) {
             throw new IllegalArgumentException("Input are not byte value: " + input);
@@ -20,7 +20,7 @@ public class ByteExtension implements ExtensionResolver<Byte> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return new ArrayList<>();
     }
 }
