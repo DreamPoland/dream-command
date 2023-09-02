@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class PlayerExtension implements ExtensionResolver<Player> {
     @Override
-    public @NonNull Player resolveArgument(@NonNull String input) throws IllegalArgumentException {
+    public @NonNull Player resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) throws IllegalArgumentException {
         final Optional<Player> player = Optional.ofNullable(Bukkit.getPlayerExact(input));
         if (!player.isPresent()) {
             throw new IllegalArgumentException("Player " + input + " not found");
@@ -21,7 +21,7 @@ public class PlayerExtension implements ExtensionResolver<Player> {
     }
 
     @Override
-    public @NonNull List<String> getSuggestion(@NonNull String input) {
+    public @NonNull List<String> getSuggestion(@NonNull Class<?> argumentClass, @NonNull String input) {
         return Bukkit.getOnlinePlayers()
                 .stream()
                 .map(Player::getName)
