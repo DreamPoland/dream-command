@@ -17,9 +17,9 @@ public class SimpleCommand extends DreamCommandExecutor {
     }
 
     @Path(name = "dirt")
-    void simpleBlock() {
-        System.out.println("[DEBUG] ");
-        System.out.println("[DEBUG] Dirt!");
+    void simpleBlock(TestCommandSender sender) {
+        sender.sendMessage("[DEBUG] ");
+        sender.sendMessage("[DEBUG] Dirt!");
     }
 
     @Path(name = "player")

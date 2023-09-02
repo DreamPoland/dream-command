@@ -15,6 +15,7 @@ import cc.dreamcode.command.handler.type.InvalidInputValueType;
 import cc.dreamcode.command.handler.type.InvalidUsageType;
 import cc.dreamcode.command.handler.type.NoPermissionType;
 import cc.dreamcode.command.shared.AnnotationUtil;
+import cc.dreamcode.utilities.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -53,6 +54,18 @@ public abstract class DreamCommandExecutor {
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
 
             if (!validator.isValid(this.context, declaredMethod)) {
+                continue;
+            }
+
+            // scan for path name priority; first path, second @Arg
+            if (Arrays.stream(this.getClass().getDeclaredMethods())
+                    .filter(method -> declaredMethod != method)
+                    .anyMatch(method -> {
+                        final String argument = StringUtil.join(commandInvokeContext.getArguments(), " ").toLowerCase();
+                        final String methodPath = method.getAnnotation(Path.class).name().toLowerCase();
+
+                        return argument.equals(methodPath);
+                    })) {
                 continue;
             }
 
@@ -127,7 +140,7 @@ public abstract class DreamCommandExecutor {
 
         final int lastIndex = commandInvokeContext.getArguments().length - 1;
         if (lastIndex == -1) {
-            return new ArrayList<>();
+            return suggestions;
         }
 
         final String lastWord = commandInvokeContext.getArguments()[lastIndex];
