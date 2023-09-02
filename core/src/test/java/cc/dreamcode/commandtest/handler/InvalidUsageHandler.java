@@ -25,7 +25,9 @@ public class InvalidUsageHandler implements InvalidUsageType {
 
         if (similarOptionalPath.isPresent()) {
             final CommandPathContext similarPath = similarOptionalPath.get();
-            usage.append(" ").append(similarPath.getPathName());
+            if (!similarPath.getPathName().isEmpty()) {
+                usage.append(" ").append(similarPath.getPathName());
+            }
 
             if (similarPath.getMethodArgs().length != 0) {
                 usage.append(" (").append(StringUtil.join(similarPath.getMethodArgs(), ", ")).append(")");
@@ -35,6 +37,7 @@ public class InvalidUsageHandler implements InvalidUsageType {
             usage.append(" [").append(commandPathContextList.stream()
                     .map(CommandPathContext::getPathName)
                     .distinct()
+                    .filter(text -> !text.isEmpty())
                     .collect(Collectors.joining(", "))).append("]");
         }
 

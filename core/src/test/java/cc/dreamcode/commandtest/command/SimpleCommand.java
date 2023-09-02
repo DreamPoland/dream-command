@@ -11,6 +11,11 @@ import cc.dreamcode.commandtest.TestValue;
 @Permission(name = "simple.command")
 @Command(label = "simple", description = "Simple command.")    // EXAMPLE
 public class SimpleCommand extends DreamCommandExecutor {
+    @Path
+    void simpleHelp(TestCommandSender sender) {
+        sender.sendMessage("Brak argumentow!");
+    }
+
     @Path(name = "dirt")
     void simpleBlock() {
         System.out.println("[DEBUG] ");

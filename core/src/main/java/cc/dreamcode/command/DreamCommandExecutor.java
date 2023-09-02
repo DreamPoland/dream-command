@@ -73,7 +73,7 @@ public abstract class DreamCommandExecutor {
             final AtomicInteger otherParams = new AtomicInteger();
             final Object[] invokeObjects = new Object[declaredMethod.getParameterCount()];
             final String[] invokeArgs = new String[commandPathContext.getMethodArgs().length];
-            System.arraycopy(commandInvokeContext.getArguments(), usingPath.split(" ").length, invokeArgs, 0, invokeArgs.length);
+            System.arraycopy(commandInvokeContext.getArguments(), usingPath.isEmpty() ? 0 : usingPath.split(" ").length, invokeArgs, 0, invokeArgs.length);
 
             for (int indexRaw = 0; indexRaw < declaredMethod.getParameterCount(); indexRaw++) {
                 final Class<?> objectClass = declaredMethod.getParameterTypes()[indexRaw];
@@ -125,8 +125,13 @@ public abstract class DreamCommandExecutor {
             return suggestions;
         }
 
-        final String lastWord = commandInvokeContext.getArguments()[commandInvokeContext.getArguments().length - 1];
-        final String[] trimmedInvoke = new String[commandInvokeContext.getArguments().length - 1];
+        final int lastIndex = commandInvokeContext.getArguments().length - 1;
+        if (lastIndex == -1) {
+            return new ArrayList<>();
+        }
+
+        final String lastWord = commandInvokeContext.getArguments()[lastIndex];
+        final String[] trimmedInvoke = new String[lastIndex];
         System.arraycopy(commandInvokeContext.getArguments(), 0, trimmedInvoke, 0, trimmedInvoke.length);
 
         final CommandInvokeContext trimmedInvokeContext = CommandInvokeContext.of(commandInvokeContext.getLabel(), trimmedInvoke);
@@ -172,6 +177,10 @@ public abstract class DreamCommandExecutor {
         return suggestions.stream()
                 .distinct()
                 .filter(text -> {
+                    if (text.isEmpty()) {
+                        return false;
+                    }
+
                     if (text.startsWith("<") && text.endsWith(">")) {
                         return true;
                     }

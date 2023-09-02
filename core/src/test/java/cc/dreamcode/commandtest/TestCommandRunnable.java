@@ -22,7 +22,7 @@ public final class TestCommandRunnable {
 
     @Test
     public void test_command() {
-        this.parseCommand("simple number info test 3 no");
+        this.parseCommand("simple dirt");
     }
 
     public void parseCommand(@NonNull String input) {

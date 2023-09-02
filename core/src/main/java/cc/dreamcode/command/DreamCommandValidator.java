@@ -92,6 +92,10 @@ public class DreamCommandValidator {
     }
 
     public boolean isValid(@NonNull String path, int arguments) {
+        if (path.isEmpty()) {
+            return arguments == this.commandInvokeContext.getArguments().length;
+        }
+
         final String[] splitPath = path.split(" ");
         if (splitPath.length + arguments != this.commandInvokeContext.getArguments().length) {
             return false;
