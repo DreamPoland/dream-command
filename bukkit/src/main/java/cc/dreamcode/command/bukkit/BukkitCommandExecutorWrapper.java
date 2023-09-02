@@ -1,6 +1,7 @@
 package cc.dreamcode.command.bukkit;
 
 import cc.dreamcode.command.DreamCommandExecutor;
+import cc.dreamcode.command.bukkit.sender.BukkitSender;
 import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.context.CommandInvokeContext;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class BukkitCommandExecutorWrapper extends Command implements PluginIdent
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-        final BukkitCommandSender dreamSender = new BukkitCommandSender(sender);
+        final BukkitSender dreamSender = new BukkitSender(sender);
         final CommandInvokeContext commandInvokeContext = CommandInvokeContext.of(this.context.getLabel(), args);
 
         return this.executor.invokeMethod(dreamSender, commandInvokeContext);
@@ -40,7 +41,7 @@ public class BukkitCommandExecutorWrapper extends Command implements PluginIdent
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-        final BukkitCommandSender dreamSender = new BukkitCommandSender(sender);
+        final BukkitSender dreamSender = new BukkitSender(sender);
         final CommandInvokeContext commandInvokeContext = CommandInvokeContext.of(this.context.getLabel(), args);
 
         return this.executor.getSuggestion(dreamSender, commandInvokeContext);

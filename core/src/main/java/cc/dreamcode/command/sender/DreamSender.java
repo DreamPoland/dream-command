@@ -1,8 +1,10 @@
-package cc.dreamcode.command;
+package cc.dreamcode.command.sender;
 
 import lombok.NonNull;
 
-public interface DreamCommandSender<T> {
+public interface DreamSender<T> {
+
+    SenderType getSenderType();
 
     String getName();
 

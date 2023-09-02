@@ -3,6 +3,7 @@ package cc.dreamcode.command;
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Path;
 import cc.dreamcode.command.annotation.Permission;
+import cc.dreamcode.command.annotation.RequireSender;
 import cc.dreamcode.command.bind.BindManager;
 import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.context.CommandInvokeContext;
@@ -12,8 +13,10 @@ import cc.dreamcode.command.extension.ExtensionManager;
 import cc.dreamcode.command.handler.HandlerManager;
 import cc.dreamcode.command.handler.HandlerType;
 import cc.dreamcode.command.handler.type.InvalidInputValueType;
+import cc.dreamcode.command.handler.type.InvalidSenderType;
 import cc.dreamcode.command.handler.type.InvalidUsageType;
 import cc.dreamcode.command.handler.type.NoPermissionType;
+import cc.dreamcode.command.sender.DreamSender;
 import cc.dreamcode.command.shared.AnnotationUtil;
 import cc.dreamcode.utilities.StringUtil;
 import lombok.Getter;
@@ -39,7 +42,17 @@ public abstract class DreamCommandExecutor {
     private HandlerManager handlerManager;
     private BindManager bindManager;
 
-    public boolean invokeMethod(@NonNull DreamCommandSender<?> sender, @NonNull CommandInvokeContext commandInvokeContext) {
+    public boolean invokeMethod(@NonNull DreamSender<?> sender, @NonNull CommandInvokeContext commandInvokeContext) {
+        final RequireSender requireSender = this.getClass().getAnnotation(RequireSender.class);
+        if (requireSender != null && !sender.getSenderType().equals(requireSender.type())) {
+            this.handlerManager.getCommandHandler(HandlerType.INVALID_SENDER_TYPE).ifPresent(commandHandler -> {
+                final InvalidSenderType invalidSenderType = (InvalidSenderType) commandHandler;
+                invalidSenderType.handle(sender, requireSender.type());
+            });
+
+            return false;
+        }
+
         final Permission permission = this.getClass().getAnnotation(Permission.class);
         if (permission != null && !sender.hasPermission(permission.name())) {
             this.handlerManager.getCommandHandler(HandlerType.NO_PERMISSION).ifPresent(commandHandler -> {
@@ -67,6 +80,16 @@ public abstract class DreamCommandExecutor {
                         return argument.equals(methodPath);
                     })) {
                 continue;
+            }
+
+            final RequireSender methodRequireSender = declaredMethod.getAnnotation(RequireSender.class);
+            if (methodRequireSender != null && !sender.getSenderType().equals(methodRequireSender.type())) {
+                this.handlerManager.getCommandHandler(HandlerType.INVALID_SENDER_TYPE).ifPresent(commandHandler -> {
+                    final InvalidSenderType invalidSenderType = (InvalidSenderType) commandHandler;
+                    invalidSenderType.handle(sender, methodRequireSender.type());
+                });
+
+                return false;
             }
 
             final Permission methodPermission = declaredMethod.getAnnotation(Permission.class);
@@ -130,8 +153,13 @@ public abstract class DreamCommandExecutor {
         return false;
     }
 
-    public List<String> getSuggestion(@NonNull DreamCommandSender<?> sender, @NonNull CommandInvokeContext commandInvokeContext) {
+    public List<String> getSuggestion(@NonNull DreamSender<?> sender, @NonNull CommandInvokeContext commandInvokeContext) {
         final List<String> suggestions = new ArrayList<>();
+
+        final RequireSender requireSender = this.getClass().getAnnotation(RequireSender.class);
+        if (requireSender != null && !sender.getSenderType().equals(requireSender.type())) {
+            return suggestions;
+        }
 
         final Permission permission = this.getClass().getAnnotation(Permission.class);
         if (permission != null && !sender.hasPermission(permission.name())) {
@@ -153,6 +181,11 @@ public abstract class DreamCommandExecutor {
 
             if (!validator.canBeSuggestion(this.context, declaredMethod)) {
                 continue;
+            }
+
+            final RequireSender methodRequireSender = declaredMethod.getAnnotation(RequireSender.class);
+            if (methodRequireSender != null && !sender.getSenderType().equals(methodRequireSender.type())) {
+                return suggestions;
             }
 
             final Permission methodPermission = declaredMethod.getAnnotation(Permission.class);

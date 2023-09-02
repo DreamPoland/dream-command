@@ -1,11 +1,17 @@
-package cc.dreamcode.commandtest;
+package cc.dreamcode.commandtest.sender;
 
-import cc.dreamcode.command.DreamCommandSender;
+import cc.dreamcode.command.sender.DreamSender;
+import cc.dreamcode.command.sender.SenderType;
 import lombok.NonNull;
 
 import java.io.PrintStream;
 
-public class TestCommandSender implements DreamCommandSender<PrintStream> {
+public class TestSender implements DreamSender<PrintStream> {
+    @Override
+    public SenderType getSenderType() {
+        return SenderType.CONSOLE;
+    }
+
     @Override
     public String getName() {
         return "CONSOLE";

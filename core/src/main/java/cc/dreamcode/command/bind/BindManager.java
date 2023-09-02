@@ -1,6 +1,6 @@
 package cc.dreamcode.command.bind;
 
-import cc.dreamcode.command.DreamCommandSender;
+import cc.dreamcode.command.sender.DreamSender;
 import lombok.NonNull;
 
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class BindManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> resolveBind(@NonNull Class<T> bindClass, @NonNull DreamCommandSender<?> sender) {
+    public <T> Optional<T> resolveBind(@NonNull Class<T> bindClass, @NonNull DreamSender<?> sender) {
         for (Map.Entry<Class<?>, BindResolver<?>> entry : this.bindResolverMap.entrySet()) {
             if (!entry.getKey().isAssignableFrom(bindClass)) {
                 continue;

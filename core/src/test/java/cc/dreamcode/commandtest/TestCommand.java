@@ -4,6 +4,7 @@ import cc.dreamcode.command.DreamCommandImpl;
 import cc.dreamcode.command.extension.DefaultExtensionRegistry;
 import cc.dreamcode.commandtest.bind.TestCommandBindRegistry;
 import cc.dreamcode.commandtest.handler.InvalidInputValueHandler;
+import cc.dreamcode.commandtest.handler.InvalidSenderTypeHandler;
 import cc.dreamcode.commandtest.handler.InvalidUsageHandler;
 import cc.dreamcode.commandtest.handler.NoPermissionHandler;
 import lombok.Getter;
@@ -21,5 +22,6 @@ public class TestCommand extends DreamCommandImpl {
         this.getHandlers().registerHandler(new InvalidUsageHandler());
         this.getHandlers().registerHandler(new InvalidInputValueHandler());
         this.getHandlers().registerHandler(new NoPermissionHandler());
+        this.getHandlers().registerHandler(new InvalidSenderTypeHandler());
     }
 }

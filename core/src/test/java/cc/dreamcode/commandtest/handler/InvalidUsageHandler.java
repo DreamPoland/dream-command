@@ -1,7 +1,7 @@
 package cc.dreamcode.commandtest.handler;
 
 import cc.dreamcode.command.DreamCommandExecutor;
-import cc.dreamcode.command.DreamCommandSender;
+import cc.dreamcode.command.sender.DreamSender;
 import cc.dreamcode.command.DreamCommandValidator;
 import cc.dreamcode.command.context.CommandInvokeContext;
 import cc.dreamcode.command.context.CommandPathContext;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class InvalidUsageHandler implements InvalidUsageType {
     @Override     // EXAMPLE
-    public void handle(@NonNull DreamCommandSender<?> sender, @NonNull DreamCommandExecutor executor, @NonNull List<CommandPathContext> commandPathContextList, @NonNull CommandInvokeContext commandInvokeContext) {
+    public void handle(@NonNull DreamSender<?> sender, @NonNull DreamCommandExecutor executor, @NonNull List<CommandPathContext> commandPathContextList, @NonNull CommandInvokeContext commandInvokeContext) {
         final StringBuilder usage = new StringBuilder("/" + executor.getContext().getLabel());
 
         final DreamCommandValidator validator = new DreamCommandValidator(commandInvokeContext);

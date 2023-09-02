@@ -1,14 +1,21 @@
-package cc.dreamcode.command.bukkit;
+package cc.dreamcode.command.bukkit.sender;
 
-import cc.dreamcode.command.DreamCommandSender;
+import cc.dreamcode.command.sender.SenderType;
+import cc.dreamcode.command.sender.DreamSender;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-public class BukkitCommandSender implements DreamCommandSender<CommandSender> {
+public class BukkitSender implements DreamSender<CommandSender> {
 
     private final CommandSender sender;
+
+    @Override
+    public SenderType getSenderType() {
+        return this.sender instanceof Player ? SenderType.PLAYER : SenderType.CONSOLE;
+    }
 
     @Override
     public String getName() {

@@ -1,13 +1,13 @@
 package cc.dreamcode.commandtest.bind.type;
 
-import cc.dreamcode.command.DreamCommandSender;
+import cc.dreamcode.command.sender.DreamSender;
 import cc.dreamcode.command.bind.BindResolver;
-import cc.dreamcode.commandtest.TestCommandSender;
+import cc.dreamcode.commandtest.sender.TestSender;
 import lombok.NonNull;
 
-public class TestCommandSenderBind implements BindResolver<TestCommandSender> {
+public class TestCommandSenderBind implements BindResolver<TestSender> {
     @Override
-    public @NonNull TestCommandSender resolveBind(@NonNull DreamCommandSender<?> sender) {
-        return new TestCommandSender();
+    public @NonNull TestSender resolveBind(@NonNull DreamSender<?> sender) {
+        return new TestSender();
     }
 }

@@ -1,12 +1,12 @@
 package cc.dreamcode.commandtest.handler;
 
-import cc.dreamcode.command.DreamCommandSender;
+import cc.dreamcode.command.sender.DreamSender;
 import cc.dreamcode.command.handler.type.InvalidInputValueType;
 import lombok.NonNull;
 
 public class InvalidInputValueHandler implements InvalidInputValueType {
     @Override    // EXAMPLE
-    public void handle(@NonNull DreamCommandSender<?> sender, @NonNull Class<?> requiredClass, @NonNull String argument, int index) {
+    public void handle(@NonNull DreamSender<?> sender, @NonNull Class<?> requiredClass, @NonNull String argument, int index) {
         if (requiredClass.isAssignableFrom(Integer.class) || requiredClass.isAssignableFrom(int.class)) {
             sender.sendMessage("Podana liczba nie jest cyfra, argument: " + index + ".");
             return;

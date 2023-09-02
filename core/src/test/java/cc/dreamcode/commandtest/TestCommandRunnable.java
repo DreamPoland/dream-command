@@ -4,6 +4,7 @@ import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandValidator;
 import cc.dreamcode.command.context.CommandInvokeContext;
 import cc.dreamcode.commandtest.command.SimpleCommand;
+import cc.dreamcode.commandtest.sender.TestSender;
 import lombok.NonNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,12 +23,12 @@ public final class TestCommandRunnable {
 
     @Test
     public void test_command() {
-        this.parseCommand("simple dirt");
+        this.parseCommand("simple number info info5 4 no");
     }
 
     public void parseCommand(@NonNull String input) {
         final CommandInvokeContext commandInvokeContext = new CommandInvokeContext(input);
-        final TestCommandSender sender = new TestCommandSender();
+        final TestSender sender = new TestSender();
 
         final DreamCommandExecutor executor = this.testCommand.getCommandRegistry().getCommand(new DreamCommandValidator(commandInvokeContext));
         executor.invokeMethod(sender, commandInvokeContext);
