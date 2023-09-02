@@ -3,6 +3,7 @@ package cc.dreamcode.commandtest.bind;
 import cc.dreamcode.command.bind.BindManager;
 import cc.dreamcode.command.bind.BindRegistry;
 import cc.dreamcode.commandtest.TestCommandSender;
+import cc.dreamcode.commandtest.bind.type.TestCommandSenderBind;
 import lombok.NonNull;
 
 public class TestCommandBindRegistry implements BindRegistry {

@@ -1,4 +1,4 @@
-package cc.dreamcode.commandtest.bind;
+package cc.dreamcode.commandtest.bind.type;
 
 import cc.dreamcode.command.DreamCommandSender;
 import cc.dreamcode.command.bind.BindResolver;
