@@ -1,6 +1,6 @@
 dependencies {
     // -- dream-utilities --
-    implementation "cc.dreamcode:utilities:1.2.15"
+    implementation "cc.dreamcode:utilities:1.2.16"
 
     // -- tests --
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'

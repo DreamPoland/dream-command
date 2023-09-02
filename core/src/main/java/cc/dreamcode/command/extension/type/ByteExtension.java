@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class IntegerExtension implements ExtensionResolver<Integer> {
+public class ByteExtension implements ExtensionResolver<Byte> {
     @Override
-    public @NonNull Integer resolveArgument(@NonNull String input) {
-        final Optional<Integer> optionalInteger = ParseUtil.parseInteger(input);
-        if (!optionalInteger.isPresent()) {
-            throw new IllegalArgumentException("Input are not int value: " + input);
+    public @NonNull Byte resolveArgument(@NonNull String input) {
+        final Optional<Byte> optionalByte = ParseUtil.parseByte(input);
+        if (!optionalByte.isPresent()) {
+            throw new IllegalArgumentException("Input are not byte value: " + input);
         }
 
-        return optionalInteger.get();
+        return optionalByte.get();
     }
 
     @Override

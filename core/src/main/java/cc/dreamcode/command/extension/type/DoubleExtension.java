@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class IntegerExtension implements ExtensionResolver<Integer> {
+public class DoubleExtension implements ExtensionResolver<Double> {
     @Override
-    public @NonNull Integer resolveArgument(@NonNull String input) {
-        final Optional<Integer> optionalInteger = ParseUtil.parseInteger(input);
-        if (!optionalInteger.isPresent()) {
-            throw new IllegalArgumentException("Input are not int value: " + input);
+    public @NonNull Double resolveArgument(@NonNull String input) {
+        final Optional<Double> optionalDouble = ParseUtil.parseDouble(input);
+        if (!optionalDouble.isPresent()) {
+            throw new IllegalArgumentException("Input are not double value: " + input);
         }
 
-        return optionalInteger.get();
+        return optionalDouble.get();
     }
 
     @Override

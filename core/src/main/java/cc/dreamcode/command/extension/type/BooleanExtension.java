@@ -5,19 +5,13 @@ import cc.dreamcode.utilities.ParseUtil;
 import lombok.NonNull;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BooleanExtension implements ExtensionResolver<Boolean> {
     @Override
     public @NonNull Boolean resolveArgument(@NonNull String input) {
-        final Optional<Boolean> value = ParseUtil.parseBoolean(input);
-        if (!value.isPresent()) {
-            throw new IllegalArgumentException("Input are not boolean value: " + input);
-        }
-
-        return value.get();
+        return ParseUtil.parseBoolean(input);
     }
 
     @Override

@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class IntegerExtension implements ExtensionResolver<Integer> {
+public class CharacterExtension implements ExtensionResolver<Character> {
     @Override
-    public @NonNull Integer resolveArgument(@NonNull String input) {
-        final Optional<Integer> optionalInteger = ParseUtil.parseInteger(input);
-        if (!optionalInteger.isPresent()) {
-            throw new IllegalArgumentException("Input are not int value: " + input);
+    public @NonNull Character resolveArgument(@NonNull String input) {
+        final Optional<Character> optionalCharacter = ParseUtil.parseChar(input);
+        if (!optionalCharacter.isPresent()) {
+            throw new IllegalArgumentException("Input are not character value: " + input);
         }
 
-        return optionalInteger.get();
+        return optionalCharacter.get();
     }
 
     @Override

@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class IntegerExtension implements ExtensionResolver<Integer> {
+public class ShortExtension implements ExtensionResolver<Short> {
     @Override
-    public @NonNull Integer resolveArgument(@NonNull String input) {
-        final Optional<Integer> optionalInteger = ParseUtil.parseInteger(input);
-        if (!optionalInteger.isPresent()) {
-            throw new IllegalArgumentException("Input are not int value: " + input);
+    public @NonNull Short resolveArgument(@NonNull String input) {
+        final Optional<Short> optionalShort = ParseUtil.parseShort(input);
+        if (!optionalShort.isPresent()) {
+            throw new IllegalArgumentException("Input are not short value: " + input);
         }
 
-        return optionalInteger.get();
+        return optionalShort.get();
     }
 
     @Override

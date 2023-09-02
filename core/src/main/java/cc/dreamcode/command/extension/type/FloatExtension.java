@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class IntegerExtension implements ExtensionResolver<Integer> {
+public class FloatExtension implements ExtensionResolver<Float> {
     @Override
-    public @NonNull Integer resolveArgument(@NonNull String input) {
-        final Optional<Integer> optionalInteger = ParseUtil.parseInteger(input);
-        if (!optionalInteger.isPresent()) {
-            throw new IllegalArgumentException("Input are not int value: " + input);
+    public @NonNull Float resolveArgument(@NonNull String input) {
+        final Optional<Float> optionalFloat = ParseUtil.parseFloat(input);
+        if (!optionalFloat.isPresent()) {
+            throw new IllegalArgumentException("Input are not float value: " + input);
         }
 
-        return optionalInteger.get();
+        return optionalFloat.get();
     }
 
     @Override
