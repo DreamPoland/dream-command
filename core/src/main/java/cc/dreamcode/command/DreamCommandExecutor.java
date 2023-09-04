@@ -143,9 +143,13 @@ public abstract class DreamCommandExecutor {
                             join.set(StringUtil.join(commandInvokeContext.getArguments(), " ", min, commandInvokeContext.getArguments().length));
                         }
 
-                        final String[] split = join.get().split(" ");
-
                         try {
+                            if (objectClass.isAssignableFrom(String.class)) {
+                                invokeObjects[indexRaw] = join.get();
+                                continue;
+                            }
+
+                            final String[] split = join.get().split(" ");
                             if (objectClass.getComponentType().isAssignableFrom(String.class)) {
                                 invokeObjects[indexRaw] = split;
                                 continue;

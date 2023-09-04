@@ -19,7 +19,7 @@ public class SimpleArgsCommand extends DreamCommandExecutor {
     }
 
     @Path(name = "args")
-    void simpleArgs(TestSender sender, @Arg(name = "arg") String arg, @Args(name = "args", max = 9) Object[] args) {
+    void simpleArgs(TestSender sender, @Arg(name = "arg") String arg, @Args(name = "args", max = 9) String[] args) {
         sender.sendMessage("[DEBUG] ");
         sender.sendMessage("[DEBUG] Arg: " + arg);
         sender.sendMessage("[DEBUG] Args: " + Arrays.toString(args));
