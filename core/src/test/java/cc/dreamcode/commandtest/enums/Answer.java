@@ -1,5 +1,5 @@
 package cc.dreamcode.commandtest.enums;
 
-public enum TestValue {
+public enum Answer {
     YES, NO
 }

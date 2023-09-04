@@ -1,16 +1,45 @@
-package cc.dreamcode.commandtest.command;
+# Dream-Command
+An advanced framework for simple command creation.
 
-import cc.dreamcode.command.DreamCommandExecutor;
-import cc.dreamcode.command.annotation.Arg;
-import cc.dreamcode.command.annotation.Args;
-import cc.dreamcode.command.annotation.Command;
-import cc.dreamcode.command.annotation.Path;
-import cc.dreamcode.command.annotation.Permission;
-import cc.dreamcode.command.annotation.RequireSender;
-import cc.dreamcode.command.sender.SenderType;
-import cc.dreamcode.commandtest.enums.Answer;
-import cc.dreamcode.commandtest.sender.TestSender;
+```xml
+<repository>
+    <id>dreamcode-repository-releases</id>
+    <url>https://repo.dreamcode.cc/releases</url>
+</repository>
+```
 
+```groovy
+maven { url "https://repo.dreamcode.cc/releases" }
+```
+
+### Core:
+```xml
+<dependency>
+  <groupId>cc.dreamcode.command</groupId>
+  <artifactId>core</artifactId>
+  <version>2.0-beta.1</version>
+</dependency>
+```
+```groovy
+implementation "cc.dreamcode.command:core:2.0-beta.1"
+```
+
+### Supported platforms:
+- [Bukkit](https://github.com/DreamPoland/dream-command/tree/2.x/bukkit)
+
+```xml
+<dependency>
+  <groupId>cc.dreamcode.command</groupId>
+  <artifactId>{platform}</artifactId>
+  <version>2.0-beta.1</version>
+</dependency>
+```
+```groovy
+implementation "cc.dreamcode.command:{platform}:2.0-beta.1"
+```
+
+### Example command class
+```java
 @Permission(name = "simple.command")
 @Command(label = "simple", description = "Simple command.")
 public class SimpleCommand extends DreamCommandExecutor {
@@ -45,8 +74,15 @@ public class SimpleCommand extends DreamCommandExecutor {
     void simpleWords(TestSender sender, @Args(name = "words") String[] words) {
         for (int index = 0; index < words.length; index++) {
             final String word = words[index];
-
+            
             sender.sendMessage("Word number " + index + ": " + word);
         }
     }
 }
+```
+
+### Other projects:
+- [Dream-Platform](https://github.com/DreamPoland/dream-platform)
+- [Dream-Menu](https://github.com/DreamPoland/dream-menu)
+- [Dream-Notice](https://github.com/DreamPoland/dream-notice)
+- [Dream-Utilities](https://github.com/DreamPoland/dream-utilities)
