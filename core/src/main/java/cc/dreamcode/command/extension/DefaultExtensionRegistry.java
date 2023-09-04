@@ -1,6 +1,16 @@
 package cc.dreamcode.command.extension;
 
-import cc.dreamcode.command.extension.type.*;
+import cc.dreamcode.command.extension.type.BooleanExtension;
+import cc.dreamcode.command.extension.type.ByteExtension;
+import cc.dreamcode.command.extension.type.CharacterExtension;
+import cc.dreamcode.command.extension.type.DoubleExtension;
+import cc.dreamcode.command.extension.type.EnumExtension;
+import cc.dreamcode.command.extension.type.FloatExtension;
+import cc.dreamcode.command.extension.type.IntegerExtension;
+import cc.dreamcode.command.extension.type.LongExtension;
+import cc.dreamcode.command.extension.type.PeriodExtension;
+import cc.dreamcode.command.extension.type.ShortExtension;
+import cc.dreamcode.command.extension.type.StringExtension;
 import lombok.NonNull;
 
 import java.time.Duration;

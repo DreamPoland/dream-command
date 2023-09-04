@@ -1,6 +1,7 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
+import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Path;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.command.annotation.RequireSender;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Setter
@@ -72,7 +75,7 @@ public abstract class DreamCommandExecutor {
 
             // scan for path name priority; first path, second @Arg
             if (Arrays.stream(this.getClass().getDeclaredMethods())
-                    .filter(method -> declaredMethod != method)
+                    .filter(method -> !declaredMethod.equals(method))
                     .anyMatch(method -> {
                         final String argument = StringUtil.join(commandInvokeContext.getArguments(), " ").toLowerCase();
                         final String methodPath = method.getAnnotation(Path.class).name().toLowerCase();
@@ -108,7 +111,7 @@ public abstract class DreamCommandExecutor {
 
             final AtomicInteger otherParams = new AtomicInteger();
             final Object[] invokeObjects = new Object[declaredMethod.getParameterCount()];
-            final String[] invokeArgs = new String[commandPathContext.getMethodArgs().length];
+            final String[] invokeArgs = new String[commandPathContext.getMethodArgs().size() + commandPathContext.getMethodArgsRow().size()];
             System.arraycopy(commandInvokeContext.getArguments(), usingPath.isEmpty() ? 0 : usingPath.split(" ").length, invokeArgs, 0, invokeArgs.length);
 
             for (int indexRaw = 0; indexRaw < declaredMethod.getParameterCount(); indexRaw++) {
@@ -119,6 +122,52 @@ public abstract class DreamCommandExecutor {
                     invokeObjects[indexRaw] = optionalObject.get();
                     otherParams.incrementAndGet();
                     continue;
+                }
+
+                if (declaredMethod.getParameterAnnotations().length > indexRaw) {
+
+                    final Optional<Annotation> optionalAnnotation = Arrays.stream(declaredMethod.getParameterAnnotations()[indexRaw])
+                            .filter(annotation -> annotation.annotationType().isAssignableFrom(Args.class))
+                            .findAny();
+
+                    if (optionalAnnotation.isPresent()) {
+                        final Args args = (Args) optionalAnnotation.get();
+                        final int min = args.min() == -1 ? invokeArgs.length : args.min();
+                        final int max = args.max() == -1 ? commandInvokeContext.getArguments().length : args.max();
+
+                        final AtomicReference<String> join = new AtomicReference<>();
+                        try {
+                            join.set(StringUtil.join(commandInvokeContext.getArguments(), " ", min, max));
+                        }
+                        catch (ArrayIndexOutOfBoundsException e) {
+                            join.set(StringUtil.join(commandInvokeContext.getArguments(), " ", min, commandInvokeContext.getArguments().length));
+                        }
+
+                        final String[] split = join.get().split(" ");
+
+                        try {
+                            if (objectClass.getComponentType().isAssignableFrom(String.class)) {
+                                invokeObjects[indexRaw] = split;
+                                continue;
+                            }
+
+                            invokeObjects[indexRaw] = Arrays.stream(split)
+                                    .map(input -> this.extensionManager.resolveObject(objectClass.getComponentType(), input)
+                                            .orElseThrow(() -> new CommandException("Cannot find extension resolver for class " + objectClass.getComponentType())))
+                                    .toArray();
+                        }
+                        catch (IllegalArgumentException e) {
+                            final int finalIndexRaw = indexRaw;
+                            this.handlerManager.getCommandHandler(HandlerType.INVALID_INPUT_VALUE).ifPresent(commandHandler -> {
+                                final InvalidInputValueType invalidInputValueType = (InvalidInputValueType) commandHandler;
+                                invalidInputValueType.handle(sender, objectClass.getComponentType(), join.get(), finalIndexRaw);
+                            });
+
+                            return false;
+                        }
+
+                        continue;
+                    }
                 }
 
                 final String input = invokeArgs[indexRaw - otherParams.get()];
@@ -197,7 +246,11 @@ public abstract class DreamCommandExecutor {
             for (String pathName : commandPathContext.getPathNameAndAliases()) {
                 final String[] pathNameRow = pathName.split(" ");
 
-                if (trimmedInvokeContext.getArguments().length - pathNameRow.length >= commandPathContext.getMethodArgs().length) {
+                if (trimmedInvokeContext.getArguments().length - pathNameRow.length >= commandPathContext.getMethodArgs().size()) {
+                    if (!commandPathContext.getMethodArgsRow().isEmpty()) {
+                        commandPathContext.getMethodArgsRow().forEach(args -> suggestions.add("<" + args.name() + ">"));
+                    }
+
                     continue;
                 }
 
@@ -210,13 +263,15 @@ public abstract class DreamCommandExecutor {
                         continue;
                     }
 
-                    final String methodSuggestion = commandPathContext.getMethodArgs()[trimmedInvokeContext.getArguments().length - pathNameRow.length];
+                    final String methodSuggestion = commandPathContext.getMethodArgsNames().get(trimmedInvokeContext.getArguments().length - pathNameRow.length);
                     suggestions.add("<" + methodSuggestion + ">");
                     continue;
                 }
 
                 final String suggestion = pathNameRow[trimmedInvokeContext.getArguments().length];
-                suggestions.add(suggestion);
+                if (!suggestion.isEmpty()) {
+                    suggestions.add(suggestion);
+                }
             }
         }
 
@@ -241,7 +296,12 @@ public abstract class DreamCommandExecutor {
                 .filter(method -> method.getAnnotation(Path.class) != null)
                 .map(method -> {
                     final Path path = method.getAnnotation(Path.class);
-                    return new CommandPathContext(this.context, path, AnnotationUtil.getAnnotation(method, Arg.class));
+                    return new CommandPathContext(
+                            this.context,
+                            path,
+                            AnnotationUtil.getAnnotation(method, Arg.class),
+                            AnnotationUtil.getAnnotation(method, Args.class)
+                    );
                 })
                 .collect(Collectors.toList());
     }

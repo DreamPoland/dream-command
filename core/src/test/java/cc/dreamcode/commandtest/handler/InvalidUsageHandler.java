@@ -29,8 +29,9 @@ public class InvalidUsageHandler implements InvalidUsageType {
                 usage.append(" ").append(similarPath.getPathName());
             }
 
-            if (similarPath.getMethodArgs().length != 0) {
-                usage.append(" (").append(StringUtil.join(similarPath.getMethodArgs(), ", ")).append(")");
+            if (!similarPath.getMethodArgs().isEmpty() || !similarPath.getMethodArgsRow().isEmpty()) {
+                usage.append(" (").append(StringUtil.join(similarPath.getMethodArgsNames(), ", "))
+                        .append(StringUtil.join(similarPath.getMethodArgsRowNames(), ", ")).append(")");
             }
         }
         else {

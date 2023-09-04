@@ -3,6 +3,7 @@ package cc.dreamcode.commandtest;
 import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandValidator;
 import cc.dreamcode.command.context.CommandInvokeContext;
+import cc.dreamcode.commandtest.command.SimpleArgsCommand;
 import cc.dreamcode.commandtest.command.SimpleCommand;
 import cc.dreamcode.commandtest.sender.TestSender;
 import lombok.NonNull;
@@ -19,11 +20,12 @@ public final class TestCommandRunnable {
     public void before_all() {
         this.testCommand = new TestCommand();
         this.testCommand.getCommandRegistry().registerCommand(new SimpleCommand());
+        this.testCommand.getCommandRegistry().registerCommand(new SimpleArgsCommand());
     }
 
     @Test
     public void test_command() {
-        this.parseCommand("simple number info info5 4 no");
+        this.parseCommand("simpleargs args test3 test4 test6 test8 test9");
     }
 
     public void parseCommand(@NonNull String input) {

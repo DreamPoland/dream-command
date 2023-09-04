@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @Data
@@ -78,12 +77,8 @@ public class DreamCommandValidator {
     }
 
     public boolean isValid(@NonNull CommandPathContext commandPathContext) {
-        return this.isValid(commandPathContext, commandPathContext.getMethodArgs().length);
-    }
-
-    public boolean isValid(@NonNull CommandPathContext commandPathContext, int args) {
         for (String pathName : commandPathContext.getPathNameAndAliases()) {
-            if (this.isValid(pathName, args)) {
+            if (this.isValid(commandPathContext, pathName)) {
                 return true;
             }
         }
@@ -91,13 +86,20 @@ public class DreamCommandValidator {
         return false;
     }
 
-    public boolean isValid(@NonNull String path, int arguments) {
-        if (path.isEmpty()) {
+    public boolean isValid(@NonNull CommandPathContext commandPathContext, @NonNull String pathName) {
+        int arguments = commandPathContext.getMethodArgs().size();
+
+        if (pathName.isEmpty()) {
+            if (!commandPathContext.getMethodArgsRow().isEmpty()) {
+                return true;
+            }
+
             return arguments == this.commandInvokeContext.getArguments().length;
         }
 
-        final String[] splitPath = path.split(" ");
-        if (splitPath.length + arguments != this.commandInvokeContext.getArguments().length) {
+        final String[] splitPath = pathName.split(" ");
+        if (commandPathContext.getMethodArgsRow().isEmpty() &&
+                splitPath.length + arguments != this.commandInvokeContext.getArguments().length) {
             return false;
         }
 
@@ -111,10 +113,9 @@ public class DreamCommandValidator {
     }
 
     public Optional<String> getUsingPathName(@NonNull CommandPathContext commandPathContext) {
-        final List<String> args = commandPathContext.getPathNameAndAliases();
-
-        return args.stream()
-                .filter(arg -> this.isValid(arg, commandPathContext.getMethodArgs().length))
+        return commandPathContext.getPathNameAndAliases()
+                .stream()
+                .filter(arg -> this.isValid(commandPathContext, arg))
                 .findAny();
     }
 }
