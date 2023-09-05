@@ -17,25 +17,26 @@ maven { url "https://repo.dreamcode.cc/releases" }
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>core</artifactId>
-  <version>2.0-beta.2</version>
+  <version>2.0-beta.3</version>
 </dependency>
 ```
 ```groovy
-implementation "cc.dreamcode.command:core:2.0-beta.2"
+implementation "cc.dreamcode.command:core:2.0-beta.3"
 ```
 
 ### Supported platforms:
 - [Bukkit](https://github.com/DreamPoland/dream-command/tree/2.x/bukkit)
+- [Bungee](https://github.com/DreamPoland/dream-command/tree/2.x/bungee)
 
 ```xml
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>{platform}</artifactId>
-  <version>2.0-beta.2</version>
+  <version>2.0-beta.3</version>
 </dependency>
 ```
 ```groovy
-implementation "cc.dreamcode.command:{platform}:2.0-beta.2"
+implementation "cc.dreamcode.command:{platform}:2.0-beta.3"
 ```
 
 ### Example command class
