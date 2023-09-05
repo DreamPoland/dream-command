@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public class LongExtension implements ExtensionResolver<Long> {
     @Override
+    public @NonNull Class<Long> getClassType() {
+        return Long.class;
+    }
+
+    @Override
     public @NonNull Long resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Long> optionalLong = ParseUtil.parseLong(input);
         if (!optionalLong.isPresent()) {

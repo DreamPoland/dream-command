@@ -10,6 +10,11 @@ import java.util.stream.Stream;
 
 public class BooleanExtension implements ExtensionResolver<Boolean> {
     @Override
+    public @NonNull Class<Boolean> getClassType() {
+        return Boolean.class;
+    }
+
+    @Override
     public @NonNull Boolean resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         return ParseUtil.parseBoolean(input);
     }

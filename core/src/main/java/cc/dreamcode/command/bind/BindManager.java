@@ -15,6 +15,10 @@ public class BindManager {
         this.bindResolverMap.put(bindClass, bindResolver);
     }
 
+    public final <T> void registerBind(@NonNull BindResolver<T> bindResolver) {
+        this.bindResolverMap.put(bindResolver.getClassType(), bindResolver);
+    }
+
     public void registerBind(@NonNull BindRegistry bindRegistry) {
         bindRegistry.register(this);
     }

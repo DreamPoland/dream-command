@@ -11,6 +11,11 @@ import java.util.Optional;
 
 public class PeriodExtension implements ExtensionResolver<Duration> {
     @Override
+    public @NonNull Class<Duration> getClassType() {
+        return Duration.class;
+    }
+
+    @Override
     public @NonNull Duration resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Duration> optionalPeriod = ParseUtil.parsePeriod(input);
         if (!optionalPeriod.isPresent()) {

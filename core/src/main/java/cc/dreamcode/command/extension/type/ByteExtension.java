@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public class ByteExtension implements ExtensionResolver<Byte> {
     @Override
+    public @NonNull Class<Byte> getClassType() {
+        return Byte.class;
+    }
+
+    @Override
     public @NonNull Byte resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Byte> optionalByte = ParseUtil.parseByte(input);
         if (!optionalByte.isPresent()) {

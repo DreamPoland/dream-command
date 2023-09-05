@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public class CharacterExtension implements ExtensionResolver<Character> {
     @Override
+    public @NonNull Class<Character> getClassType() {
+        return Character.class;
+    }
+
+    @Override
     public @NonNull Character resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Character> optionalCharacter = ParseUtil.parseChar(input);
         if (!optionalCharacter.isPresent()) {

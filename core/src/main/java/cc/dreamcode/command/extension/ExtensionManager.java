@@ -15,6 +15,10 @@ public class ExtensionManager {
         this.extensionResolverMap.put(argumentClass, extensionResolver);
     }
 
+    public final <T> void registerExtension(@NonNull ExtensionResolver<T> extensionResolver) {
+        this.extensionResolverMap.put(extensionResolver.getClassType(), extensionResolver);
+    }
+
     public void registerExtension(@NonNull ExtensionRegistry registry) {
         registry.register(this);
     }

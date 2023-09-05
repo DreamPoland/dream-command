@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
 
 public class PlayerExtension implements ExtensionResolver<Player> {
     @Override
+    public @NonNull Class<Player> getClassType() {
+        return Player.class;
+    }
+
+    @Override
     public @NonNull Player resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) throws IllegalArgumentException {
         final Optional<Player> player = Optional.ofNullable(Bukkit.getPlayerExact(input));
         if (!player.isPresent()) {

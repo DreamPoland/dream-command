@@ -10,6 +10,11 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class EnumExtension implements ExtensionResolver<Enum> {
     @Override
+    public @NonNull Class<Enum> getClassType() {
+        return Enum.class;
+    }
+
+    @Override
     public @NonNull Enum resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) throws IllegalArgumentException {
         final Class<? extends Enum> enumClass = (Class<? extends Enum>) argumentClass;
 

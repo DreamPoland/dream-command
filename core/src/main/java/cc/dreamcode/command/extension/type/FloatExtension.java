@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public class FloatExtension implements ExtensionResolver<Float> {
     @Override
+    public @NonNull Class<Float> getClassType() {
+        return Float.class;
+    }
+
+    @Override
     public @NonNull Float resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Float> optionalFloat = ParseUtil.parseFloat(input);
         if (!optionalFloat.isPresent()) {

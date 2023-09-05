@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public class IntegerExtension implements ExtensionResolver<Integer> {
     @Override
+    public @NonNull Class<Integer> getClassType() {
+        return Integer.class;
+    }
+
+    @Override
     public @NonNull Integer resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Integer> optionalInteger = ParseUtil.parseInteger(input);
         if (!optionalInteger.isPresent()) {

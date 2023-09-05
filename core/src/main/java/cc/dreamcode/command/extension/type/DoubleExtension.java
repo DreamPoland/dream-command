@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public class DoubleExtension implements ExtensionResolver<Double> {
     @Override
+    public @NonNull Class<Double> getClassType() {
+        return Double.class;
+    }
+
+    @Override
     public @NonNull Double resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Double> optionalDouble = ParseUtil.parseDouble(input);
         if (!optionalDouble.isPresent()) {

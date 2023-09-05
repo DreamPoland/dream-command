@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
 
 public class WorldExtension implements ExtensionResolver<World> {
     @Override
+    public @NonNull Class<World> getClassType() {
+        return World.class;
+    }
+
+    @Override
     public @NonNull World resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) throws IllegalArgumentException {
         final Optional<World> world = Optional.ofNullable(Bukkit.getWorld(input));
         if (!world.isPresent()) {

@@ -8,6 +8,11 @@ import java.util.List;
 
 public class StringExtension implements ExtensionResolver<String> {
     @Override
+    public @NonNull Class<String> getClassType() {
+        return String.class;
+    }
+
+    @Override
     public @NonNull String resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         return input;
     }

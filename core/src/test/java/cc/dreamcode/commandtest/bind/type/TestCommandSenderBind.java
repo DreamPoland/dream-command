@@ -7,6 +7,11 @@ import lombok.NonNull;
 
 public class TestCommandSenderBind implements BindResolver<TestSender> {
     @Override
+    public @NonNull Class<TestSender> getClassType() {
+        return TestSender.class;
+    }
+
+    @Override
     public @NonNull TestSender resolveBind(@NonNull DreamSender<?> sender) {
         return new TestSender();
     }

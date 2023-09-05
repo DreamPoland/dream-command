@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public class ShortExtension implements ExtensionResolver<Short> {
     @Override
+    public @NonNull Class<Short> getClassType() {
+        return Short.class;
+    }
+
+    @Override
     public @NonNull Short resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) {
         final Optional<Short> optionalShort = ParseUtil.parseShort(input);
         if (!optionalShort.isPresent()) {

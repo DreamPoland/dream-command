@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
 
 public class ProxiedPlayerExtension implements ExtensionResolver<ProxiedPlayer> {
     @Override
+    public @NonNull Class<ProxiedPlayer> getClassType() {
+        return ProxiedPlayer.class;
+    }
+
+    @Override
     public @NonNull ProxiedPlayer resolveArgument(@NonNull Class<?> argumentClass, @NonNull String input) throws IllegalArgumentException {
         final Optional<ProxiedPlayer> proxiedPlayer = Optional.ofNullable(ProxyServer.getInstance().getPlayer(input));
         if (!proxiedPlayer.isPresent()) {
