@@ -14,13 +14,13 @@ import org.bukkit.plugin.Plugin;
 import java.util.Arrays;
 import java.util.List;
 
-public class BukkitCommandExecutorWrapper extends Command implements PluginIdentifiableCommand {
+public class BukkitCommandExecutor extends Command implements PluginIdentifiableCommand {
 
     private @Getter final Plugin plugin;
     private final CommandContext context;
     private final DreamCommandExecutor executor;
 
-    public BukkitCommandExecutorWrapper(@NonNull Plugin plugin, @NonNull CommandContext context, @NonNull DreamCommandExecutor executor) {
+    public BukkitCommandExecutor(@NonNull Plugin plugin, @NonNull CommandContext context, @NonNull DreamCommandExecutor executor) {
         super(context.getLabel());
 
         this.plugin = plugin;

@@ -25,7 +25,6 @@ public class PlayerExtension implements ExtensionResolver<Player> {
         return Bukkit.getOnlinePlayers()
                 .stream()
                 .map(Player::getName)
-                .filter(name -> name.startsWith(input))
                 .collect(Collectors.toList());
     }
 }

@@ -18,7 +18,7 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
     private final Plugin plugin;
     private final SimpleCommandMap bukkitCommandMap;
 
-    private final Map<CommandContext, BukkitCommandExecutorWrapper> commandMap;
+    private final Map<CommandContext, BukkitCommandExecutor> commandMap;
 
     public BukkitCommandRegistry(@NonNull Plugin plugin, @NonNull Server server) {
         this.plugin = plugin;
@@ -45,7 +45,7 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
 
     @Override
     public void registerCommand(@NonNull CommandContext context, @NonNull DreamCommandExecutor executor) {
-        final BukkitCommandExecutorWrapper wrapper = new BukkitCommandExecutorWrapper(this.plugin, context, executor);
+        final BukkitCommandExecutor wrapper = new BukkitCommandExecutor(this.plugin, context, executor);
 
         this.bukkitCommandMap.register(context.getLabel(), this.plugin.getName(), wrapper);
         this.commandMap.put(context, wrapper);
@@ -59,7 +59,7 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
 
     @Override
     public void disposeAll() {
-        this.commandMap.forEach((context, bukkitCommandExecutorWrapper) -> this.disposeCommand(context));
+        this.commandMap.forEach((context, bukkitCommandExecutor) -> this.disposeCommand(context));
         this.commandMap.clear();
     }
 }
