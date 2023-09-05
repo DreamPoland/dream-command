@@ -112,7 +112,12 @@ public abstract class DreamCommandExecutor {
             final AtomicInteger otherParams = new AtomicInteger();
             final Object[] invokeObjects = new Object[declaredMethod.getParameterCount()];
             final String[] invokeArgs = new String[commandPathContext.getMethodArgs().size() + commandPathContext.getMethodArgsRow().size()];
-            System.arraycopy(commandInvokeContext.getArguments(), usingPath.isEmpty() ? 0 : usingPath.split(" ").length, invokeArgs, 0, invokeArgs.length);
+            try {
+                System.arraycopy(commandInvokeContext.getArguments(), usingPath.isEmpty() ? 0 : usingPath.split(" ").length, invokeArgs, 0, invokeArgs.length);
+            }
+            catch (ArrayIndexOutOfBoundsException e) {
+                continue;
+            }
 
             for (int indexRaw = 0; indexRaw < declaredMethod.getParameterCount(); indexRaw++) {
                 final Class<?> objectClass = declaredMethod.getParameterTypes()[indexRaw];
