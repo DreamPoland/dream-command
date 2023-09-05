@@ -17,11 +17,11 @@ maven { url "https://repo.dreamcode.cc/releases" }
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>core</artifactId>
-  <version>2.0-beta.3</version>
+  <version>2.0-beta.4</version>
 </dependency>
 ```
 ```groovy
-implementation "cc.dreamcode.command:core:2.0-beta.3"
+implementation "cc.dreamcode.command:core:2.0-beta.4"
 ```
 
 ### Supported platforms:
@@ -32,11 +32,11 @@ implementation "cc.dreamcode.command:core:2.0-beta.3"
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>{platform}</artifactId>
-  <version>2.0-beta.3</version>
+  <version>2.0-beta.4</version>
 </dependency>
 ```
 ```groovy
-implementation "cc.dreamcode.command:{platform}:2.0-beta.3"
+implementation "cc.dreamcode.command:{platform}:2.0-beta.4"
 ```
 
 ### Example command class
