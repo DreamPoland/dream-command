@@ -1,12 +1,11 @@
 package cc.dreamcode.command.bukkit;
 
-import cc.dreamcode.command.context.CommandContext;
-import cc.dreamcode.command.annotation.Command;
-import cc.dreamcode.command.exception.CommandException;
 import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandRegistry;
+import cc.dreamcode.command.annotation.Command;
+import cc.dreamcode.command.context.CommandContext;
+import cc.dreamcode.command.exception.CommandException;
 import lombok.NonNull;
-import org.bukkit.Server;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 
@@ -16,14 +15,16 @@ import java.util.Map;
 public class BukkitCommandRegistry implements DreamCommandRegistry {
 
     private final Plugin plugin;
-    private final SimpleCommandMap bukkitCommandMap;
+    private final BukkitCommand bukkitCommand;
 
+    private final SimpleCommandMap bukkitCommandMap;
     private final Map<CommandContext, BukkitCommandExecutor> commandMap;
 
-    public BukkitCommandRegistry(@NonNull Plugin plugin, @NonNull Server server) {
+    public BukkitCommandRegistry(@NonNull Plugin plugin, @NonNull BukkitCommand bukkitCommand) {
         this.plugin = plugin;
+        this.bukkitCommand = bukkitCommand;
 
-        final SimpleCommandMap simpleCommandMap = BukkitCommandReflection.getSimpleCommandMap(server);
+        final SimpleCommandMap simpleCommandMap = BukkitCommandReflection.getSimpleCommandMap(plugin.getServer());
         if (simpleCommandMap == null) {
             throw new CommandException("Cannot get a simple command map from bukkit.");
         }
@@ -45,6 +46,12 @@ public class BukkitCommandRegistry implements DreamCommandRegistry {
 
     @Override
     public void registerCommand(@NonNull CommandContext context, @NonNull DreamCommandExecutor executor) {
+        executor.setContext(context);
+
+        executor.setExtensionManager(this.bukkitCommand.getExtensions());
+        executor.setHandlerManager(this.bukkitCommand.getHandlers());
+        executor.setBindManager(this.bukkitCommand.getBinds());
+
         final BukkitCommandExecutor wrapper = new BukkitCommandExecutor(this.plugin, context, executor);
 
         this.bukkitCommandMap.register(context.getLabel(), this.plugin.getName(), wrapper);

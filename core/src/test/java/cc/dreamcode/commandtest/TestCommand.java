@@ -15,7 +15,7 @@ public class TestCommand extends DreamCommandImpl {
     private final TestCommandRegistry commandRegistry;
 
     public TestCommand() {
-        this.commandRegistry = new TestCommandRegistry(this.getExtensions(), this.getHandlers(), this.getBinds());
+        this.commandRegistry = new TestCommandRegistry(this);
         this.getExtensions().registerExtension(new DefaultExtensionRegistry());
         this.getBinds().registerBind(new TestCommandBindRegistry());
 

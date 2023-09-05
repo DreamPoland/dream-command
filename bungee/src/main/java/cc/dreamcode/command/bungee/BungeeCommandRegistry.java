@@ -14,11 +14,14 @@ import java.util.Map;
 public class BungeeCommandRegistry implements DreamCommandRegistry {
 
     private final Plugin plugin;
+    private final BungeeCommand bungeeCommand;
 
     private final Map<CommandContext, BungeeCommandExecutor> commandMap;
 
-    public BungeeCommandRegistry(@NonNull Plugin plugin) {
+    public BungeeCommandRegistry(@NonNull Plugin plugin, @NonNull BungeeCommand bungeeCommand) {
         this.plugin = plugin;
+        this.bungeeCommand = bungeeCommand;
+
         this.commandMap = new HashMap<>();
     }
 
@@ -35,6 +38,12 @@ public class BungeeCommandRegistry implements DreamCommandRegistry {
 
     @Override
     public void registerCommand(@NonNull CommandContext context, @NonNull DreamCommandExecutor executor) {
+        executor.setContext(context);
+
+        executor.setExtensionManager(this.bungeeCommand.getExtensions());
+        executor.setHandlerManager(this.bungeeCommand.getHandlers());
+        executor.setBindManager(this.bungeeCommand.getBinds());
+
         final BungeeCommandExecutor wrapper = new BungeeCommandExecutor(context, executor);
 
         this.plugin.getProxy().getPluginManager().registerCommand(this.plugin, wrapper);

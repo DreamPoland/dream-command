@@ -1,15 +1,12 @@
 package cc.dreamcode.commandtest;
 
-import cc.dreamcode.command.bind.BindManager;
-import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.DreamCommandExecutor;
 import cc.dreamcode.command.DreamCommandRegistry;
+import cc.dreamcode.command.DreamCommandValidator;
 import cc.dreamcode.command.annotation.Command;
+import cc.dreamcode.command.context.CommandContext;
 import cc.dreamcode.command.exception.CommandException;
 import cc.dreamcode.command.exception.NoSuchCommandException;
-import cc.dreamcode.command.DreamCommandValidator;
-import cc.dreamcode.command.extension.ExtensionManager;
-import cc.dreamcode.command.handler.HandlerManager;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -19,9 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TestCommandRegistry implements DreamCommandRegistry {
 
-    private final ExtensionManager extensionManager;
-    private final HandlerManager handlerManager;
-    private final BindManager bindManager;
+    private final TestCommand testCommand;
 
     private final Map<CommandContext, DreamCommandExecutor> commandMap = new HashMap<>();
 
@@ -39,9 +34,10 @@ public class TestCommandRegistry implements DreamCommandRegistry {
     @Override
     public void registerCommand(@NonNull CommandContext context, @NonNull DreamCommandExecutor executor) {
         executor.setContext(context);
-        executor.setExtensionManager(this.extensionManager);
-        executor.setHandlerManager(this.handlerManager);
-        executor.setBindManager(this.bindManager);
+
+        executor.setExtensionManager(this.testCommand.getExtensions());
+        executor.setHandlerManager(this.testCommand.getHandlers());
+        executor.setBindManager(this.testCommand.getBinds());
 
         this.commandMap.put(context, executor);
     }
