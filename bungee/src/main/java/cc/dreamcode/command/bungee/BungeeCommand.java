@@ -17,4 +17,8 @@ public class BungeeCommand extends DreamCommandImpl {
         this.getExtensions().registerExtension(new DefaultExtensionRegistry());
         this.getExtensions().registerExtension(new BungeeExtensionRegistry());
     }
+
+    public static BungeeCommand create(@NonNull Plugin plugin) {
+        return new BungeeCommand(plugin);
+    }
 }

@@ -17,4 +17,8 @@ public class BukkitCommand extends DreamCommandImpl {
         this.getExtensions().registerExtension(new DefaultExtensionRegistry());
         this.getExtensions().registerExtension(new BukkitExtensionRegistry());
     }
+
+    public static BukkitCommand create(@NonNull Plugin plugin) {
+        return new BukkitCommand(plugin);
+    }
 }
