@@ -122,22 +122,15 @@ public abstract class DreamCommandExecutor {
             for (int indexRaw = 0; indexRaw < declaredMethod.getParameterCount(); indexRaw++) {
                 final Class<?> objectClass = declaredMethod.getParameterTypes()[indexRaw];
 
-                final Optional<?> optionalObject = this.bindManager.resolveBind(objectClass, sender);
-                if (optionalObject.isPresent()) {
-                    invokeObjects[indexRaw] = optionalObject.get();
-                    otherParams.incrementAndGet();
-                    continue;
-                }
-
                 if (declaredMethod.getParameterAnnotations().length > indexRaw) {
 
-                    final Optional<Annotation> optionalAnnotation = Arrays.stream(declaredMethod.getParameterAnnotations()[indexRaw])
+                    final Optional<Annotation> optionalArgsAnnotation = Arrays.stream(declaredMethod.getParameterAnnotations()[indexRaw])
                             .filter(annotation -> annotation.annotationType().isAssignableFrom(Args.class))
                             .findAny();
 
-                    if (optionalAnnotation.isPresent()) {
-                        final Args args = (Args) optionalAnnotation.get();
-                        final int min = args.min() == -1 ? invokeArgs.length : args.min();
+                    if (optionalArgsAnnotation.isPresent()) {
+                        final Args args = (Args) optionalArgsAnnotation.get();
+                        final int min = args.min() == -1 ? 0 : args.min();
                         final int max = args.max() == -1 ? commandInvokeContext.getArguments().length : args.max();
 
                         final AtomicReference<String> join = new AtomicReference<>();
@@ -164,6 +157,8 @@ public abstract class DreamCommandExecutor {
                                     .map(input -> this.extensionManager.resolveObject(objectClass.getComponentType(), input)
                                             .orElseThrow(() -> new CommandException("Cannot find extension resolver for class " + objectClass.getComponentType())))
                                     .toArray();
+
+                            continue;
                         }
                         catch (IllegalArgumentException e) {
                             final int finalIndexRaw = indexRaw;
@@ -174,25 +169,40 @@ public abstract class DreamCommandExecutor {
 
                             return false;
                         }
+                    }
 
-                        continue;
+                    final Optional<Annotation> optionalArgAnnotation = Arrays.stream(declaredMethod.getParameterAnnotations()[indexRaw])
+                            .filter(annotation -> annotation.annotationType().isAssignableFrom(Arg.class))
+                            .findAny();
+
+                    if (optionalArgAnnotation.isPresent()) {
+                        final String input = invokeArgs[indexRaw - otherParams.get()];
+
+                        try {
+                            invokeObjects[indexRaw] = this.extensionManager.resolveObject(objectClass, input)
+                                    .orElseThrow(() -> new CommandException("Cannot find extension resolver for class " + objectClass.getSimpleName()));
+
+                            continue;
+                        }
+                        catch (IllegalArgumentException e) {
+                            final int finalIndexRaw = indexRaw;
+                            this.handlerManager.getCommandHandler(HandlerType.INVALID_INPUT_VALUE).ifPresent(commandHandler -> {
+                                final InvalidInputValueType invalidInputValueType = (InvalidInputValueType) commandHandler;
+                                invalidInputValueType.handle(sender, objectClass, input, finalIndexRaw);
+                            });
+
+                            return false;
+                        }
                     }
                 }
 
-                final String input = invokeArgs[indexRaw - otherParams.get()];
-                try {
-                    invokeObjects[indexRaw] = this.extensionManager.resolveObject(objectClass, input)
-                            .orElseThrow(() -> new CommandException("Cannot find extension resolver for class " + objectClass.getSimpleName()));
+                final Optional<?> optionalObject = this.bindManager.resolveBind(objectClass, sender);
+                if (!optionalObject.isPresent()) {
+                    throw new CommandException("Bind with class type " + objectClass.getSimpleName() + " not found");
                 }
-                catch (IllegalArgumentException e) {
-                    final int finalIndexRaw = indexRaw;
-                    this.handlerManager.getCommandHandler(HandlerType.INVALID_INPUT_VALUE).ifPresent(commandHandler -> {
-                        final InvalidInputValueType invalidInputValueType = (InvalidInputValueType) commandHandler;
-                        invalidInputValueType.handle(sender, objectClass, input, finalIndexRaw);
-                    });
 
-                    return false;
-                }
+                invokeObjects[indexRaw] = optionalObject.get();
+                otherParams.incrementAndGet();
             }
 
             try {

@@ -8,6 +8,7 @@ import cc.dreamcode.command.annotation.Path;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.commandtest.sender.TestSender;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 @Permission(name = "simpleargs.command")
@@ -19,14 +20,12 @@ public class SimpleArgsCommand extends DreamCommandExecutor {
     }
 
     @Path(name = "args")
-    void simpleArgs(TestSender sender, @Arg(name = "arg") String arg, @Args(name = "args", max = 9) Object[] args) {
+    void simpleArgs(TestSender sender) {
         sender.sendMessage("[DEBUG] ");
-        sender.sendMessage("[DEBUG] Arg: " + arg);
-        sender.sendMessage("[DEBUG] Args: " + Arrays.toString(args));
     }
 
     @Path(name = "args-ob")
-    void simpleMultiArgs(TestSender sender, @Arg(name = "arg") String arg, @Args(name = "args-nick") String[] argsNick, @Args(name = "args") Object[] args) {
+    void simpleMultiArgs(TestSender sender, @Arg(name = "dur") Duration duration, @Arg(name = "arg") String arg, @Args(name = "args-nick") String[] argsNick, @Args(name = "args") Object[] args) {
         sender.sendMessage("[DEBUG] ");
         sender.sendMessage("[DEBUG] Arg: " + arg);
         sender.sendMessage("[DEBUG] Arg nicks: " + Arrays.toString(argsNick));
