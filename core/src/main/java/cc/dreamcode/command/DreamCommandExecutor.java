@@ -76,6 +76,7 @@ public abstract class DreamCommandExecutor {
             // scan for path name priority; first path, second @Arg
             if (Arrays.stream(this.getClass().getDeclaredMethods())
                     .filter(method -> !declaredMethod.equals(method))
+                    .filter(method -> method.getAnnotation(Path.class) != null)
                     .anyMatch(method -> {
                         final String argument = StringUtil.join(commandInvokeContext.getArguments(), " ").toLowerCase();
                         final String methodPath = method.getAnnotation(Path.class).name().toLowerCase();
