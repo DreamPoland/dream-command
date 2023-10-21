@@ -29,6 +29,11 @@ public class SimpleCommand extends DreamCommandExecutor {
         sender.sendMessage("[" + sender.getName() + "] Player name: " + playerName);
     }
 
+    @Path(name = "player all")
+    void simplePlayerInput(TestSender sender) {
+        sender.sendMessage("[" + sender.getName() + "] Player name: from all");
+    }
+
     @Path(name = "broadcast")
     void simpleBroadcast(TestSender sender, @Args(name = "message") String message) {
         sender.sendMessage("[BROADCAST] " + message);

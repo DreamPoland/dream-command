@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 
 @Data
@@ -23,15 +23,17 @@ public class CommandPathContext {
     private final CommandContext context;
     private final String pathName;
     private final String[] pathAliases;
-    private final List<Arg> methodArgs;
-    private final List<Args> methodArgsRow;
+    private final List<Arg> methodArg;
+    private final List<Args> methodArgs;
+    private final Map<Integer, String> methodArgNames;
 
-    public CommandPathContext(@NonNull CommandContext context, @NonNull Path path, @NonNull List<Arg> methodArgs, @NonNull List<Args> methodArgsRow) {
+    public CommandPathContext(@NonNull CommandContext context, @NonNull Path path, @NonNull List<Arg> methodArg, @NonNull List<Args> methodArgs, @NonNull Map<Integer, String> methodArgNames) {
         this.context = context;
         this.pathName = path.name();
         this.pathAliases = path.aliases();
+        this.methodArg = methodArg;
         this.methodArgs = methodArgs;
-        this.methodArgsRow = methodArgsRow;
+        this.methodArgNames = methodArgNames;
     }
 
     public CommandPathContext(@NonNull CommandContext context, @NonNull Method method) {
@@ -45,8 +47,9 @@ public class CommandPathContext {
         this.pathName = path.name();
         this.pathAliases = path.aliases();
 
-        this.methodArgs = AnnotationUtil.getAnnotation(method, Arg.class);
-        this.methodArgsRow = AnnotationUtil.getAnnotation(method, Args.class);
+        this.methodArg = AnnotationUtil.getAnnotations(method, Arg.class);
+        this.methodArgs = AnnotationUtil.getAnnotations(method, Args.class);
+        this.methodArgNames = AnnotationUtil.getArgNamesByMethod(method);
     }
 
     public List<String> getPathNameAndAliases() {
@@ -56,17 +59,5 @@ public class CommandPathContext {
         pathNames.addAll(Arrays.asList(this.pathAliases));
 
         return pathNames;
-    }
-
-    public List<String> getMethodArgsNames() {
-        return this.methodArgs.stream()
-                .map(Arg::name)
-                .collect(Collectors.toList());
-    }
-
-    public List<String> getMethodArgsRowNames() {
-        return this.methodArgsRow.stream()
-                .map(Args::name)
-                .collect(Collectors.toList());
     }
 }

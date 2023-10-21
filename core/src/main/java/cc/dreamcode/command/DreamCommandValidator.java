@@ -87,10 +87,10 @@ public class DreamCommandValidator {
     }
 
     public boolean isValid(@NonNull CommandPathContext commandPathContext, @NonNull String pathName) {
-        int arguments = commandPathContext.getMethodArgs().size();
+        int arguments = commandPathContext.getMethodArg().size();
 
         if (pathName.isEmpty()) {
-            if (!commandPathContext.getMethodArgsRow().isEmpty()) {
+            if (!commandPathContext.getMethodArgs().isEmpty()) {
                 return true;
             }
 
@@ -98,7 +98,7 @@ public class DreamCommandValidator {
         }
 
         final String[] splitPath = pathName.split(" ");
-        if (commandPathContext.getMethodArgsRow().isEmpty() &&
+        if (commandPathContext.getMethodArgs().isEmpty() &&
                 splitPath.length + arguments != this.commandInvokeContext.getArguments().length) {
             return false;
         }

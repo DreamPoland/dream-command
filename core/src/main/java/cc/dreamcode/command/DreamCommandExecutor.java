@@ -112,7 +112,7 @@ public abstract class DreamCommandExecutor {
 
             final AtomicInteger otherParams = new AtomicInteger();
             final Object[] invokeObjects = new Object[declaredMethod.getParameterCount()];
-            final String[] invokeArgs = new String[commandPathContext.getMethodArgs().size() + commandPathContext.getMethodArgsRow().size()];
+            final String[] invokeArgs = new String[commandPathContext.getMethodArg().size() + commandPathContext.getMethodArgs().size()];
             try {
                 System.arraycopy(commandInvokeContext.getArguments(), usingPath.isEmpty() ? 0 : usingPath.split(" ").length, invokeArgs, 0, invokeArgs.length);
             }
@@ -266,9 +266,9 @@ public abstract class DreamCommandExecutor {
             for (String pathName : commandPathContext.getPathNameAndAliases()) {
                 final String[] pathNameRow = pathName.split(" ");
 
-                if (trimmedInvokeContext.getArguments().length - pathNameRow.length >= commandPathContext.getMethodArgs().size()) {
-                    if (!commandPathContext.getMethodArgsRow().isEmpty()) {
-                        commandPathContext.getMethodArgsRow().forEach(args -> suggestions.add("<" + args.name() + ">"));
+                if (trimmedInvokeContext.getArguments().length - pathNameRow.length >= commandPathContext.getMethodArg().size()) {
+                    if (!commandPathContext.getMethodArgs().isEmpty()) {
+                        commandPathContext.getMethodArgs().forEach(args -> suggestions.add("<" + args.name() + ">"));
                     }
 
                     continue;
@@ -283,7 +283,7 @@ public abstract class DreamCommandExecutor {
                         continue;
                     }
 
-                    final String methodSuggestion = commandPathContext.getMethodArgsNames().get(trimmedInvokeContext.getArguments().length - pathNameRow.length);
+                    final String methodSuggestion = commandPathContext.getMethodArgNames().get(trimmedInvokeContext.getArguments().length - pathNameRow.length);
                     suggestions.add("<" + methodSuggestion + ">");
                     continue;
                 }
@@ -319,8 +319,9 @@ public abstract class DreamCommandExecutor {
                     return new CommandPathContext(
                             this.context,
                             path,
-                            AnnotationUtil.getAnnotation(method, Arg.class),
-                            AnnotationUtil.getAnnotation(method, Args.class)
+                            AnnotationUtil.getAnnotations(method, Arg.class),
+                            AnnotationUtil.getAnnotations(method, Args.class),
+                            AnnotationUtil.getArgNamesByMethod(method)
                     );
                 })
                 .collect(Collectors.toList());
