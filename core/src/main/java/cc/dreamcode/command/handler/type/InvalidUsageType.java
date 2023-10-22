@@ -7,9 +7,11 @@ import cc.dreamcode.command.context.CommandPathContext;
 import cc.dreamcode.command.handler.CommandHandler;
 import cc.dreamcode.command.handler.HandlerType;
 import cc.dreamcode.command.sender.DreamSender;
+import cc.dreamcode.utilities.StringUtil;
 import lombok.NonNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public interface InvalidUsageType extends CommandHandler {
@@ -26,26 +28,40 @@ public interface InvalidUsageType extends CommandHandler {
 
         final DreamCommandValidator validator = new DreamCommandValidator(commandInvokeContext);
         final List<CommandPathContext> similarOptionalPath = commandPathContextList.stream()
-                .filter(optionalPath -> validator.canBeSuggestion(optionalPath, false))
+                .filter(commandPathContext -> validator.canBeSuggestion(commandPathContext, true))
                 .collect(Collectors.toList());
 
         if (similarOptionalPath.isEmpty()) {
-            final List<String> suggestion = executor.getSuggestion(sender, new CommandInvokeContext(stringBuilder.toString()));
+            final List<String> suggestion = executor.getSuggestion(sender, CommandInvokeContext.of(executor.getContext().getLabel(), new String[]{""}));
 
-            stringBuilder.append(" [").append(String.join(", ", suggestion)).append("]");
+            stringBuilder.append(" (").append(String.join(", ", suggestion)).append(")");
         }
         else if (similarOptionalPath.size() == 1) {
             final CommandPathContext commandPathContext = similarOptionalPath.get(0);
 
             stringBuilder.append(" ").append(commandPathContext.getPathName())
-                    .append(" [").append(String.join(", ", commandPathContext.getMethodArgNames().values())).append("]");
+                    .append(" [").append(commandPathContext.getMethodArgNames().values()
+                            .stream()
+                            .map(name -> "<" + name + ">")
+                            .collect(Collectors.joining(", "))).append("]");
         }
         else {
-            for (int index = 0; index < commandInvokeContext.getArguments().length; index++) {
-                stringBuilder.append(" ").append(commandInvokeContext.getArguments()[index]);
-            }
+            final AtomicReference<String> pathNameReference = new AtomicReference<>();
+            similarOptionalPath.forEach(commandPathContext -> {
+                for (String pathName : commandPathContext.getPathNameAndAliases()) {
+                    if (pathName.equalsIgnoreCase(StringUtil.join(commandInvokeContext.getArguments(), " "))) {
+                        pathNameReference.set(pathName);
+                        break;
+                    }
 
-            stringBuilder.append(" [").append(similarOptionalPath.stream()
+                    if (pathNameReference.get() == null || (pathNameReference.get().length() > pathName.length() &&
+                            StringUtil.join(commandInvokeContext.getArguments(), " ").length() < pathName.length())) {
+                        pathNameReference.set(pathName);
+                    }
+                }
+            });
+
+            stringBuilder.append(" ").append(pathNameReference.get()).append(" [").append(similarOptionalPath.stream()
                     .map(commandPathContext -> {
                         final String[] splitPath = commandPathContext.getPathName().split(" ");
 
@@ -57,6 +73,7 @@ public interface InvalidUsageType extends CommandHandler {
                         // method param suggestion
                         return "<" + commandPathContext.getMethodArgNames().get(commandInvokeContext.getArguments().length - splitPath.length) + ">";
                     })
+                    .distinct()
                     .collect(Collectors.joining(", "))).append("]");
         }
 
