@@ -215,9 +215,19 @@ public abstract class DreamCommandExecutor {
             }
         }
 
+        final List<CommandPathContext> commandPathContextList = this.getCommandPathList(sender);
+        if (commandPathContextList.isEmpty()) {
+            this.handlerManager.getCommandHandler(HandlerType.NO_PERMISSION).ifPresent(commandHandler -> {
+                final NoPermissionType noPermissionType = (NoPermissionType) commandHandler;
+                noPermissionType.handle(sender, "suggestion");
+            });
+
+            return false;
+        }
+
         this.handlerManager.getCommandHandler(HandlerType.INVALID_USAGE).ifPresent(commandHandler -> {
             final InvalidUsageType invalidUsageType = (InvalidUsageType) commandHandler;
-            invalidUsageType.handle(sender, this, this.getCommandPathList(), commandInvokeContext);
+            invalidUsageType.handle(sender, this, commandPathContextList, commandInvokeContext);
         });
         return false;
     }
@@ -311,9 +321,13 @@ public abstract class DreamCommandExecutor {
                 .collect(Collectors.toList());
     }
 
-    public List<CommandPathContext> getCommandPathList() {
+    public List<CommandPathContext> getCommandPathList(@NonNull DreamSender<?> sender) {
         return Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.getAnnotation(Path.class) != null)
+                .filter(method -> {
+                    final Permission methodPermission = method.getAnnotation(Permission.class);
+                    return methodPermission == null || sender.hasPermission(methodPermission.name());
+                })
                 .map(method -> {
                     final Path path = method.getAnnotation(Path.class);
                     return new CommandPathContext(
