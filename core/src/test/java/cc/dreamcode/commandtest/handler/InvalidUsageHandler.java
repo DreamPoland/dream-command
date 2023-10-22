@@ -12,6 +12,6 @@ import java.util.List;
 public class InvalidUsageHandler implements InvalidUsageType {
     @Override     // EXAMPLE
     public void handle(@NonNull DreamSender<?> sender, @NonNull DreamCommandExecutor executor, @NonNull List<CommandPathContext> commandPathContextList, @NonNull CommandInvokeContext commandInvokeContext) {
-        sender.sendMessage("[ERR] Poprawne uzycie: " + this.getDefaultUsage(executor, commandPathContextList, commandInvokeContext));
+        sender.sendMessage("[ERR] Poprawne uzycie: " + this.getDefaultUsage(sender, executor, commandPathContextList, commandInvokeContext));
     }
 }

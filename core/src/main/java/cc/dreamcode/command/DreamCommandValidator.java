@@ -36,10 +36,10 @@ public class DreamCommandValidator {
             return false;
         }
 
-        return this.canBeSuggestion(new CommandPathContext(context, method));
+        return this.canBeSuggestion(new CommandPathContext(context, method), true);
     }
 
-    public boolean canBeSuggestion(@NonNull CommandPathContext commandPathContext) {
+    public boolean canBeSuggestion(@NonNull CommandPathContext commandPathContext, boolean useParam) {
         for (String pathName : commandPathContext.getPathNameAndAliases()) {
             final String[] splitPath = pathName.split(" ");
 
@@ -55,12 +55,14 @@ public class DreamCommandValidator {
                 continue;
             }
 
-            // method param suggestion
-            final String[] trimPathNameRow = new String[splitPath.length];
-            System.arraycopy(this.getCommandInvokeContext().getArguments(), 0, trimPathNameRow, 0, trimPathNameRow.length);
+            if (useParam) {
+                // method param suggestion
+                final String[] trimPathNameRow = new String[splitPath.length];
+                System.arraycopy(this.getCommandInvokeContext().getArguments(), 0, trimPathNameRow, 0, trimPathNameRow.length);
 
-            if (Arrays.equals(splitPath, trimPathNameRow)) {
-                return true;
+                if (Arrays.equals(splitPath, trimPathNameRow)) {
+                    return true;
+                }
             }
         }
 
