@@ -49,32 +49,37 @@ public interface InvalidUsageType extends CommandHandler {
             final AtomicReference<String> pathNameReference = new AtomicReference<>();
             similarOptionalPath.forEach(commandPathContext -> {
                 for (String pathName : commandPathContext.getPathNameAndAliases()) {
-                    if (pathName.equalsIgnoreCase(StringUtil.join(commandInvokeContext.getArguments(), " "))) {
-                        pathNameReference.set(pathName);
-                        break;
-                    }
-
-                    if (pathNameReference.get() == null || (pathNameReference.get().length() > pathName.length() &&
-                            StringUtil.join(commandInvokeContext.getArguments(), " ").length() < pathName.length())) {
+                    if (pathName.split(" ").length == commandInvokeContext.getArguments().length &&
+                            pathName.startsWith(StringUtil.join(commandInvokeContext.getArguments(), " "))) {
                         pathNameReference.set(pathName);
                     }
                 }
             });
 
-            stringBuilder.append(" ").append(pathNameReference.get()).append(" [").append(similarOptionalPath.stream()
-                    .map(commandPathContext -> {
-                        final String[] splitPath = commandPathContext.getPathName().split(" ");
+            if (pathNameReference.get() == null) {
+                List<String> suggestion = executor.getSuggestion(sender, commandInvokeContext);
+                if (suggestion.isEmpty()) {
+                    suggestion = executor.getSuggestion(sender, CommandInvokeContext.of(executor.getContext().getLabel(), new String[]{""}));
+                }
 
-                        // path name suggestion
-                        if (splitPath.length > commandInvokeContext.getArguments().length) {
-                            return splitPath[commandInvokeContext.getArguments().length];
-                        }
+                stringBuilder.append(" (").append(String.join(", ", suggestion)).append(")");
+            }
+            else {
+                stringBuilder.append(" ").append(pathNameReference.get()).append(" [").append(similarOptionalPath.stream()
+                        .map(commandPathContext -> {
+                            final String[] splitPath = commandPathContext.getPathName().split(" ");
 
-                        // method param suggestion
-                        return "<" + commandPathContext.getMethodArgNames().get(commandInvokeContext.getArguments().length - splitPath.length) + ">";
-                    })
-                    .distinct()
-                    .collect(Collectors.joining(", "))).append("]");
+                            // path name suggestion
+                            if (splitPath.length > commandInvokeContext.getArguments().length) {
+                                return splitPath[commandInvokeContext.getArguments().length];
+                            }
+
+                            // method param suggestion
+                            return "<" + commandPathContext.getMethodArgNames().get(commandInvokeContext.getArguments().length - splitPath.length) + ">";
+                        })
+                        .distinct()
+                        .collect(Collectors.joining(", "))).append("]");
+            }
         }
 
         return stringBuilder.toString();
