@@ -7,7 +7,6 @@ import cc.dreamcode.command.annotations.RequiredPlayer;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import cc.dreamcode.utilities.builder.MapBuilder;
 import cc.dreamcode.utilities.bukkit.StringColorUtil;
-import eu.okaeri.injector.Injector;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 public abstract class BukkitCommand extends Command implements PluginIdentifiableCommand, DreamCommand<CommandSender> {
 
     @Setter private Plugin plugin;
-    @Setter private Injector injector;
     @Getter @Setter private String requiredPermissionMessage;
     @Getter @Setter private String requiredPlayerMessage;
 
@@ -34,7 +32,6 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     @Setter private boolean applyTabStartWithFilter = true;
 
     private final List<BukkitCommand> subcommands = new ArrayList<>();
-    private final List<Class<? extends BukkitCommand>> subcommandClasses = new ArrayList<>();
 
     public BukkitCommand(@NonNull String name, String... aliases) {
         super(name);
@@ -51,8 +48,6 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
 
     @Override
     public boolean execute(@NonNull CommandSender sender, @NonNull String commandLabel, @NonNull String[] arguments) {
-        this.buildSubcommands();
-
         try {
             RequiredPermission requiredPermission = this.getClass().getAnnotation(RequiredPermission.class);
             if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
@@ -108,8 +103,6 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     }
 
     public @NonNull List<String> tabComplete(@NonNull CommandSender sender, @NonNull String label, @NonNull String[] args) {
-        this.buildSubcommands();
-
         if (args.length > 0) {
             final Optional<BukkitCommand> optionalSubcommand = this.subcommands
                     .stream()
@@ -170,39 +163,17 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
                 .collect(Collectors.toList());
     }
 
-    public <T> T createInstance(@NonNull Class<T> type) {
-        if (this.injector == null) {
-            throw new RuntimeException("Injector cannot be null");
+    public void registerSubcommand(@NonNull BukkitCommand subcommand) {
+        subcommand.setPlugin(this.plugin);
+
+        if (this.requiredPermissionMessage != null) {
+            subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
         }
 
-        return this.injector.createInstance(type);
-    }
-
-    public void registerSubcommand(@NonNull Class<? extends BukkitCommand> subcommandClass) {
-        this.subcommandClasses.add(subcommandClass);
-    }
-
-    private void buildSubcommands() {
-        if (this.subcommands.size() == this.subcommandClasses.size()) {
-            return;
+        if (this.requiredPlayerMessage != null) {
+            subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
         }
 
-        this.subcommands.clear();
-        this.subcommandClasses.forEach(subclass -> {
-            final BukkitCommand subcommand = this.createInstance(subclass);
-            subcommand.setPlugin(this.plugin);
-            subcommand.setInjector(this.injector);
-
-            if (this.requiredPermissionMessage != null) {
-                subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
-            }
-
-            if (this.requiredPlayerMessage != null) {
-                subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
-            }
-
-            this.subcommands.add(subcommand);
-        });
+        this.subcommands.add(subcommand);
     }
-
 }
