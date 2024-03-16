@@ -10,8 +10,8 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
 
     // -- dream-utilities --
-    implementation "cc.dreamcode:utilities:1.2.24"
-    implementation "cc.dreamcode:utilities-bukkit:1.2.24"
+    implementation "cc.dreamcode:utilities:1.2.25"
+    implementation "cc.dreamcode:utilities-bukkit:1.2.25"
 
     // -- lombok --
     compileOnly 'org.projectlombok:lombok:1.18.30'
