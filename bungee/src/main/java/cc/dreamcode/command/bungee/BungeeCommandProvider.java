@@ -4,15 +4,18 @@ import cc.dreamcode.command.DreamCommandProvider;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import java.util.function.Consumer;
+
 @RequiredArgsConstructor
-public class BungeeCommandProvider implements DreamCommandProvider<BungeeCommand> {
+public class BungeeCommandProvider implements DreamCommandProvider<BungeeCommand, CommandSender> {
 
     private final Plugin plugin;
 
-    @Setter private String requiredPermissionMessage;
-    @Setter private String requiredPlayerMessage;
+    @Setter private Consumer<CommandSender> noPermissionHandler;
+    @Setter private Consumer<CommandSender> notPlayerHandler;
 
     public static BungeeCommandProvider create(@NonNull Plugin plugin) {
         return new BungeeCommandProvider(plugin);
@@ -20,12 +23,12 @@ public class BungeeCommandProvider implements DreamCommandProvider<BungeeCommand
 
     @Override
     public void addCommand(@NonNull BungeeCommand bungeeCommand) {
-        if (this.requiredPermissionMessage != null) {
-            bungeeCommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
+        if (this.noPermissionHandler != null) {
+            bungeeCommand.setNoPermissionHandler(this.noPermissionHandler);
         }
 
-        if (this.requiredPlayerMessage != null) {
-            bungeeCommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
+        if (this.notPlayerHandler != null) {
+            bungeeCommand.setNotPlayerHandler(this.notPlayerHandler);
         }
 
         this.plugin.getProxy().getPluginManager().registerCommand(this.plugin, bungeeCommand);

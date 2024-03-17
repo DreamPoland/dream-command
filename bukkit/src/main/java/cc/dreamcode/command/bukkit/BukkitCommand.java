@@ -1,12 +1,9 @@
 package cc.dreamcode.command.bukkit;
 
-import cc.dreamcode.command.CommandException;
 import cc.dreamcode.command.DreamCommand;
 import cc.dreamcode.command.annotations.RequiredPermission;
 import cc.dreamcode.command.annotations.RequiredPlayer;
 import cc.dreamcode.utilities.builder.ListBuilder;
-import cc.dreamcode.utilities.builder.MapBuilder;
-import cc.dreamcode.utilities.bukkit.StringColorUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -20,13 +17,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public abstract class BukkitCommand extends Command implements PluginIdentifiableCommand, DreamCommand<CommandSender> {
 
     @Setter private Plugin plugin;
-    @Getter @Setter private String requiredPermissionMessage;
-    @Getter @Setter private String requiredPlayerMessage;
+    @Getter @Setter private Consumer<CommandSender> noPermissionHandler;
+    @Getter @Setter private Consumer<CommandSender> notPlayerHandler;
 
     @Setter private boolean applySubcommandsToTabCompleter = true;
     @Setter private boolean applyTabStartWithFilter = true;
@@ -53,24 +51,20 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             if (requiredPermission != null && !sender.hasPermission(requiredPermission.permission().equals("")
                     ? "dream." + this.getName()
                     : requiredPermission.permission())) {
-                if (this.requiredPermissionMessage == null) {
+                if (this.noPermissionHandler == null) {
                     return false;
                 }
 
-                throw new CommandException(StringColorUtil.fixColor(this.requiredPermissionMessage, new MapBuilder<String, Object>()
-                        .put("permission", requiredPermission.permission().equals("")
-                                ? "dream." + this.getName()
-                                : requiredPermission.permission())
-                        .build()));
+                throw new BukkitCommandException(this.noPermissionHandler);
             }
 
             RequiredPlayer requiredPlayer = this.getClass().getAnnotation(RequiredPlayer.class);
             if (requiredPlayer != null && !(sender instanceof Player)) {
-                if (this.requiredPlayerMessage == null) {
+                if (this.notPlayerHandler == null) {
                     return false;
                 }
 
-                throw new CommandException(StringColorUtil.fixColor(this.requiredPlayerMessage));
+                throw new BukkitCommandException(this.notPlayerHandler);
             }
 
             if (arguments.length > 0) {
@@ -96,8 +90,8 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
             this.content(sender, arguments);
             return true;
         }
-        catch (CommandException e) {
-            sender.sendMessage(e.getNotice());
+        catch (BukkitCommandException e) {
+            e.getHandler().accept(sender);
             return false;
         }
     }
@@ -166,12 +160,12 @@ public abstract class BukkitCommand extends Command implements PluginIdentifiabl
     public void registerSubcommand(@NonNull BukkitCommand subcommand) {
         subcommand.setPlugin(this.plugin);
 
-        if (this.requiredPermissionMessage != null) {
-            subcommand.setRequiredPermissionMessage(this.requiredPermissionMessage);
+        if (this.noPermissionHandler != null) {
+            subcommand.setNoPermissionHandler(this.noPermissionHandler);
         }
 
-        if (this.requiredPlayerMessage != null) {
-            subcommand.setRequiredPlayerMessage(this.requiredPlayerMessage);
+        if (this.notPlayerHandler != null) {
+            subcommand.setNotPlayerHandler(this.notPlayerHandler);
         }
 
         this.subcommands.add(subcommand);
