@@ -10,8 +10,10 @@ import lombok.NonNull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -59,10 +61,11 @@ public class CommandExecutor {
         final String[] params = new String[this.paramArgs.size()];
         System.arraycopy(commandInput.getArguments(), patterns, params, 0, params.length);
 
+        final List<Class<?>> argClasses = new ArrayList<>(this.paramArgs.values());
         for (int index = 0; index < params.length; index++) {
 
             final String input = params[index];
-            final Class<?> paramType = this.paramArgs.get(index);
+            final Class<?> paramType = argClasses.get(index);
 
             final Optional<?> optionalObject = resolverService.resolve(paramType, input);
             if (!optionalObject.isPresent()) {

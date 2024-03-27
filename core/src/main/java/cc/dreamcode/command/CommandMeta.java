@@ -5,6 +5,7 @@ import cc.dreamcode.utilities.StringUtil;
 import lombok.Data;
 import lombok.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,14 +38,14 @@ public class CommandMeta {
                     final String[] params = scaledParams.isEmpty() ? new String[0] : scaledParams.split(" ");
 
                     if (params.length != commandExecutor.getParamArgs().size()) {
-                        System.out.println(params.length + " " + commandExecutor.getParamArgs().size());
                         return false;
                     }
 
+                    final List<Class<?>> argClasses = new ArrayList<>(commandExecutor.getParamArgs().values());
                     for (int index = 0; index < params.length; index++) {
 
                         final String input = params[index];
-                        final Class<?> paramType = commandExecutor.getParamArgs().get(index);
+                        final Class<?> paramType = argClasses.get(index);
 
                         // check transformers
                         if (!resolverService.support(paramType, input)) {
