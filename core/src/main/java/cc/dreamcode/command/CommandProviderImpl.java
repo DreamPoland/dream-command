@@ -7,9 +7,11 @@ import cc.dreamcode.command.resolver.ObjectResolverService;
 import cc.dreamcode.command.resolver.ObjectTransformer;
 import lombok.NonNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class CommandProviderImpl implements CommandProvider {
 
@@ -30,16 +32,27 @@ public class CommandProviderImpl implements CommandProvider {
     @Override
     public CommandProviderImpl call(@NonNull String input) {
 
-        final CommandParser commandParser = new CommandParser(input);
+        final CommandInput commandInput = new CommandInput(input);
 
-        this.commandMap.entrySet()
+        final Optional<CommandExecutor> optionalCommandExecutor = this.commandMap.entrySet()
                 .stream()
-                .filter(entry -> commandParser.getInput().equalsIgnoreCase(entry.getKey()))
+                .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
                 .map(Map.Entry::getValue)
                 .findAny()
-                .ifPresent(commandMeta -> {
-                    // TODO
-                });
+                .map(commandMeta -> commandMeta.findExecutor(this.objectResolverService, commandInput))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+
+        if (!optionalCommandExecutor.isPresent()) {
+            throw new RuntimeException("Cannot find any method with input: " + Arrays.toString(commandInput.getParams()));
+        }
+
+        final CommandExecutor commandExecutor = optionalCommandExecutor.get();
+        try {
+            commandExecutor.invoke(this.objectResolverService, commandInput);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         return this;
     }

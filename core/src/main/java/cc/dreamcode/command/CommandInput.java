@@ -1,14 +1,12 @@
 package cc.dreamcode.command;
 
-import lombok.Data;
 import lombok.NonNull;
 
-@Data
-public class CommandParser {
+public class CommandInput {
 
     private final String input;
 
-    public CommandParser(@NonNull String input) {
+    public CommandInput(@NonNull String input) {
         this.input = input.replace("/", "");
     }
 
@@ -24,5 +22,14 @@ public class CommandParser {
         }
 
         return params[0];
+    }
+
+    public String[] getArguments() {
+
+        final String[] params = this.getParams();
+        final String[] arguments = new String[params.length - 1];
+
+        System.arraycopy(params, 1, arguments, 0, arguments.length);
+        return arguments;
     }
 }
