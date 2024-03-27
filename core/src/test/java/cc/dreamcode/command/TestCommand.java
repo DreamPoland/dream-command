@@ -31,7 +31,7 @@ class TestCommand {
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
-        @Executor(pattern = "example test")
+        @Executor(path = "example test")
         public void example(@Arg Duration duration, TestSender testSender) {
             testSender.getHandler().println("czesc");
 

@@ -29,7 +29,7 @@ public class CommandExecutor {
     private final Map<Integer, Class<?>> paramArgs;
     private final Map<Integer, Class<?>> paramBinds;
 
-    private final String pattern;
+    private final String path;
     private final String description;
 
     public CommandExecutor(@NonNull CommandMeta commandMeta, @NonNull Method method, @NonNull Executor executor) {
@@ -57,14 +57,14 @@ public class CommandExecutor {
             this.paramArgs.put(index, this.method.getParameterTypes()[index]);
         }
 
-        this.pattern = executor.pattern();
+        this.path = executor.path();
         this.description = executor.description();
     }
 
     public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull CommandSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
         final ListBuilder<Object> objects = new ListBuilder<>();
-        final int patterns = this.pattern.isEmpty() ? 0 : this.pattern.split(" ").length;
+        final int patterns = this.path.isEmpty() ? 0 : this.path.split(" ").length;
 
         final String[] params = new String[this.paramArgs.size()];
         System.arraycopy(commandInput.getArguments(), patterns, params, 0, params.length);

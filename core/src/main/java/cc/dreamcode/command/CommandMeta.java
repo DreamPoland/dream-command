@@ -31,10 +31,10 @@ public class CommandMeta {
 
         final String arguments = StringUtil.join(commandInput.getArguments(), " ");
         return this.commandExecutors.stream()
-                .filter(commandExecutor -> arguments.startsWith(commandExecutor.getPattern()))
+                .filter(commandExecutor -> arguments.startsWith(commandExecutor.getPath()))
                 .filter(commandExecutor -> {
 
-                    final String scaledParams = arguments.replace(commandExecutor.getPattern() + " ", "");
+                    final String scaledParams = arguments.replace(commandExecutor.getPath() + " ", "");
                     final String[] params = scaledParams.isEmpty() ? new String[0] : scaledParams.split(" ");
 
                     if (params.length != commandExecutor.getParamArgs().size()) {
