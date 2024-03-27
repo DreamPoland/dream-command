@@ -2,7 +2,8 @@ package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Executor;
-import cc.dreamcode.command.resolver.ObjectResolverService;
+import cc.dreamcode.command.bind.BindService;
+import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import lombok.Data;
 import lombok.NonNull;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 public class CommandExecutor {
@@ -25,6 +27,7 @@ public class CommandExecutor {
     private final Method method;
     private final Map<Integer, Annotation[]> paramAnnotations;
     private final Map<Integer, Class<?>> paramArgs;
+    private final Map<Integer, Class<?>> paramBinds;
 
     private final String pattern;
     private final String description;
@@ -39,13 +42,18 @@ public class CommandExecutor {
         }
         
         this.paramArgs = new HashMap<>();
+        this.paramBinds = new HashMap<>();
         for (int index = 0; index < this.method.getParameterTypes().length; index++) {
 
             if (Arrays.stream(this.paramAnnotations.get(index))
                     .noneMatch(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))) {
+
+                // bind
+                this.paramBinds.put(index, this.method.getParameterTypes()[index]);
                 continue;
             }
 
+            // arg (transformer)
             this.paramArgs.put(index, this.method.getParameterTypes()[index]);
         }
 
@@ -53,7 +61,7 @@ public class CommandExecutor {
         this.description = executor.description();
     }
 
-    public void invoke(@NonNull ObjectResolverService resolverService, @NonNull CommandInput commandInput) throws InvocationTargetException, IllegalAccessException {
+    public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull CommandSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
         final ListBuilder<Object> objects = new ListBuilder<>();
         final int patterns = this.pattern.isEmpty() ? 0 : this.pattern.split(" ").length;
@@ -61,18 +69,33 @@ public class CommandExecutor {
         final String[] params = new String[this.paramArgs.size()];
         System.arraycopy(commandInput.getArguments(), patterns, params, 0, params.length);
 
+        final AtomicInteger atomicArg = new AtomicInteger();
         final List<Class<?>> argClasses = new ArrayList<>(this.paramArgs.values());
-        for (int index = 0; index < params.length; index++) {
+        for (int index = 0; index < this.method.getParameterCount(); index++) {
 
-            final String input = params[index];
-            final Class<?> paramType = argClasses.get(index);
+            if (this.paramArgs.containsKey(index)) {
+                final String input = params[atomicArg.get()];
+                final Class<?> paramType = argClasses.get(atomicArg.get());
 
-            final Optional<?> optionalObject = resolverService.resolve(paramType, input);
-            if (!optionalObject.isPresent()) {
-                throw new RuntimeException("Cannot resolve param " + input + " as a " + paramType.getSimpleName());
+                final Optional<?> optionalObject = resolverService.resolve(paramType, input);
+                if (!optionalObject.isPresent()) {
+                    throw new RuntimeException("Cannot resolve param " + input + " as a " + paramType.getSimpleName());
+                }
+
+                objects.add(optionalObject.get());
+                atomicArg.incrementAndGet();
             }
 
-            objects.add(optionalObject.get());
+            if (this.paramBinds.containsKey(index)) {
+                final Class<?> paramType = this.paramBinds.get(index);
+                final Optional<?> optionalObject = bindService.resolveBind(paramType, sender);
+
+                if (!optionalObject.isPresent()) {
+                    throw new RuntimeException("Cannot resolve bind: " + paramType.getSimpleName());
+                }
+
+                objects.add(optionalObject.get());
+            }
         }
 
         this.method.invoke(this.commandMeta.getCommandBase(), objects.build().toArray());

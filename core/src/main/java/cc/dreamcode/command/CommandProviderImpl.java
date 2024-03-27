@@ -1,9 +1,12 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Command;
+import cc.dreamcode.command.bind.BindCache;
+import cc.dreamcode.command.bind.BindResolver;
+import cc.dreamcode.command.bind.BindService;
 import cc.dreamcode.command.resolver.DefaultTransformers;
-import cc.dreamcode.command.resolver.ObjectResolverCache;
-import cc.dreamcode.command.resolver.ObjectResolverService;
+import cc.dreamcode.command.resolver.ResolverCache;
+import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.command.resolver.ObjectTransformer;
 import lombok.NonNull;
 
@@ -15,14 +18,18 @@ import java.util.Optional;
 
 public class CommandProviderImpl implements CommandProvider {
 
-    private final ObjectResolverCache objectResolverCache;
-    private final ObjectResolverService objectResolverService;
+    private final BindCache bindCache;
+    private final BindService bindService;
+    private final ResolverCache resolverCache;
+    private final ResolverService resolverService;
 
     private final Map<String, CommandMeta> commandMap = new HashMap<>();
 
     public CommandProviderImpl(boolean registerDefaults) {
-        this.objectResolverCache = new ObjectResolverCache();
-        this.objectResolverService = new ObjectResolverService(this.objectResolverCache);
+        this.bindCache = new BindCache();
+        this.bindService = new BindService(this.bindCache);
+        this.resolverCache = new ResolverCache();
+        this.resolverService = new ResolverService(this.resolverCache);
 
         if (registerDefaults) {
             this.registerExtension(new DefaultTransformers());
@@ -30,7 +37,7 @@ public class CommandProviderImpl implements CommandProvider {
     }
 
     @Override
-    public CommandProviderImpl call(@NonNull String input) {
+    public CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull String input) {
 
         final CommandInput commandInput = new CommandInput(input);
 
@@ -39,7 +46,7 @@ public class CommandProviderImpl implements CommandProvider {
                 .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
                 .map(Map.Entry::getValue)
                 .findAny()
-                .map(commandMeta -> commandMeta.findExecutor(this.objectResolverService, commandInput))
+                .map(commandMeta -> commandMeta.findExecutor(this.resolverService, commandInput))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
 
@@ -49,7 +56,7 @@ public class CommandProviderImpl implements CommandProvider {
 
         final CommandExecutor commandExecutor = optionalCommandExecutor.get();
         try {
-            commandExecutor.invoke(this.objectResolverService, commandInput);
+            commandExecutor.invoke(this.resolverService, this.bindService, commandInput, commandSender);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -83,13 +90,25 @@ public class CommandProviderImpl implements CommandProvider {
 
     @Override
     public CommandProviderImpl registerTransformer(@NonNull ObjectTransformer<?> objectTransformer) {
-        this.objectResolverCache.add(objectTransformer);
+        this.resolverCache.add(objectTransformer);
         return this;
     }
 
     @Override
     public CommandProviderImpl unregisterTransformer(@NonNull Class<?> classTransformer) {
-        this.objectResolverCache.remove(classTransformer);
+        this.resolverCache.remove(classTransformer);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl registerBind(@NonNull BindResolver<?> bindResolver) {
+        this.bindCache.registerBind(bindResolver);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl unregisterBind(@NonNull Class<?> bindClass) {
+        this.bindCache.unregisterBind(bindClass);
         return this;
     }
 }

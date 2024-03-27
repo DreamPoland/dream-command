@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ObjectResolverCache {
+public class ResolverCache {
 
     private final List<ObjectTransformer<?>> objectTransformers = new ArrayList<>();
 
@@ -16,12 +16,12 @@ public class ObjectResolverCache {
                 .findAny();
     }
 
-    public ObjectResolverCache add(@NonNull ObjectTransformer<?> objectTransformer) {
+    public ResolverCache add(@NonNull ObjectTransformer<?> objectTransformer) {
         this.objectTransformers.add(objectTransformer);
         return this;
     }
 
-    public ObjectResolverCache remove(@NonNull Class<?> type) {
+    public ResolverCache remove(@NonNull Class<?> type) {
         this.objectTransformers.removeIf(objectTransformer -> objectTransformer.isAssignableFrom(type));
         return this;
     }

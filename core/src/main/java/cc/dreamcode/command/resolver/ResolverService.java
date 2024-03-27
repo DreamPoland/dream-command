@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class ObjectResolverService {
+public class ResolverService {
 
-    private final ObjectResolverCache objectResolverCache;
+    private final ResolverCache resolverCache;
 
     public boolean support(@NonNull Class<?> expectingClass, @NonNull String input) {
 
-        final Optional<ObjectTransformer<?>> optionalObjectTransformer = this.objectResolverCache.get(expectingClass);
+        final Optional<ObjectTransformer<?>> optionalObjectTransformer = this.resolverCache.get(expectingClass);
         if (!optionalObjectTransformer.isPresent()) {
             return false;
         }
@@ -27,7 +27,7 @@ public class ObjectResolverService {
 
     public Optional<?> resolve(@NonNull Class<?> expectingClass, @NonNull String input) {
 
-        final ObjectTransformer<?> objectTransformer = this.objectResolverCache.get(expectingClass)
+        final ObjectTransformer<?> objectTransformer = this.resolverCache.get(expectingClass)
                 .orElseThrow(() -> new RuntimeException("Cannot find resolver for class " + expectingClass));
 
         return objectTransformer.transform(expectingClass, input);

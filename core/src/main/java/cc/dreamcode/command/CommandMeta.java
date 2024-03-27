@@ -1,6 +1,6 @@
 package cc.dreamcode.command;
 
-import cc.dreamcode.command.resolver.ObjectResolverService;
+import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.utilities.StringUtil;
 import lombok.Data;
 import lombok.NonNull;
@@ -27,7 +27,7 @@ public class CommandMeta {
                 .collect(Collectors.toList());
     }
 
-    public Optional<CommandExecutor> findExecutor(@NonNull ObjectResolverService resolverService, @NonNull CommandInput commandInput) {
+    public Optional<CommandExecutor> findExecutor(@NonNull ResolverService resolverService, @NonNull CommandInput commandInput) {
 
         final String arguments = StringUtil.join(commandInput.getArguments(), " ");
         return this.commandExecutors.stream()
