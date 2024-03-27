@@ -7,7 +7,7 @@ public interface CommandProvider {
 
     CommandProviderImpl call(@NonNull String input);
 
-    CommandProviderImpl register(@NonNull CommandExecutor commandExecutor);
+    CommandProviderImpl register(@NonNull CommandBase commandBase);
 
     CommandProviderImpl registerExtension(@NonNull CommandExtension commandExtension);
 

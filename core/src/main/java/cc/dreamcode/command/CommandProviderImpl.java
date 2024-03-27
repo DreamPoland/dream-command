@@ -38,24 +38,22 @@ public class CommandProviderImpl implements CommandProvider {
                 .map(Map.Entry::getValue)
                 .findAny()
                 .ifPresent(commandMeta -> {
-
-                    System.out.println(commandMeta.toString());
-
+                    // TODO
                 });
 
         return this;
     }
 
     @Override
-    public CommandProviderImpl register(@NonNull CommandExecutor commandExecutor) {
+    public CommandProviderImpl register(@NonNull CommandBase commandBase) {
 
-        final Command command = commandExecutor.getClass().getAnnotation(Command.class);
+        final Command command = commandBase.getClass().getAnnotation(Command.class);
         if (command == null) {
-            throw new RuntimeException("Cannot find @Command annotation in class " + commandExecutor.getClass().getSimpleName());
+            throw new RuntimeException("Cannot find @Command annotation in class " + commandBase.getClass().getSimpleName());
         }
 
         final CommandContext commandContext = new CommandContext(command);
-        final CommandMeta commandMeta = new CommandMeta(commandContext, commandExecutor);
+        final CommandMeta commandMeta = new CommandMeta(commandContext, commandBase);
 
         this.commandMap.put(commandContext.getName(), commandMeta);
         Arrays.stream(commandContext.getAliases()).forEach(label ->
