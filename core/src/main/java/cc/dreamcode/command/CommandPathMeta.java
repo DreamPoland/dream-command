@@ -7,6 +7,7 @@ import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
+import cc.dreamcode.utilities.builder.ListBuilder;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -15,7 +16,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,10 +166,44 @@ public class CommandPathMeta {
     }
 
     public List<String> getSuggestion(@NonNull SuggestionService suggestionService, @NonNull CommandInput commandInput) {
-        if (commandInput.getArguments().length == 0) {
+        final int commandArgumentLength = commandInput.getArguments().length;
+
+        final ListBuilder<String> listBuilder = new ListBuilder<>();
+
+        this.paramMultiArgs.forEach((index, classType) -> {
+            final Optional<Annotation> optionalAnnotation = Arrays.stream(this.paramAnnotations.get(index))
+                    .filter(annotation -> annotation.annotationType().equals(Args.class))
+                    .findAny();
+
+            if (!optionalAnnotation.isPresent()) {
+                throw new RuntimeException("Annotation @Args not found (critical bug)");
+            }
+
+            final Args args = (Args) optionalAnnotation.get();
+
+            if (commandInput.isSpaceAtTheEnd()) {
+                final int min = args.min() == -1 ? 0 : args.min();
+                final int max = args.max() == -1 ? commandArgumentLength + 1 : args.max();
+
+                if (commandArgumentLength + 1 >= min && commandArgumentLength + 1 <= max) {
+                    listBuilder.add("<" + args.name() + ">");
+                }
+
+                return;
+            }
+
+            final int min = args.min() == -1 ? 0 : args.min();
+            final int max = args.max() == -1 ? commandArgumentLength : args.max();
+
+            if (commandArgumentLength >= min && commandArgumentLength <= max) {
+                listBuilder.add("<" + args.name() + ">");
+            }
+        });
+
+        if (commandArgumentLength == 0) {
 
             if (!commandInput.isSpaceAtTheEnd() || !this.paramNames.containsKey(0)) {
-                return new ArrayList<>();
+                return listBuilder.build();
             }
 
             final String arg = this.paramNames.get(0);
@@ -178,18 +212,20 @@ public class CommandPathMeta {
                     .findAny();
 
             if (!optionalCompletion.isPresent()) {
-                return Collections.singletonList("<" + arg + ">");
+                listBuilder.add("<" + arg + ">");
+                return listBuilder.build();
             }
 
             final Completion completion = optionalCompletion.get();
-            return suggestionService.getSuggestion(completion);
+            listBuilder.addAll(suggestionService.getSuggestion(completion));
+            return listBuilder.build();
         }
 
-        final int index = commandInput.getArguments().length - 1;
+        final int index = commandArgumentLength - 1;
         final String lastWord = commandInput.getArguments()[index];
 
         if (!this.paramNames.containsKey(index)) {
-            return new ArrayList<>();
+            return listBuilder.build();
         }
 
         final String arg = this.paramNames.get(index);
@@ -198,13 +234,16 @@ public class CommandPathMeta {
                 .findAny();
 
         if (!optionalCompletion.isPresent()) {
-            return Collections.singletonList("<" + arg + ">");
+            listBuilder.add("<" + arg + ">");
+            return listBuilder.build();
         }
 
         final Completion completion = optionalCompletion.get();
-        return suggestionService.getSuggestion(completion)
+        listBuilder.addAll(suggestionService.getSuggestion(completion)
                 .stream()
                 .filter(text -> text.startsWith(lastWord))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+
+        return listBuilder.build();
     }
 }
