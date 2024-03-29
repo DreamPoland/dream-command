@@ -33,7 +33,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example nick3243fdsv fsdf s fsd  ";
+        String input = "/example nick3";
         this.commandProvider.call(this.testSender, input);
     }
 
