@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -100,12 +99,11 @@ public class CommandExecutor {
         System.arraycopy(commandInput.getArguments(), patterns, params, 0, params.length);
 
         final AtomicInteger atomicArg = new AtomicInteger();
-        final List<Class<?>> argClasses = new ArrayList<>(this.paramArgs.values());
         for (int index = 0; index < this.method.getParameterCount(); index++) {
 
             if (this.paramArgs.containsKey(index)) {
                 final String input = params[atomicArg.get()];
-                final Class<?> paramType = argClasses.get(atomicArg.get());
+                final Class<?> paramType = new ArrayList<>(this.paramArgs.values()).get(atomicArg.get());
 
                 final Optional<?> optionalObject = resolverService.resolve(paramType, input);
                 if (!optionalObject.isPresent()) {
@@ -114,12 +112,14 @@ public class CommandExecutor {
 
                 objects.add(optionalObject.get());
                 atomicArg.incrementAndGet();
+                continue;
             }
 
             if (this.paramOptionalArgs.containsKey(index)) {
 
+                final Class<?> paramType = this.paramOptionalArgs.get(atomicArg.get());
                 if (params.length <= atomicArg.get()) {
-                    objects.add(Optional.empty());
+                    objects.add(Optional.class.isAssignableFrom(paramType) ? Optional.empty() : null);
                     atomicArg.incrementAndGet();
                     continue;
                 }
@@ -133,17 +133,32 @@ public class CommandExecutor {
                 }
 
                 final OptArg optArg = (OptArg) optionalAnnotation.get();
-
                 final String input = params[atomicArg.get()];
-                final Class<?> paramType = optArg.generic();
+
+                if (Optional.class.isAssignableFrom(paramType)) {
+                    final Class<?> optionalType = optArg.generic();
+                    if (optionalType.equals(Class.class)) {
+                        throw new RuntimeException("Optional requires generic argument in @OptArg annotation");
+                    }
+
+                    final Optional<?> optionalObject = resolverService.resolve(optionalType, input);
+                    if (!optionalObject.isPresent()) {
+                        throw new RuntimeException("Cannot resolve optional-param " + input + " as a " + optionalType.getSimpleName());
+                    }
+
+                    objects.add(optionalObject);
+                    atomicArg.incrementAndGet();
+                    continue;
+                }
 
                 final Optional<?> optionalObject = resolverService.resolve(paramType, input);
                 if (!optionalObject.isPresent()) {
                     throw new RuntimeException("Cannot resolve optional-param " + input + " as a " + paramType.getSimpleName());
                 }
 
-                objects.add(optionalObject);
+                objects.add(optionalObject.get());
                 atomicArg.incrementAndGet();
+                continue;
             }
 
             if (this.paramMultiArgs.containsKey(index)) {
@@ -175,6 +190,7 @@ public class CommandExecutor {
 
                 objects.add(resolverService.resolveArray(paramType, array)
                         .orElseThrow(() -> new RuntimeException("Cannot resolve array: " + paramType)));
+                continue;
             }
 
             if (this.paramBinds.containsKey(index)) {

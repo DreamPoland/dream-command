@@ -7,9 +7,6 @@ import cc.dreamcode.command.annotation.OptArg;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.util.Optional;
-
 class TestCommand {
 
     private CommandProvider commandProvider;
@@ -26,7 +23,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example optional test test test";
+        String input = "/example optional test";
 
         for (int i = 0; i < 100; i++) {
             this.commandProvider.call(this.testSender, input);
@@ -37,7 +34,8 @@ class TestCommand {
     public static class ExampleCommand implements CommandBase {
 
         @Executor(path = "optional")
-        public void optionalMethod(@Arg String test, @OptArg(generic = Duration.class) Optional<Duration> optionalTest) {
+        public void optionalMethod(@Arg String test, @OptArg String optionalTest) {
+
             System.out.println("OPTIONAL - " + optionalTest);
         }
     }
