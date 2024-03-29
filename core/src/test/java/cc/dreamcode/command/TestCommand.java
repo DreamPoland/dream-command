@@ -23,7 +23,7 @@ class TestCommand {
     @BeforeEach
     void setUp() {
         this.commandProvider = new CommandProviderImpl(true);
-        this.commandProvider.registerSuggestion("all-players", () -> ListBuilder.of("nick1", "nick2", "nick3", "nick4", "nick5", "nick6", "nick7", "nick8"));
+        this.commandProvider.registerSuggestion("@all-players", () -> ListBuilder.of("nick1", "nick2", "nick3", "nick4", "nick5", "nick6", "nick7", "nick8"));
 
         this.testSender = new TestSender();
         this.commandProvider.registerBind(new TestSenderBind());
@@ -39,7 +39,7 @@ class TestCommand {
 
     @Test
     void testSuggestion() {
-        String input = "/example t t t t t t";
+        String input = "/example n";
         System.out.println(this.commandProvider.getSuggestion(input));
     }
 
@@ -50,9 +50,11 @@ class TestCommand {
 
         @Executor()
         @Permission(name = "example.permission")
-        @Completion(arg = "test", value = "all-players", filter = @CompletionFilter(name = "limit", value = "5"))
+        @Completion(arg = "test", value = {"kolo", "kofo", "nanana"})
+        @Completion(arg = "test2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
         public void optionalMethod(
-                @Arg(name = "test") String test2,
+                @Arg(name = "test") String test,
+                @Arg(name = "test2") String test2,
                 @OptArg(name = "optional-test") String optionalTest,
                 @Args(name = "argsmen", min = 1, max = 5) String[] args
         ) {
