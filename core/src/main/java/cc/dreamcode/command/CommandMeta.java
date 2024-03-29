@@ -18,34 +18,34 @@ public class CommandMeta {
 
     private final CommandContext commandContext;
     private final CommandBase commandBase;
-    private final List<CommandExecutor> commandExecutors;
+    private final List<CommandPathMeta> commandPaths;
 
     public CommandMeta(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
         this.commandContext = commandContext;
         this.commandBase = commandBase;
-        this.commandExecutors = commandBase.getExecutors(this);
+        this.commandPaths = commandBase.getCommandPaths(this);
     }
 
-    public Optional<CommandExecutor> findExecutor(@NonNull ResolverService resolverService, @NonNull CommandInput commandInput) {
+    public Optional<CommandPathMeta> findExecutor(@NonNull ResolverService resolverService, @NonNull CommandInput commandInput) {
 
         final String[] splitArguments = commandInput.getArguments();
         final String arguments = StringUtil.join(splitArguments, " ");
-        return this.commandExecutors
+        return this.commandPaths
                 .stream()
-                .filter(commandExecutor -> {
+                .filter(commandPathMeta -> {
 
-                    final int pathLength = commandExecutor.getPath().isEmpty() ? 0 : commandExecutor.getPath().split(" ").length;
+                    final int pathLength = commandPathMeta.getPath().isEmpty() ? 0 : commandPathMeta.getPath().split(" ").length;
                     if (splitArguments.length < pathLength) {
                         return false;
                     }
 
-                    if (commandExecutor.getParamMultiArgs().isEmpty() &&
-                            splitArguments.length > pathLength + commandExecutor.getParamArgs().size() + commandExecutor.getParamOptionalArgs().size()) {
+                    if (commandPathMeta.getParamMultiArgs().isEmpty() &&
+                            splitArguments.length > pathLength + commandPathMeta.getParamArgs().size() + commandPathMeta.getParamOptionalArgs().size()) {
                         return false;
                     }
 
                     final String argumentEntry = StringUtil.join(splitArguments, " ", 0, pathLength);
-                    return commandExecutor.getPath().equalsIgnoreCase(argumentEntry);
+                    return commandPathMeta.getPath().equalsIgnoreCase(argumentEntry);
                 })
                 .sorted((o1, o2) -> {
 
@@ -54,17 +54,17 @@ public class CommandMeta {
 
                     return Integer.compare(secondPathLength + o2.getParamArgs().size(), firstPathLength + o1.getParamArgs().size());
                 })
-                .filter(commandExecutor -> {
+                .filter(commandPathMeta -> {
 
-                    final String scaledParams = arguments.replace(commandExecutor.getPath() + " ", "");
+                    final String scaledParams = arguments.replace(commandPathMeta.getPath() + " ", "");
                     final String[] params = scaledParams.isEmpty() ? new String[0] : scaledParams.split(" ");
 
-                    if (params.length < commandExecutor.getParamArgs().size()) {
+                    if (params.length < commandPathMeta.getParamArgs().size()) {
                         return false;
                     }
 
-                    final List<Class<?>> argClasses = new ArrayList<>(commandExecutor.getParamArgs().values());
-                    for (int index = 0; index < commandExecutor.getParamArgs().size(); index++) {
+                    final List<Class<?>> argClasses = new ArrayList<>(commandPathMeta.getParamArgs().values());
+                    for (int index = 0; index < commandPathMeta.getParamArgs().size(); index++) {
 
                         final String input = params[index];
                         final Class<?> paramType = argClasses.get(index);
@@ -75,16 +75,16 @@ public class CommandMeta {
                         }
                     }
 
-                    if (commandExecutor.getParamMultiArgs().isEmpty()) {
+                    if (commandPathMeta.getParamMultiArgs().isEmpty()) {
                         return true;
                     }
 
                     // scan for @Args
-                    for (Map.Entry<Integer, Class<?>> entry : commandExecutor.getParamMultiArgs().entrySet()) {
+                    for (Map.Entry<Integer, Class<?>> entry : commandPathMeta.getParamMultiArgs().entrySet()) {
                         final int index = entry.getKey();
                         final Class<?> paramType = entry.getValue().getComponentType();
 
-                        final Optional<Annotation> optionalAnnotation = Arrays.stream(commandExecutor.getParamAnnotations().get(index))
+                        final Optional<Annotation> optionalAnnotation = Arrays.stream(commandPathMeta.getParamAnnotations().get(index))
                                 .filter(annotation -> annotation.annotationType().equals(Args.class))
                                 .findAny();
 

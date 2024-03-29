@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface CommandBase {
 
-    default List<CommandExecutor> getExecutors(@NonNull CommandMeta commandMeta) {
-        final ListBuilder<CommandExecutor> executors = new ListBuilder<>();
+    default List<CommandPathMeta> getCommandPaths(@NonNull CommandMeta commandMeta) {
+        final ListBuilder<CommandPathMeta> executors = new ListBuilder<>();
 
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
             declaredMethod.setAccessible(true);
@@ -20,8 +20,8 @@ public interface CommandBase {
                 continue;
             }
 
-            final CommandExecutor commandExecutor = new CommandExecutor(commandMeta, declaredMethod, executor);
-            executors.add(commandExecutor);
+            final CommandPathMeta commandPathMeta = new CommandPathMeta(commandMeta, declaredMethod, executor);
+            executors.add(commandPathMeta);
         }
 
         return executors.build();

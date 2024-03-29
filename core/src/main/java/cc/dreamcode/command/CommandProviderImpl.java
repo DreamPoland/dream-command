@@ -42,7 +42,7 @@ public class CommandProviderImpl implements CommandProvider {
 
         final CommandInput commandInput = new CommandInput(input);
 
-        final Optional<CommandExecutor> optionalCommandExecutor = this.commandMap.entrySet()
+        final Optional<CommandPathMeta> optionalCommandExecutor = this.commandMap.entrySet()
                 .stream()
                 .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
                 .map(Map.Entry::getValue)
@@ -55,8 +55,9 @@ public class CommandProviderImpl implements CommandProvider {
             throw new RuntimeException("Cannot find any method with input: " + Arrays.toString(commandInput.getParams()));
         }
 
-        final CommandExecutor commandExecutor = optionalCommandExecutor.get();
+        final CommandPathMeta commandPathMeta = optionalCommandExecutor.get();
         try {
+            final CommandExecutor commandExecutor = commandPathMeta.getCommandExecutor();
             commandExecutor.invoke(this.resolverService, this.bindService, commandInput, commandSender);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);

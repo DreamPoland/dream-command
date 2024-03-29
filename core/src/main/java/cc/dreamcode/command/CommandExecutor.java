@@ -1,8 +1,6 @@
 package cc.dreamcode.command;
 
-import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Args;
-import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.bind.BindService;
 import cc.dreamcode.command.resolver.ResolverService;
@@ -13,11 +11,8 @@ import lombok.NonNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,85 +20,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CommandExecutor {
 
     private final CommandMeta commandMeta;
-
-    private final Method method;
-    private final Map<Integer, Annotation[]> paramAnnotations;
-    private final Map<Integer, Class<?>> paramArgs;
-    private final Map<Integer, Class<?>> paramMultiArgs;
-    private final Map<Integer, Class<Optional<?>>> paramOptionalArgs;
-    private final Map<Integer, Class<?>> paramBinds;
-
-    private final String path;
-    private final String description;
-
-    @SuppressWarnings("unchecked")
-    public CommandExecutor(@NonNull CommandMeta commandMeta, @NonNull Method method, @NonNull Executor executor) {
-        this.commandMeta = commandMeta;
-        this.method = method;
-
-        this.paramAnnotations = new HashMap<>();
-        for (int index = 0; index < this.method.getParameterAnnotations().length; index++) {
-            this.paramAnnotations.put(index, this.method.getParameterAnnotations()[index]);
-        }
-        
-        this.paramArgs = new HashMap<>();
-        this.paramMultiArgs = new HashMap<>();
-        this.paramOptionalArgs = new HashMap<>();
-        this.paramBinds = new HashMap<>();
-        for (int index = 0; index < this.method.getParameterTypes().length; index++) {
-
-            if (Arrays.stream(this.paramAnnotations.get(index))
-                    .anyMatch(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))) {
-
-                int finalIndex = index;
-                if (this.paramOptionalArgs.keySet()
-                        .stream()
-                        .anyMatch(argIndex -> argIndex < finalIndex)) {
-                    throw new RuntimeException("@OptionalArg must be specified after @Arg params");
-                }
-
-                // arg (transformer)
-                this.paramArgs.put(index, this.method.getParameterTypes()[index]);
-                continue;
-            }
-
-            if (Arrays.stream(this.paramAnnotations.get(index))
-                    .anyMatch(annotation -> Args.class.isAssignableFrom(annotation.annotationType()))) {
-
-                // multi-arg (transformer)
-                this.paramMultiArgs.put(index, this.method.getParameterTypes()[index]);
-                continue;
-            }
-
-            if (Arrays.stream(this.paramAnnotations.get(index))
-                    .anyMatch(annotation -> OptArg.class.isAssignableFrom(annotation.annotationType()))) {
-
-                this.paramOptionalArgs.put(index, (Class<Optional<?>>) this.method.getParameterTypes()[index]);
-                continue;
-            }
-
-            // bind
-            this.paramBinds.put(index, this.method.getParameterTypes()[index]);
-        }
-
-        this.path = executor.path();
-        this.description = executor.description();
-    }
+    private final CommandPathMeta commandPathMeta;
 
     public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull CommandSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
+        final String path = this.commandPathMeta.getPath();
+
         final ListBuilder<Object> objects = new ListBuilder<>();
-        final int patterns = this.path.isEmpty() ? 0 : this.path.split(" ").length;
+        final int patterns = path.isEmpty() ? 0 : path.split(" ").length;
 
         final String[] params = new String[commandInput.getArguments().length - patterns];
         System.arraycopy(commandInput.getArguments(), patterns, params, 0, params.length);
 
         final AtomicInteger atomicArg = new AtomicInteger();
-        for (int index = 0; index < this.method.getParameterCount(); index++) {
+        for (int index = 0; index < this.commandPathMeta.getMethod().getParameterCount(); index++) {
 
-            if (this.paramArgs.containsKey(index)) {
+            if (this.getCommandPathMeta().getParamArgs().containsKey(index)) {
                 final String input = params[atomicArg.get()];
-                final Class<?> paramType = new ArrayList<>(this.paramArgs.values()).get(atomicArg.get());
+                final Class<?> paramType = new ArrayList<>(this.getCommandPathMeta().getParamArgs().values()).get(atomicArg.get());
 
                 final Optional<?> optionalObject = resolverService.resolve(paramType, input);
                 if (!optionalObject.isPresent()) {
@@ -115,16 +49,16 @@ public class CommandExecutor {
                 continue;
             }
 
-            if (this.paramOptionalArgs.containsKey(index)) {
+            if (this.getCommandPathMeta().getParamOptionalArgs().containsKey(index)) {
 
-                final Class<?> paramType = this.paramOptionalArgs.get(atomicArg.get());
+                final Class<?> paramType = this.getCommandPathMeta().getParamOptionalArgs().get(atomicArg.get());
                 if (params.length <= atomicArg.get()) {
                     objects.add(Optional.class.isAssignableFrom(paramType) ? Optional.empty() : null);
                     atomicArg.incrementAndGet();
                     continue;
                 }
 
-                final Optional<Annotation> optionalAnnotation = Arrays.stream(this.paramAnnotations.get(index))
+                final Optional<Annotation> optionalAnnotation = Arrays.stream(this.getCommandPathMeta().getParamAnnotations().get(index))
                         .filter(annotation -> annotation.annotationType().equals(OptArg.class))
                         .findAny();
 
@@ -161,9 +95,9 @@ public class CommandExecutor {
                 continue;
             }
 
-            if (this.paramMultiArgs.containsKey(index)) {
-                final Class<?> paramType = this.paramMultiArgs.get(index);
-                final Optional<Annotation> optionalAnnotation = Arrays.stream(this.paramAnnotations.get(index))
+            if (this.commandPathMeta.getParamMultiArgs().containsKey(index)) {
+                final Class<?> paramType = this.commandPathMeta.getParamMultiArgs().get(index);
+                final Optional<Annotation> optionalAnnotation = Arrays.stream(this.commandPathMeta.getParamAnnotations().get(index))
                         .filter(annotation -> annotation.annotationType().equals(Args.class))
                         .findAny();
 
@@ -193,8 +127,8 @@ public class CommandExecutor {
                 continue;
             }
 
-            if (this.paramBinds.containsKey(index)) {
-                final Class<?> paramType = this.paramBinds.get(index);
+            if (this.commandPathMeta.getParamBinds().containsKey(index)) {
+                final Class<?> paramType = this.commandPathMeta.getParamBinds().get(index);
                 final Optional<?> optionalObject = bindService.resolveBind(paramType, sender);
 
                 if (!optionalObject.isPresent()) {
@@ -205,6 +139,6 @@ public class CommandExecutor {
             }
         }
 
-        this.method.invoke(this.commandMeta.getCommandBase(), objects.build().toArray());
+        this.commandPathMeta.getMethod().invoke(this.commandMeta.getCommandBase(), objects.build().toArray());
     }
 }
