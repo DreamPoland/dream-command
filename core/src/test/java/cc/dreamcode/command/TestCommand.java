@@ -8,6 +8,7 @@ import cc.dreamcode.command.annotation.CompletionFilter;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.annotation.Permission;
+import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,7 @@ class TestCommand {
     }
 
     @Permission(name = "example.permission")
+    @Sender(type = CommandSender.Type.CLIENT)
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 

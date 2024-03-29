@@ -2,6 +2,7 @@ package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Permission;
+import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
@@ -22,6 +23,7 @@ public class CommandMeta {
     private final CommandContext commandContext;
     private final CommandBase commandBase;
     private final String[] basePermissions;
+    private final CommandSender.Type[] baseSenderTypes;
     private final List<CommandPathMeta> commandPaths;
 
     public CommandMeta(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
@@ -32,6 +34,11 @@ public class CommandMeta {
         this.basePermissions = Arrays.stream(permissionsArray)
                 .map(Permission::name)
                 .toArray(String[]::new);
+
+        final Sender[] sendersArray = commandBase.getClass().getAnnotationsByType(Sender.class);
+        this.baseSenderTypes = Arrays.stream(sendersArray)
+                .map(Sender::type)
+                .toArray(CommandSender.Type[]::new);
 
         this.commandPaths = commandBase.getCommandPaths(this);
     }

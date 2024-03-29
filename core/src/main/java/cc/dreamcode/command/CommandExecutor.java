@@ -24,6 +24,12 @@ public class CommandExecutor {
 
     public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull CommandSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
+        if (!this.commandPathMeta.getSendersType().isEmpty()) {
+            if (!this.commandPathMeta.getSendersType().contains(sender.getType())) {
+                throw new RuntimeException("Sender type is unacceptable (" + sender.getType() + ")");
+            }
+        }
+
         for (String permission : this.commandPathMeta.getPermissions()) {
             if (!sender.hasPermission(permission)) {
                 throw new RuntimeException("Sender permission not found (" + permission + ")");

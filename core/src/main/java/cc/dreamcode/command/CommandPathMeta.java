@@ -6,6 +6,7 @@ import cc.dreamcode.command.annotation.Completion;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.annotation.Permission;
+import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
@@ -40,7 +41,9 @@ public class CommandPathMeta {
 
     private final String path;
     private final String description;
+
     private final String[] pathPermissions;
+    private final CommandSender.Type[] pathSenderTypes;
 
     private final CommandExecutor commandExecutor;
 
@@ -142,16 +145,30 @@ public class CommandPathMeta {
                 .map(Permission::name)
                 .toArray(String[]::new);
 
+        final Sender[] sendersArray = this.method.getAnnotationsByType(Sender.class);
+        this.pathSenderTypes = Arrays.stream(sendersArray)
+                .map(Sender::type)
+                .toArray(CommandSender.Type[]::new);
+
         this.commandExecutor = new CommandExecutor(commandMeta, this);
     }
 
-    public String[] getPermissions() {
+    public List<String> getPermissions() {
         final List<String> permissions = new ArrayList<>();
 
         Collections.addAll(permissions, this.commandMeta.getBasePermissions());
         Collections.addAll(permissions, this.pathPermissions);
 
-        return permissions.toArray(new String[0]);
+        return permissions;
+    }
+
+    public List<CommandSender.Type> getSendersType() {
+        final List<CommandSender.Type> senderTypes = new ArrayList<>();
+
+        Collections.addAll(senderTypes, this.commandMeta.getBaseSenderTypes());
+        Collections.addAll(senderTypes, this.pathSenderTypes);
+
+        return senderTypes;
     }
 
     public String getUsage(boolean renderJoiningArgs) {
