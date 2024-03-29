@@ -4,9 +4,10 @@ import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Completion;
-import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.CompletionFilter;
+import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
+import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example nick3 test";
+        String input = "/example nick3";
         this.commandProvider.call(this.testSender, input);
     }
 
@@ -41,10 +42,12 @@ class TestCommand {
         System.out.println(this.commandProvider.getSuggestion(input));
     }
 
+    @Permission(name = "example.permission")
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
         @Executor()
+        @Permission(name = "example.permission")
         @Completion(arg = "test", value = "all-players", filter = @CompletionFilter(name = "limit", value = "5"))
         public void optionalMethod(
                 @Arg(name = "test") String test2,

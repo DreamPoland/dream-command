@@ -5,6 +5,7 @@ import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Completion;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
+import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
@@ -16,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ public class CommandPathMeta {
 
     private final String path;
     private final String description;
+    private final String[] pathPermissions;
 
     private final CommandExecutor commandExecutor;
 
@@ -134,7 +137,21 @@ public class CommandPathMeta {
         this.path = executor.path();
         this.description = executor.description();
 
+        final Permission[] permissionsArray = this.method.getAnnotationsByType(Permission.class);
+        this.pathPermissions = Arrays.stream(permissionsArray)
+                .map(Permission::name)
+                .toArray(String[]::new);
+
         this.commandExecutor = new CommandExecutor(commandMeta, this);
+    }
+
+    public String[] getPermissions() {
+        final List<String> permissions = new ArrayList<>();
+
+        Collections.addAll(permissions, this.commandMeta.getBasePermissions());
+        Collections.addAll(permissions, this.pathPermissions);
+
+        return permissions.toArray(new String[0]);
     }
 
     public String getUsage(boolean renderJoiningArgs) {

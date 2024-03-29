@@ -24,6 +24,12 @@ public class CommandExecutor {
 
     public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull CommandSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
+        for (String permission : this.commandPathMeta.getPermissions()) {
+            if (!sender.hasPermission(permission)) {
+                throw new RuntimeException("Sender permission not found (" + permission + ")");
+            }
+        }
+
         final String path = this.commandPathMeta.getPath();
 
         final ListBuilder<Object> objects = new ListBuilder<>();

@@ -12,7 +12,7 @@ public class TestSender implements CommandSender<PrintStream> {
 
     @Override
     public boolean hasPermission(@NonNull String permission) {
-        return true;
+        return false;
     }
 
     @Override
