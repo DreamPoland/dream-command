@@ -19,6 +19,8 @@ public interface CommandProvider {
 
     CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull String input);
 
+    CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull CommandInput commandInput);
+
     CommandProviderImpl register(@NonNull CommandBase commandBase);
 
     CommandProviderImpl registerExtension(@NonNull CommandExtension commandExtension);

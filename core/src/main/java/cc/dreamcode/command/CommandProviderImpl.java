@@ -75,8 +75,11 @@ public class CommandProviderImpl implements CommandProvider {
 
     @Override
     public CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull String input) {
+        return this.call(commandSender, new CommandInput(input));
+    }
 
-        final CommandInput commandInput = new CommandInput(input);
+    @Override
+    public CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull CommandInput commandInput) {
 
         final Optional<CommandMeta> optionalCommandMeta = this.commandMap.entrySet()
                 .stream()
