@@ -2,7 +2,9 @@ package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.resolver.ResolverService;
+import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
+import cc.dreamcode.utilities.builder.ListBuilder;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -24,6 +26,17 @@ public class CommandMeta {
         this.commandContext = commandContext;
         this.commandBase = commandBase;
         this.commandPaths = commandBase.getCommandPaths(this);
+    }
+
+    public List<String> getSuggestion(@NonNull SuggestionService suggestionService, @NonNull CommandInput commandInput) {
+
+        final ListBuilder<String> listBuilder = new ListBuilder<>();
+
+        for (CommandPathMeta commandPath : this.commandPaths) {
+            listBuilder.addAll(commandPath.getSuggestion(suggestionService, commandInput));
+        }
+
+        return listBuilder.build();
     }
 
     public Optional<CommandPathMeta> findExecutor(@NonNull ResolverService resolverService, @NonNull CommandInput commandInput) {

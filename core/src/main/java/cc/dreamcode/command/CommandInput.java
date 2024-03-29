@@ -1,13 +1,16 @@
 package cc.dreamcode.command;
 
+import lombok.Getter;
 import lombok.NonNull;
 
 public class CommandInput {
 
     private final String input;
+    @Getter private final boolean spaceAtTheEnd;
 
     public CommandInput(@NonNull String input) {
         this.input = input.replace("/", "");
+        this.spaceAtTheEnd = input.endsWith(" ");
     }
 
     public String[] getParams() {

@@ -1,0 +1,42 @@
+package cc.dreamcode.command.suggestion;
+
+import cc.dreamcode.command.annotation.Completion;
+import cc.dreamcode.command.annotation.CompletionFilter;
+import cc.dreamcode.command.suggestion.filter.SuggestionFilter;
+import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
+@RequiredArgsConstructor
+public class SuggestionService {
+
+    private final SuggestionCache suggestionCache;
+
+    public List<String> getSuggestion(@NonNull Completion completion) {
+
+        final Optional<SuggestionSupplier> optionalSupplier = this.suggestionCache.getSuggestion(completion.value());
+        if (!optionalSupplier.isPresent()) {
+            throw new RuntimeException("Cannot resolve suggestion-supplier by key: " + completion.value());
+        }
+
+        final SuggestionSupplier supplier = optionalSupplier.get();
+        final AtomicReference<List<String>> reference = new AtomicReference<>(supplier.supply());
+
+        final CompletionFilter[] completionFilterArray = completion.filter();
+        for (CompletionFilter completionFilter : completionFilterArray) {
+            Optional<SuggestionFilter> optionalFilter = this.suggestionCache.getSuggestionFilter(completionFilter.name());
+            if (!optionalFilter.isPresent()) {
+                throw new RuntimeException("Cannot resolve suggestion-filter by key: " + completionFilter.name());
+            }
+
+            final SuggestionFilter suggestionFilter = optionalFilter.get();
+            reference.set(suggestionFilter.filter(reference.get(), completionFilter.value()));
+        }
+
+        return reference.get();
+    }
+}

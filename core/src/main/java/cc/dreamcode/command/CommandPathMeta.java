@@ -2,8 +2,10 @@ package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Args;
+import cc.dreamcode.command.annotation.Completion;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
+import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
 import lombok.Data;
 import lombok.NonNull;
@@ -13,10 +15,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 public class CommandPathMeta {
@@ -158,5 +163,48 @@ public class CommandPathMeta {
         });
 
         return StringUtil.join(listBuilder, " ");
+    }
+
+    public List<String> getSuggestion(@NonNull SuggestionService suggestionService, @NonNull CommandInput commandInput) {
+        if (commandInput.getArguments().length == 0) {
+
+            if (!commandInput.isSpaceAtTheEnd() || !this.paramNames.containsKey(0)) {
+                return new ArrayList<>();
+            }
+
+            final String arg = this.paramNames.get(0);
+            final Optional<Completion> optionalCompletion = Arrays.stream(this.method.getAnnotationsByType(Completion.class))
+                    .filter(completion -> Objects.equals(completion.arg(), arg))
+                    .findAny();
+
+            if (!optionalCompletion.isPresent()) {
+                return Collections.singletonList("<" + arg + ">");
+            }
+
+            final Completion completion = optionalCompletion.get();
+            return suggestionService.getSuggestion(completion);
+        }
+
+        final int index = commandInput.getArguments().length - 1;
+        final String lastWord = commandInput.getArguments()[index];
+
+        if (!this.paramNames.containsKey(index)) {
+            return new ArrayList<>();
+        }
+
+        final String arg = this.paramNames.get(index);
+        final Optional<Completion> optionalCompletion = Arrays.stream(this.method.getAnnotationsByType(Completion.class))
+                .filter(completion -> Objects.equals(completion.arg(), arg))
+                .findAny();
+
+        if (!optionalCompletion.isPresent()) {
+            return Collections.singletonList("<" + arg + ">");
+        }
+
+        final Completion completion = optionalCompletion.get();
+        return suggestionService.getSuggestion(completion)
+                .stream()
+                .filter(text -> text.startsWith(lastWord))
+                .collect(Collectors.toList());
     }
 }

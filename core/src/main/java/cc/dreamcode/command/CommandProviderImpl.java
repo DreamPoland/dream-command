@@ -9,11 +9,18 @@ import cc.dreamcode.command.resolver.ResolverCache;
 import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
 import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
+import cc.dreamcode.command.suggestion.DefaultSuggestions;
+import cc.dreamcode.command.suggestion.SuggestionCache;
+import cc.dreamcode.command.suggestion.SuggestionService;
+import cc.dreamcode.command.suggestion.filter.SuggestionFilter;
+import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
 import lombok.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,6 +30,8 @@ public class CommandProviderImpl implements CommandProvider {
     private final BindService bindService;
     private final ResolverCache resolverCache;
     private final ResolverService resolverService;
+    private final SuggestionCache suggestionCache;
+    private final SuggestionService suggestionService;
 
     private final Map<String, CommandMeta> commandMap = new HashMap<>();
 
@@ -31,10 +40,24 @@ public class CommandProviderImpl implements CommandProvider {
         this.bindService = new BindService(this.bindCache);
         this.resolverCache = new ResolverCache();
         this.resolverService = new ResolverService(this.resolverCache);
+        this.suggestionCache = new SuggestionCache();
+        this.suggestionService = new SuggestionService(this.suggestionCache);
 
         if (registerDefaults) {
             this.registerExtension(new DefaultTransformers());
+            this.registerExtension(new DefaultSuggestions());
         }
+    }
+
+    @Override
+    public List<String> getSuggestion(@NonNull String input) {
+        final CommandInput commandInput = new CommandInput(input);
+        return this.commandMap.entrySet()
+                .stream()
+                .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
+                .map(entry -> entry.getValue().getSuggestion(this.suggestionService, commandInput))
+                .findAny()
+                .orElse(new ArrayList<>());
     }
 
     @Override
@@ -122,6 +145,30 @@ public class CommandProviderImpl implements CommandProvider {
     @Override
     public CommandProviderImpl unregisterBind(@NonNull Class<?> bindClass) {
         this.bindCache.unregisterBind(bindClass);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl registerSuggestion(@NonNull String key, @NonNull SuggestionSupplier suggestionSupplier) {
+        this.suggestionCache.addSuggestion(key, suggestionSupplier);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl unregisterSuggestion(@NonNull String key) {
+        this.suggestionCache.removeSuggestion(key);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl registerSuggestionFilter(@NonNull String key, @NonNull SuggestionFilter suggestionFilter) {
+        this.suggestionCache.addSuggestionFilter(key, suggestionFilter);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl unregisterSuggestionFilter(@NonNull String key) {
+        this.suggestionCache.removeSuggestionFilter(key);
         return this;
     }
 }
