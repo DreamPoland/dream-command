@@ -55,6 +55,13 @@ public class CommandExecutor {
             if (Arrays.stream(this.paramAnnotations.get(index))
                     .anyMatch(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))) {
 
+                int finalIndex = index;
+                if (this.paramOptionalArgs.keySet()
+                        .stream()
+                        .anyMatch(argIndex -> argIndex < finalIndex)) {
+                    throw new RuntimeException("@OptionalArg must be specified after @Arg params");
+                }
+
                 // arg (transformer)
                 this.paramArgs.put(index, this.method.getParameterTypes()[index]);
                 continue;
@@ -70,13 +77,6 @@ public class CommandExecutor {
 
             if (Arrays.stream(this.paramAnnotations.get(index))
                     .anyMatch(annotation -> OptArg.class.isAssignableFrom(annotation.annotationType()))) {
-
-                int finalIndex = index;
-                if (this.paramArgs.keySet()
-                        .stream()
-                        .anyMatch(argIndex -> argIndex > finalIndex)) {
-                    throw new RuntimeException("@OptionalArg must be specified after @Arg params");
-                }
 
                 this.paramOptionalArgs.put(index, (Class<Optional<?>>) this.method.getParameterTypes()[index]);
                 continue;

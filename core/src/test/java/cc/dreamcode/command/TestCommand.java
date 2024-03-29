@@ -23,7 +23,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example optional test";
+        String input = "/example optional test test";
 
         for (int i = 0; i < 100; i++) {
             this.commandProvider.call(this.testSender, input);
@@ -34,7 +34,7 @@ class TestCommand {
     public static class ExampleCommand implements CommandBase {
 
         @Executor(path = "optional")
-        public void optionalMethod(@Arg String test, @OptArg String optionalTest) {
+        public void optionalMethod(@Arg String test2, @OptArg String optionalTest) {
 
             System.out.println("OPTIONAL - " + optionalTest);
         }
