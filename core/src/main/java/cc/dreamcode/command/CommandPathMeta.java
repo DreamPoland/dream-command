@@ -10,6 +10,7 @@ import lombok.NonNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class CommandPathMeta {
     private final CommandMeta commandMeta;
 
     private final Method method;
+    private final Map<Integer, String> paramNames;
     private final Map<Integer, Annotation[]> paramAnnotations;
     private final Map<Integer, Class<?>> paramArgs;
     private final Map<Integer, Class<?>> paramMultiArgs;
@@ -43,7 +45,47 @@ public class CommandPathMeta {
         for (int index = 0; index < this.method.getParameterAnnotations().length; index++) {
             this.paramAnnotations.put(index, this.method.getParameterAnnotations()[index]);
         }
-        
+
+        this.paramNames = new HashMap<>();
+        for (int index = 0; index < this.method.getParameters().length; index++) {
+            final Parameter parameter = this.method.getParameters()[index];
+
+            final Optional<Annotation> optionalArg = Arrays.stream(this.paramAnnotations.get(index))
+                    .filter(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))
+                    .findAny();
+
+            if (optionalArg.isPresent()) {
+                final Arg arg = (Arg) optionalArg.get();
+                this.paramNames.put(index, arg.name());
+
+                continue;
+            }
+
+            final Optional<Annotation> optionalArgs = Arrays.stream(this.paramAnnotations.get(index))
+                    .filter(annotation -> Args.class.isAssignableFrom(annotation.annotationType()))
+                    .findAny();
+
+            if (optionalArgs.isPresent()) {
+                final Args args = (Args) optionalArgs.get();
+                this.paramNames.put(index, args.name());
+
+                continue;
+            }
+
+            final Optional<Annotation> optionalOptArg = Arrays.stream(this.paramAnnotations.get(index))
+                    .filter(annotation -> OptArg.class.isAssignableFrom(annotation.annotationType()))
+                    .findAny();
+
+            if (optionalOptArg.isPresent()) {
+                final OptArg optArg = (OptArg) optionalOptArg.get();
+                this.paramNames.put(index, optArg.name());
+
+                continue;
+            }
+
+            this.paramNames.put(index, parameter.getName());
+        }
+
         this.paramArgs = new HashMap<>();
         this.paramMultiArgs = new HashMap<>();
         this.paramOptionalArgs = new HashMap<>();
@@ -92,52 +134,26 @@ public class CommandPathMeta {
 
     public String getUsage(boolean renderArgs) {
 
-        final List<String> listBuilder = new ArrayList<>(Arrays.asList(this.path.split(" ")));
+        final List<String> listBuilder = new ArrayList<>();
+
+        if (!this.path.isEmpty()) {
+            listBuilder.addAll(Arrays.asList(this.path.split(" ")));
+        }
 
         this.paramAnnotations.forEach((index, annotations) -> {
 
             if (this.paramArgs.containsKey(index)) {
-                final Optional<Annotation> optionalArg = Arrays.stream(annotations)
-                        .filter(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))
-                        .findAny();
-
-                if (!optionalArg.isPresent()) {
-                    throw new RuntimeException("Cannot find @Arg annotation");
-                }
-
-                final Arg arg = (Arg) optionalArg.get();
-
-                listBuilder.add("<" + arg.name() + ">");
+                listBuilder.add("<" + this.paramNames.get(index) + ">");
                 return;
             }
 
             if (renderArgs && this.paramMultiArgs.containsKey(index)) {
-                final Optional<Annotation> optionalArgs = Arrays.stream(annotations)
-                        .filter(annotation -> Args.class.isAssignableFrom(annotation.annotationType()))
-                        .findAny();
-
-                if (!optionalArgs.isPresent()) {
-                    throw new RuntimeException("Cannot find @Arg annotation");
-                }
-
-                final Args args = (Args) optionalArgs.get();
-
-                listBuilder.add("<" + args.name() + ">");
+                listBuilder.add("<" + this.paramNames.get(index) + ">");
                 return;
             }
 
             if (this.paramOptionalArgs.containsKey(index)) {
-                final Optional<Annotation> optionalOptArg = Arrays.stream(annotations)
-                        .filter(annotation -> OptArg.class.isAssignableFrom(annotation.annotationType()))
-                        .findAny();
-
-                if (!optionalOptArg.isPresent()) {
-                    throw new RuntimeException("Cannot find @OptArg annotation");
-                }
-
-                final OptArg optArg = (OptArg) optionalOptArg.get();
-
-                listBuilder.add("[" + optArg.name() + "]");
+                listBuilder.add("[" + this.paramNames.get(index) + "]");
             }
         });
 
