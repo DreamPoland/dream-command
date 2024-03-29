@@ -1,6 +1,10 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.bind.BindResolver;
+import cc.dreamcode.command.handler.InvalidInputHandler;
+import cc.dreamcode.command.handler.InvalidPermissionHandler;
+import cc.dreamcode.command.handler.InvalidSenderHandler;
+import cc.dreamcode.command.handler.InvalidUsageHandler;
 import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
 import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
 import cc.dreamcode.command.suggestion.filter.SuggestionFilter;
@@ -36,4 +40,20 @@ public interface CommandProvider {
     CommandProviderImpl registerSuggestionFilter(@NonNull String key, @NonNull SuggestionFilter suggestionFilter);
 
     CommandProviderImpl unregisterSuggestionFilter(@NonNull String key);
+
+    InvalidPermissionHandler getInvalidPermissionHandler();
+
+    CommandProviderImpl setInvalidPermissionHandler(@NonNull InvalidPermissionHandler invalidPermissionHandler);
+
+    InvalidSenderHandler getInvalidSenderHandler();
+
+    CommandProviderImpl setInvalidSenderHandler(@NonNull InvalidSenderHandler invalidSenderHandler);
+
+    InvalidUsageHandler getInvalidUsageHandler();
+
+    CommandProviderImpl setInvalidUsageHandler(@NonNull InvalidUsageHandler invalidUsageHandler);
+
+    InvalidInputHandler getInvalidInputHandler();
+
+    CommandProviderImpl setInvalidInputHandler(@NonNull InvalidInputHandler invalidInputHandler);
 }

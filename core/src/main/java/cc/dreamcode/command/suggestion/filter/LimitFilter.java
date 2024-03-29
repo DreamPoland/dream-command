@@ -1,5 +1,6 @@
 package cc.dreamcode.command.suggestion.filter;
 
+import cc.dreamcode.command.handler.exception.InvalidInputException;
 import cc.dreamcode.utilities.ParseUtil;
 import lombok.NonNull;
 
@@ -13,7 +14,7 @@ public class LimitFilter implements SuggestionFilter {
 
         Optional<Integer> optionalInteger = ParseUtil.parseInteger(data);
         if (!optionalInteger.isPresent()) {
-            throw new RuntimeException("Limit value is not Integer");
+            throw new InvalidInputException(Integer.class, data, "Limit value is not Integer");
         }
 
         final int limit = optionalInteger.get();

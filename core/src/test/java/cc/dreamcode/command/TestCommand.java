@@ -33,13 +33,13 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example nick3";
+        String input = "/example nick3243fdsv fsdf s fsd  ";
         this.commandProvider.call(this.testSender, input);
     }
 
     @Test
     void testSuggestion() {
-        String input = "/example n";
+        String input = "/example n n";
         System.out.println(this.commandProvider.getSuggestion(input));
     }
 

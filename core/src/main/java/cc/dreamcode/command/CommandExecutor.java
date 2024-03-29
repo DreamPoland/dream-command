@@ -3,6 +3,9 @@ package cc.dreamcode.command;
 import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.bind.BindService;
+import cc.dreamcode.command.handler.exception.InvalidInputException;
+import cc.dreamcode.command.handler.exception.InvalidPermissionException;
+import cc.dreamcode.command.handler.exception.InvalidSenderException;
 import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
@@ -13,6 +16,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,14 +29,16 @@ public class CommandExecutor {
     public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull CommandSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
         if (!this.commandPathMeta.getSendersType().isEmpty()) {
-            if (!this.commandPathMeta.getSendersType().contains(sender.getType())) {
-                throw new RuntimeException("Sender type is unacceptable (" + sender.getType() + ")");
+            final List<CommandSender.Type> senderTypes = this.commandPathMeta.getSendersType();
+
+            if (!senderTypes.contains(sender.getType())) {
+                throw new InvalidSenderException(senderTypes, "Sender type is unacceptable (" + sender.getType() + ")");
             }
         }
 
         for (String permission : this.commandPathMeta.getPermissions()) {
             if (!sender.hasPermission(permission)) {
-                throw new RuntimeException("Sender permission not found (" + permission + ")");
+                throw new InvalidPermissionException(permission, "Sender permission not found (" + permission + ")");
             }
         }
 
@@ -53,7 +59,7 @@ public class CommandExecutor {
 
                 final Optional<?> optionalObject = resolverService.resolve(paramType, input);
                 if (!optionalObject.isPresent()) {
-                    throw new RuntimeException("Cannot resolve param " + input + " as a " + paramType.getSimpleName());
+                    throw new InvalidInputException(paramType, input, "Cannot resolve param " + input + " as a " + paramType.getSimpleName());
                 }
 
                 objects.add(optionalObject.get());
@@ -89,7 +95,7 @@ public class CommandExecutor {
 
                     final Optional<?> optionalObject = resolverService.resolve(optionalType, input);
                     if (!optionalObject.isPresent()) {
-                        throw new RuntimeException("Cannot resolve optional-param " + input + " as a " + optionalType.getSimpleName());
+                        throw new InvalidInputException(optionalType, input, "Cannot resolve optional-param " + input + " as a " + optionalType.getSimpleName());
                     }
 
                     objects.add(optionalObject);
@@ -99,7 +105,7 @@ public class CommandExecutor {
 
                 final Optional<?> optionalObject = resolverService.resolve(paramType, input);
                 if (!optionalObject.isPresent()) {
-                    throw new RuntimeException("Cannot resolve optional-param " + input + " as a " + paramType.getSimpleName());
+                    throw new InvalidInputException(paramType, input, "Cannot resolve optional-param " + input + " as a " + paramType.getSimpleName());
                 }
 
                 objects.add(optionalObject.get());
@@ -127,7 +133,7 @@ public class CommandExecutor {
 
                             final Optional<?> optionalObject = resolverService.resolve(paramType.getComponentType(), input);
                             if (!optionalObject.isPresent()) {
-                                throw new RuntimeException("Cannot resolve param " + input + " as a " + paramType.getSimpleName());
+                                throw new InvalidInputException(paramType, input, "Cannot resolve param " + input + " as a " + paramType.getSimpleName());
                             }
 
                             return optionalObject.get();
@@ -135,7 +141,7 @@ public class CommandExecutor {
                         .toArray();
 
                 objects.add(resolverService.resolveArray(paramType, array)
-                        .orElseThrow(() -> new RuntimeException("Cannot resolve array: " + paramType)));
+                        .orElseThrow(() -> new InvalidInputException(paramType, skip, "Cannot resolve part of array: " + paramType)));
                 continue;
             }
 

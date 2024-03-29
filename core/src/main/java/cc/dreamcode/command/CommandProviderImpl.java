@@ -4,6 +4,14 @@ import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.bind.BindCache;
 import cc.dreamcode.command.bind.BindResolver;
 import cc.dreamcode.command.bind.BindService;
+import cc.dreamcode.command.handler.InvalidInputHandler;
+import cc.dreamcode.command.handler.InvalidPermissionHandler;
+import cc.dreamcode.command.handler.InvalidSenderHandler;
+import cc.dreamcode.command.handler.InvalidUsageHandler;
+import cc.dreamcode.command.handler.exception.InvalidInputException;
+import cc.dreamcode.command.handler.exception.InvalidPermissionException;
+import cc.dreamcode.command.handler.exception.InvalidSenderException;
+import cc.dreamcode.command.handler.exception.InvalidUsageException;
 import cc.dreamcode.command.resolver.DefaultTransformers;
 import cc.dreamcode.command.resolver.ResolverCache;
 import cc.dreamcode.command.resolver.ResolverService;
@@ -32,6 +40,11 @@ public class CommandProviderImpl implements CommandProvider {
     private final ResolverService resolverService;
     private final SuggestionCache suggestionCache;
     private final SuggestionService suggestionService;
+
+    private InvalidPermissionHandler invalidPermissionHandler;
+    private InvalidSenderHandler invalidSenderHandler;
+    private InvalidUsageHandler invalidUsageHandler;
+    private InvalidInputHandler invalidInputHandler;
 
     private final Map<String, CommandMeta> commandMap = new HashMap<>();
 
@@ -65,25 +78,73 @@ public class CommandProviderImpl implements CommandProvider {
 
         final CommandInput commandInput = new CommandInput(input);
 
-        final Optional<CommandPathMeta> optionalCommandExecutor = this.commandMap.entrySet()
+        final Optional<CommandMeta> optionalCommandMeta = this.commandMap.entrySet()
                 .stream()
                 .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
                 .map(Map.Entry::getValue)
-                .findAny()
+                .findAny();
+
+        final Optional<CommandPathMeta> optionalCommandPathMeta = optionalCommandMeta
                 .map(commandMeta -> commandMeta.findExecutor(this.resolverService, commandInput))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
 
-        if (!optionalCommandExecutor.isPresent()) {
-            throw new RuntimeException("Cannot find any method with input: " + Arrays.toString(commandInput.getParams()));
-        }
-
-        final CommandPathMeta commandPathMeta = optionalCommandExecutor.get();
         try {
+            if (!optionalCommandPathMeta.isPresent()) {
+
+                if (optionalCommandMeta.isPresent()) {
+                    final CommandMeta commandMeta = optionalCommandMeta.get();
+
+                    if (this.invalidUsageHandler != null) {
+                        this.invalidUsageHandler.handle(commandSender, Optional.of(commandMeta), commandInput);
+                        return this;
+                    }
+
+                    throw new InvalidUsageException(commandMeta, commandInput, "Cannot find any path with input: " + Arrays.toString(commandInput.getParams()));
+                }
+
+                throw new InvalidUsageException(null, commandInput, "Cannot find any method with input: " + Arrays.toString(commandInput.getParams()));
+            }
+
+            final CommandPathMeta commandPathMeta = optionalCommandPathMeta.get();
+
             final CommandExecutor commandExecutor = commandPathMeta.getCommandExecutor();
             commandExecutor.invoke(this.resolverService, this.bindService, commandInput, commandSender);
-        } catch (InvocationTargetException | IllegalAccessException e) {
+        }
+        catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+        catch (InvalidInputException e) {
+            if (this.invalidInputHandler != null) {
+                this.invalidInputHandler.handle(commandSender, e.getRequiringClass(), e.getInput());
+                return this;
+            }
+
+            throw e;
+        }
+        catch (InvalidPermissionException e) {
+            if (this.invalidPermissionHandler != null) {
+                this.invalidPermissionHandler.handle(commandSender, e.getPermission());
+                return this;
+            }
+
+            throw e;
+        }
+        catch (InvalidSenderException e) {
+            if (this.invalidSenderHandler != null) {
+                this.invalidSenderHandler.handle(commandSender, e.getRequireType());
+                return this;
+            }
+
+            throw e;
+        }
+        catch (InvalidUsageException e) {
+            if (this.invalidUsageHandler != null) {
+                this.invalidUsageHandler.handle(commandSender, Optional.ofNullable(e.getCommandMeta()), e.getCommandInput());
+                return this;
+            }
+
+            throw e;
         }
 
         return this;
@@ -169,6 +230,50 @@ public class CommandProviderImpl implements CommandProvider {
     @Override
     public CommandProviderImpl unregisterSuggestionFilter(@NonNull String key) {
         this.suggestionCache.removeSuggestionFilter(key);
+        return this;
+    }
+
+    @Override
+    public InvalidPermissionHandler getInvalidPermissionHandler() {
+        return this.invalidPermissionHandler;
+    }
+
+    @Override
+    public CommandProviderImpl setInvalidPermissionHandler(@NonNull InvalidPermissionHandler invalidPermissionHandler) {
+        this.invalidPermissionHandler = invalidPermissionHandler;
+        return this;
+    }
+
+    @Override
+    public InvalidSenderHandler getInvalidSenderHandler() {
+        return this.invalidSenderHandler;
+    }
+
+    @Override
+    public CommandProviderImpl setInvalidSenderHandler(@NonNull InvalidSenderHandler invalidSenderHandler) {
+        this.invalidSenderHandler = invalidSenderHandler;
+        return this;
+    }
+
+    @Override
+    public InvalidUsageHandler getInvalidUsageHandler() {
+        return this.invalidUsageHandler;
+    }
+
+    @Override
+    public CommandProviderImpl setInvalidUsageHandler(@NonNull InvalidUsageHandler invalidUsageHandler) {
+        this.invalidUsageHandler = invalidUsageHandler;
+        return this;
+    }
+
+    @Override
+    public InvalidInputHandler getInvalidInputHandler() {
+        return this.invalidInputHandler;
+    }
+
+    @Override
+    public CommandProviderImpl setInvalidInputHandler(@NonNull InvalidInputHandler invalidInputHandler) {
+        this.invalidInputHandler = invalidInputHandler;
         return this;
     }
 }
