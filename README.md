@@ -52,7 +52,6 @@ public class ExampleCommand implements CommandBase {
             @OptArg(name = "optional-test") String optionalTest,
             @Args(name = "argsmen", min = 1, max = 5) String[] args
     ) {
-
         // default arg
         System.out.println(test);
 
