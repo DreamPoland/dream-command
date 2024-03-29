@@ -132,7 +132,7 @@ public class CommandPathMeta {
         this.commandExecutor = new CommandExecutor(commandMeta, this);
     }
 
-    public String getUsage(boolean renderArgs) {
+    public String getUsage(boolean renderJoiningArgs) {
 
         final List<String> listBuilder = new ArrayList<>();
 
@@ -147,7 +147,7 @@ public class CommandPathMeta {
                 return;
             }
 
-            if (renderArgs && this.paramMultiArgs.containsKey(index)) {
+            if (renderJoiningArgs && this.paramMultiArgs.containsKey(index)) {
                 listBuilder.add("<" + this.paramNames.get(index) + ">");
                 return;
             }
