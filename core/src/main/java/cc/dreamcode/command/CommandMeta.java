@@ -40,7 +40,7 @@ public class CommandMeta {
                     }
 
                     if (commandExecutor.getParamMultiArgs().isEmpty() &&
-                            splitArguments.length != pathLength + commandExecutor.getParamArgs().size()) {
+                            splitArguments.length > pathLength + commandExecutor.getParamArgs().size() + commandExecutor.getParamOptionalArgs().size()) {
                         return false;
                     }
 

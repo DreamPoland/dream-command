@@ -25,6 +25,10 @@ public class ResolverCache {
                 .findAny();
     }
 
+    public List<ObjectTransformer<?>> getObjectTransformers() {
+        return new ArrayList<>(this.objectTransformers);
+    }
+
     public ResolverCache add(@NonNull ObjectTransformer<?> objectTransformer) {
         this.objectTransformers.add(objectTransformer);
         return this;

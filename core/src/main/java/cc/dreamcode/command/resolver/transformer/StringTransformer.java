@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public class StringTransformer implements ObjectTransformer<String> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return String.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return String.class;
     }
 
     @Override

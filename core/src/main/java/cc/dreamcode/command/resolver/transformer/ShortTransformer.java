@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class ShortTransformer implements ObjectTransformer<Short> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Short.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Short.class;
     }
 
     @Override

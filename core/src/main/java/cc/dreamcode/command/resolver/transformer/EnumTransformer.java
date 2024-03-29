@@ -7,8 +7,8 @@ import java.util.Optional;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class EnumTransformer implements ObjectTransformer<Enum> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Enum.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Enum.class;
     }
 
     @Override

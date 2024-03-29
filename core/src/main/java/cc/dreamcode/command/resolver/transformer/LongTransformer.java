@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class LongTransformer implements ObjectTransformer<Long> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Long.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Long.class;
     }
 
     @Override

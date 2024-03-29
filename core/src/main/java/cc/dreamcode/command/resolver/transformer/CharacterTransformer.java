@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class CharacterTransformer implements ObjectTransformer<Character> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Character.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Character.class;
     }
 
     @Override

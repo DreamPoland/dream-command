@@ -6,7 +6,11 @@ import java.util.Optional;
 
 public interface ObjectTransformer<T> {
 
-    boolean isAssignableFrom(@NonNull Class<?> type);
+    Class<?> getGeneric();
+
+    default boolean isAssignableFrom(@NonNull Class<?> type) {
+        return this.getGeneric().isAssignableFrom(type);
+    }
 
     Optional<T> transform(@NonNull Class<?> type, @NonNull String input);
 }

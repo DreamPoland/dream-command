@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class ByteTransformer implements ObjectTransformer<Byte> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Byte.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Byte.class;
     }
 
     @Override

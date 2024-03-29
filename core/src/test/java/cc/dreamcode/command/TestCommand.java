@@ -3,8 +3,12 @@ package cc.dreamcode.command;
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Executor;
+import cc.dreamcode.command.annotation.OptArg;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.util.Optional;
 
 class TestCommand {
 
@@ -22,7 +26,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example test test2 te3";
+        String input = "/example optional test test test";
 
         for (int i = 0; i < 100; i++) {
             this.commandProvider.call(this.testSender, input);
@@ -32,24 +36,9 @@ class TestCommand {
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
-        @Executor()
-        public void emptyMethod(TestSender testSender) {
-            System.out.println(testSender.getName() + " empty");
-        }
-
-        @Executor()
-        public void argMethod(TestSender testSender, @Arg String text) {
-            System.out.println(testSender.getName() + " +1 " + text);
-        }
-
-        @Executor(path = "test")
-        public void pathMethod(TestSender testSender) {
-            System.out.println(testSender.getName() + " + test");
-        }
-
-        @Executor(path = "test test2")
-        public void dupPathMethod(TestSender testSender, @Arg String test) {
-            System.out.println(testSender.getName() + " + test duo " + test);
+        @Executor(path = "optional")
+        public void optionalMethod(@Arg String test, @OptArg(generic = Duration.class) Optional<Duration> optionalTest) {
+            System.out.println("OPTIONAL - " + optionalTest);
         }
     }
 }

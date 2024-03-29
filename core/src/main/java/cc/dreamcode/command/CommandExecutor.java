@@ -3,6 +3,7 @@ package cc.dreamcode.command;
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Executor;
+import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.bind.BindService;
 import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.utilities.StringUtil;
@@ -30,11 +31,13 @@ public class CommandExecutor {
     private final Map<Integer, Annotation[]> paramAnnotations;
     private final Map<Integer, Class<?>> paramArgs;
     private final Map<Integer, Class<?>> paramMultiArgs;
+    private final Map<Integer, Class<Optional<?>>> paramOptionalArgs;
     private final Map<Integer, Class<?>> paramBinds;
 
     private final String path;
     private final String description;
 
+    @SuppressWarnings("unchecked")
     public CommandExecutor(@NonNull CommandMeta commandMeta, @NonNull Method method, @NonNull Executor executor) {
         this.commandMeta = commandMeta;
         this.method = method;
@@ -46,6 +49,7 @@ public class CommandExecutor {
         
         this.paramArgs = new HashMap<>();
         this.paramMultiArgs = new HashMap<>();
+        this.paramOptionalArgs = new HashMap<>();
         this.paramBinds = new HashMap<>();
         for (int index = 0; index < this.method.getParameterTypes().length; index++) {
 
@@ -62,6 +66,20 @@ public class CommandExecutor {
 
                 // multi-arg (transformer)
                 this.paramMultiArgs.put(index, this.method.getParameterTypes()[index]);
+                continue;
+            }
+
+            if (Arrays.stream(this.paramAnnotations.get(index))
+                    .anyMatch(annotation -> OptArg.class.isAssignableFrom(annotation.annotationType()))) {
+
+                int finalIndex = index;
+                if (this.paramArgs.keySet()
+                        .stream()
+                        .anyMatch(argIndex -> argIndex > finalIndex)) {
+                    throw new RuntimeException("@OptionalArg must be specified after @Arg params");
+                }
+
+                this.paramOptionalArgs.put(index, (Class<Optional<?>>) this.method.getParameterTypes()[index]);
                 continue;
             }
 
@@ -95,6 +113,36 @@ public class CommandExecutor {
                 }
 
                 objects.add(optionalObject.get());
+                atomicArg.incrementAndGet();
+            }
+
+            if (this.paramOptionalArgs.containsKey(index)) {
+
+                if (params.length <= atomicArg.get()) {
+                    objects.add(Optional.empty());
+                    atomicArg.incrementAndGet();
+                    continue;
+                }
+
+                final Optional<Annotation> optionalAnnotation = Arrays.stream(this.paramAnnotations.get(index))
+                        .filter(annotation -> annotation.annotationType().equals(OptArg.class))
+                        .findAny();
+
+                if (!optionalAnnotation.isPresent()) {
+                    throw new RuntimeException("Annotation @OptArg not found (critical bug)");
+                }
+
+                final OptArg optArg = (OptArg) optionalAnnotation.get();
+
+                final String input = params[atomicArg.get()];
+                final Class<?> paramType = optArg.generic();
+
+                final Optional<?> optionalObject = resolverService.resolve(paramType, input);
+                if (!optionalObject.isPresent()) {
+                    throw new RuntimeException("Cannot resolve optional-param " + input + " as a " + paramType.getSimpleName());
+                }
+
+                objects.add(optionalObject);
                 atomicArg.incrementAndGet();
             }
 

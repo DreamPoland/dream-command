@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class BigDecimalTransformer implements ObjectTransformer<BigDecimal> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return BigDecimal.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return BigDecimal.class;
     }
 
     @Override

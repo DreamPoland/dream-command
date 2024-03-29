@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class IntegerTransformer implements ObjectTransformer<Integer> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Integer.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Integer.class;
     }
 
     @Override

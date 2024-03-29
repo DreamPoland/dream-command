@@ -12,8 +12,8 @@ public class BooleanTransformer implements ObjectTransformer<Boolean> {
     private final List<String> falseValues = ListBuilder.of("false", "no", "n", "0", "nie", "nah");
 
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Boolean.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Boolean.class;
     }
 
     @Override

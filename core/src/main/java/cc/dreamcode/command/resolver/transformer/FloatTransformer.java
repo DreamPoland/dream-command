@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class FloatTransformer implements ObjectTransformer<Float> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Float.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Float.class;
     }
 
     @Override

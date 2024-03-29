@@ -17,8 +17,8 @@ public class DurationTransformer implements ObjectTransformer<Duration> {
     private static final Pattern JBOD_FULL_DURATION_PATTERN = Pattern.compile("((-?[0-9]+)(ms|ns|d|h|m|s))+");
 
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Duration.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return Duration.class;
     }
 
     @Override

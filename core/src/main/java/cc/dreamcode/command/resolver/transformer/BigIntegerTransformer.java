@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class BigIntegerTransformer implements ObjectTransformer<BigInteger> {
     @Override
-    public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return BigInteger.class.isAssignableFrom(type);
+    public Class<?> getGeneric() {
+        return BigInteger.class;
     }
 
     @Override
