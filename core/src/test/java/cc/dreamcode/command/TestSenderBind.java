@@ -10,7 +10,7 @@ public class TestSenderBind implements BindResolver<TestSender> {
     }
 
     @Override
-    public @NonNull TestSender resolveBind(@NonNull CommandSender<?> sender) {
+    public @NonNull TestSender resolveBind(@NonNull DreamSender<?> sender) {
         return (TestSender) sender;
     }
 }

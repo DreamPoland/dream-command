@@ -43,7 +43,7 @@ public class CommandPathMeta {
     private final String description;
 
     private final String[] pathPermissions;
-    private final CommandSender.Type[] pathSenderTypes;
+    private final DreamSender.Type[] pathSenderTypes;
 
     private final CommandExecutor commandExecutor;
 
@@ -148,7 +148,7 @@ public class CommandPathMeta {
         final Sender[] sendersArray = this.method.getAnnotationsByType(Sender.class);
         this.pathSenderTypes = Arrays.stream(sendersArray)
                 .map(Sender::type)
-                .toArray(CommandSender.Type[]::new);
+                .toArray(DreamSender.Type[]::new);
 
         this.commandExecutor = new CommandExecutor(commandMeta, this);
     }
@@ -162,8 +162,8 @@ public class CommandPathMeta {
         return permissions;
     }
 
-    public List<CommandSender.Type> getSendersType() {
-        final List<CommandSender.Type> senderTypes = new ArrayList<>();
+    public List<DreamSender.Type> getSendersType() {
+        final List<DreamSender.Type> senderTypes = new ArrayList<>();
 
         Collections.addAll(senderTypes, this.commandMeta.getBaseSenderTypes());
         Collections.addAll(senderTypes, this.pathSenderTypes);

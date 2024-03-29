@@ -26,10 +26,10 @@ public class CommandExecutor {
     private final CommandMeta commandMeta;
     private final CommandPathMeta commandPathMeta;
 
-    public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull CommandSender<?> sender) throws InvocationTargetException, IllegalAccessException {
+    public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull DreamSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
         if (!this.commandPathMeta.getSendersType().isEmpty()) {
-            final List<CommandSender.Type> senderTypes = this.commandPathMeta.getSendersType();
+            final List<DreamSender.Type> senderTypes = this.commandPathMeta.getSendersType();
 
             if (!senderTypes.contains(sender.getType())) {
                 throw new InvalidSenderException(senderTypes, "Sender type is unacceptable (" + sender.getType() + ")");

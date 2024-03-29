@@ -17,11 +17,15 @@ public interface CommandProvider {
 
     List<String> getSuggestion(@NonNull String input);
 
-    CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull String input);
+    List<String> getSuggestion(@NonNull CommandInput commandInput);
 
-    CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull CommandInput commandInput);
+    CommandProviderImpl call(@NonNull DreamSender<?> dreamSender, @NonNull String input);
+
+    CommandProviderImpl call(@NonNull DreamSender<?> dreamSender, @NonNull CommandInput commandInput);
 
     CommandProviderImpl register(@NonNull CommandBase commandBase);
+
+    CommandProviderImpl unregister(@NonNull CommandContext commandContext);
 
     CommandProviderImpl registerExtension(@NonNull CommandExtension commandExtension);
 
@@ -58,4 +62,8 @@ public interface CommandProvider {
     InvalidInputHandler getInvalidInputHandler();
 
     CommandProviderImpl setInvalidInputHandler(@NonNull InvalidInputHandler invalidInputHandler);
+
+    CommandRegistry getCommandRegistry();
+
+    CommandProviderImpl setCommandRegistry(@NonNull CommandRegistry commandRegistry);
 }

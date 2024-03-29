@@ -1,6 +1,6 @@
 package cc.dreamcode.command.handler.exception;
 
-import cc.dreamcode.command.CommandSender;
+import cc.dreamcode.command.DreamSender;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 public class InvalidSenderException extends RuntimeException {
 
-    private final List<CommandSender.Type> requireType;
+    private final List<DreamSender.Type> requireType;
 
-    public InvalidSenderException(@NonNull List<CommandSender.Type> requireType, @NonNull String cause) {
+    public InvalidSenderException(@NonNull List<DreamSender.Type> requireType, @NonNull String cause) {
         super(cause);
 
         this.requireType = requireType;

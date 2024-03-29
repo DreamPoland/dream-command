@@ -4,7 +4,7 @@ import lombok.NonNull;
 
 import java.io.PrintStream;
 
-public class TestSender implements CommandSender<PrintStream> {
+public class TestSender implements DreamSender<PrintStream> {
     @Override
     public Type getType() {
         return Type.CONSOLE;

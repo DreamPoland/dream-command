@@ -44,7 +44,7 @@ class TestCommand {
     }
 
     @Permission(name = "example.permission")
-    @Sender(type = CommandSender.Type.CLIENT)
+    @Sender(type = DreamSender.Type.CLIENT)
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 

@@ -2,7 +2,7 @@ package cc.dreamcode.command;
 
 import lombok.NonNull;
 
-public interface CommandSender<T> {
+public interface DreamSender<T> {
 
     Type getType();
 

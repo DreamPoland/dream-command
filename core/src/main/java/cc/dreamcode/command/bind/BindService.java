@@ -1,6 +1,6 @@
 package cc.dreamcode.command.bind;
 
-import cc.dreamcode.command.CommandSender;
+import cc.dreamcode.command.DreamSender;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +11,7 @@ public class BindService {
 
     private final BindCache bindCache;
 
-    public Optional<?> resolveBind(@NonNull Class<?> bindClass, @NonNull CommandSender<?> sender) {
+    public Optional<?> resolveBind(@NonNull Class<?> bindClass, @NonNull DreamSender<?> sender) {
 
         final Optional<BindResolver<?>> optionalBindResolver = this.bindCache.get(bindClass);
         if (!optionalBindResolver.isPresent()) {

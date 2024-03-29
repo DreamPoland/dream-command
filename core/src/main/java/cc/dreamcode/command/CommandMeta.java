@@ -23,7 +23,7 @@ public class CommandMeta {
     private final CommandContext commandContext;
     private final CommandBase commandBase;
     private final String[] basePermissions;
-    private final CommandSender.Type[] baseSenderTypes;
+    private final DreamSender.Type[] baseSenderTypes;
     private final List<CommandPathMeta> commandPaths;
 
     public CommandMeta(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
@@ -38,7 +38,7 @@ public class CommandMeta {
         final Sender[] sendersArray = commandBase.getClass().getAnnotationsByType(Sender.class);
         this.baseSenderTypes = Arrays.stream(sendersArray)
                 .map(Sender::type)
-                .toArray(CommandSender.Type[]::new);
+                .toArray(DreamSender.Type[]::new);
 
         this.commandPaths = commandBase.getCommandPaths(this);
     }

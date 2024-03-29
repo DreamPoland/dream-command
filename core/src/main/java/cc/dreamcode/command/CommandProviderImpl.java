@@ -41,6 +41,8 @@ public class CommandProviderImpl implements CommandProvider {
     private final SuggestionCache suggestionCache;
     private final SuggestionService suggestionService;
 
+    private CommandRegistry commandRegistry;
+
     private InvalidPermissionHandler invalidPermissionHandler;
     private InvalidSenderHandler invalidSenderHandler;
     private InvalidUsageHandler invalidUsageHandler;
@@ -64,7 +66,11 @@ public class CommandProviderImpl implements CommandProvider {
 
     @Override
     public List<String> getSuggestion(@NonNull String input) {
-        final CommandInput commandInput = new CommandInput(input);
+        return this.getSuggestion(new CommandInput(input));
+    }
+
+    @Override
+    public List<String> getSuggestion(@NonNull CommandInput commandInput) {
         return this.commandMap.entrySet()
                 .stream()
                 .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
@@ -74,12 +80,12 @@ public class CommandProviderImpl implements CommandProvider {
     }
 
     @Override
-    public CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull String input) {
-        return this.call(commandSender, new CommandInput(input));
+    public CommandProviderImpl call(@NonNull DreamSender<?> dreamSender, @NonNull String input) {
+        return this.call(dreamSender, new CommandInput(input));
     }
 
     @Override
-    public CommandProviderImpl call(@NonNull CommandSender<?> commandSender, @NonNull CommandInput commandInput) {
+    public CommandProviderImpl call(@NonNull DreamSender<?> dreamSender, @NonNull CommandInput commandInput) {
 
         final Optional<CommandMeta> optionalCommandMeta = this.commandMap.entrySet()
                 .stream()
@@ -99,7 +105,7 @@ public class CommandProviderImpl implements CommandProvider {
                     final CommandMeta commandMeta = optionalCommandMeta.get();
 
                     if (this.invalidUsageHandler != null) {
-                        this.invalidUsageHandler.handle(commandSender, Optional.of(commandMeta), commandInput);
+                        this.invalidUsageHandler.handle(dreamSender, Optional.of(commandMeta), commandInput);
                         return this;
                     }
 
@@ -112,14 +118,14 @@ public class CommandProviderImpl implements CommandProvider {
             final CommandPathMeta commandPathMeta = optionalCommandPathMeta.get();
 
             final CommandExecutor commandExecutor = commandPathMeta.getCommandExecutor();
-            commandExecutor.invoke(this.resolverService, this.bindService, commandInput, commandSender);
+            commandExecutor.invoke(this.resolverService, this.bindService, commandInput, dreamSender);
         }
         catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         catch (InvalidInputException e) {
             if (this.invalidInputHandler != null) {
-                this.invalidInputHandler.handle(commandSender, e.getRequiringClass(), e.getInput());
+                this.invalidInputHandler.handle(dreamSender, e.getRequiringClass(), e.getInput());
                 return this;
             }
 
@@ -127,7 +133,7 @@ public class CommandProviderImpl implements CommandProvider {
         }
         catch (InvalidPermissionException e) {
             if (this.invalidPermissionHandler != null) {
-                this.invalidPermissionHandler.handle(commandSender, e.getPermission());
+                this.invalidPermissionHandler.handle(dreamSender, e.getPermission());
                 return this;
             }
 
@@ -135,7 +141,7 @@ public class CommandProviderImpl implements CommandProvider {
         }
         catch (InvalidSenderException e) {
             if (this.invalidSenderHandler != null) {
-                this.invalidSenderHandler.handle(commandSender, e.getRequireType());
+                this.invalidSenderHandler.handle(dreamSender, e.getRequireType());
                 return this;
             }
 
@@ -143,7 +149,7 @@ public class CommandProviderImpl implements CommandProvider {
         }
         catch (InvalidUsageException e) {
             if (this.invalidUsageHandler != null) {
-                this.invalidUsageHandler.handle(commandSender, Optional.ofNullable(e.getCommandMeta()), e.getCommandInput());
+                this.invalidUsageHandler.handle(dreamSender, Optional.ofNullable(e.getCommandMeta()), e.getCommandInput());
                 return this;
             }
 
@@ -167,6 +173,23 @@ public class CommandProviderImpl implements CommandProvider {
         this.commandMap.put(commandContext.getName(), commandMeta);
         Arrays.stream(commandContext.getAliases()).forEach(label ->
                 this.commandMap.put(label, commandMeta));
+
+        if (this.commandRegistry != null) {
+            this.commandRegistry.register(commandContext, commandMeta);
+        }
+
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl unregister(@NonNull CommandContext commandContext) {
+
+        this.commandMap.remove(commandContext.getName());
+        Arrays.stream(commandContext.getAliases()).forEach(this.commandMap::remove);
+
+        if (this.commandRegistry != null) {
+            this.commandRegistry.unregister(commandContext);
+        }
 
         return this;
     }
@@ -277,6 +300,17 @@ public class CommandProviderImpl implements CommandProvider {
     @Override
     public CommandProviderImpl setInvalidInputHandler(@NonNull InvalidInputHandler invalidInputHandler) {
         this.invalidInputHandler = invalidInputHandler;
+        return this;
+    }
+
+    @Override
+    public CommandRegistry getCommandRegistry() {
+        return this.commandRegistry;
+    }
+
+    @Override
+    public CommandProviderImpl setCommandRegistry(@NonNull CommandRegistry commandRegistry) {
+        this.commandRegistry = commandRegistry;
         return this;
     }
 }
