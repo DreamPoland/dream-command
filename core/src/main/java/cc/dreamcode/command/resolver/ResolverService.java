@@ -1,5 +1,7 @@
 package cc.dreamcode.command.resolver;
 
+import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
+import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -11,18 +13,11 @@ public class ResolverService {
     private final ResolverCache resolverCache;
 
     public boolean support(@NonNull Class<?> expectingClass, @NonNull String input) {
+        return this.resolve(expectingClass, input).isPresent();
+    }
 
-        final Optional<ObjectTransformer<?>> optionalObjectTransformer = this.resolverCache.get(expectingClass);
-        if (!optionalObjectTransformer.isPresent()) {
-            return false;
-        }
-
-        final ObjectTransformer<?> objectTransformer = optionalObjectTransformer.get();
-        if (!objectTransformer.isAssignableFrom(expectingClass)) {
-            return false;
-        }
-
-        return objectTransformer.transform(expectingClass, input).isPresent();
+    public boolean supportArray(@NonNull Class<?> expectingClass, @NonNull Object[] input) {
+        return this.resolveArray(expectingClass, input).isPresent();
     }
 
     public Optional<?> resolve(@NonNull Class<?> expectingClass, @NonNull String input) {
@@ -31,5 +26,13 @@ public class ResolverService {
                 .orElseThrow(() -> new RuntimeException("Cannot find resolver for class " + expectingClass));
 
         return objectTransformer.transform(expectingClass, input);
+    }
+
+    public Optional<?> resolveArray(@NonNull Class<?> expectingClass, @NonNull Object[] input) {
+
+        final ArrayTransformer<?> arrayTransformerTransformer = this.resolverCache.getArray(expectingClass)
+                .orElseThrow(() -> new RuntimeException("Cannot find array-resolver for class " + expectingClass));
+
+        return arrayTransformerTransformer.transform(expectingClass, input);
     }
 }

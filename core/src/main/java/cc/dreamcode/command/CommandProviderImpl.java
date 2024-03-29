@@ -7,7 +7,8 @@ import cc.dreamcode.command.bind.BindService;
 import cc.dreamcode.command.resolver.DefaultTransformers;
 import cc.dreamcode.command.resolver.ResolverCache;
 import cc.dreamcode.command.resolver.ResolverService;
-import cc.dreamcode.command.resolver.ObjectTransformer;
+import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
+import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
 import lombok.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -95,8 +96,19 @@ public class CommandProviderImpl implements CommandProvider {
     }
 
     @Override
-    public CommandProviderImpl unregisterTransformer(@NonNull Class<?> classTransformer) {
+    public CommandProviderImpl registerTransformer(@NonNull ArrayTransformer<?> arrayTransformer) {
+        this.resolverCache.add(arrayTransformer);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl unregisterTransformer(@NonNull Class<?> classTransformer, boolean array) {
         this.resolverCache.remove(classTransformer);
+
+        if (array) {
+            this.resolverCache.removeArray(classTransformer);
+        }
+
         return this;
     }
 

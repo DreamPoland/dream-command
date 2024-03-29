@@ -1,9 +1,11 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
+import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.bind.BindService;
 import cc.dreamcode.command.resolver.ResolverService;
+import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import lombok.Data;
 import lombok.NonNull;
@@ -27,6 +29,7 @@ public class CommandExecutor {
     private final Method method;
     private final Map<Integer, Annotation[]> paramAnnotations;
     private final Map<Integer, Class<?>> paramArgs;
+    private final Map<Integer, Class<?>> paramMultiArgs;
     private final Map<Integer, Class<?>> paramBinds;
 
     private final String path;
@@ -42,19 +45,28 @@ public class CommandExecutor {
         }
         
         this.paramArgs = new HashMap<>();
+        this.paramMultiArgs = new HashMap<>();
         this.paramBinds = new HashMap<>();
         for (int index = 0; index < this.method.getParameterTypes().length; index++) {
 
             if (Arrays.stream(this.paramAnnotations.get(index))
-                    .noneMatch(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))) {
+                    .anyMatch(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))) {
 
-                // bind
-                this.paramBinds.put(index, this.method.getParameterTypes()[index]);
+                // arg (transformer)
+                this.paramArgs.put(index, this.method.getParameterTypes()[index]);
                 continue;
             }
 
-            // arg (transformer)
-            this.paramArgs.put(index, this.method.getParameterTypes()[index]);
+            if (Arrays.stream(this.paramAnnotations.get(index))
+                    .anyMatch(annotation -> Args.class.isAssignableFrom(annotation.annotationType()))) {
+
+                // multi-arg (transformer)
+                this.paramMultiArgs.put(index, this.method.getParameterTypes()[index]);
+                continue;
+            }
+
+            // bind
+            this.paramBinds.put(index, this.method.getParameterTypes()[index]);
         }
 
         this.path = executor.path();
@@ -66,7 +78,7 @@ public class CommandExecutor {
         final ListBuilder<Object> objects = new ListBuilder<>();
         final int patterns = this.path.isEmpty() ? 0 : this.path.split(" ").length;
 
-        final String[] params = new String[this.paramArgs.size()];
+        final String[] params = new String[commandInput.getArguments().length - patterns];
         System.arraycopy(commandInput.getArguments(), patterns, params, 0, params.length);
 
         final AtomicInteger atomicArg = new AtomicInteger();
@@ -84,6 +96,37 @@ public class CommandExecutor {
 
                 objects.add(optionalObject.get());
                 atomicArg.incrementAndGet();
+            }
+
+            if (this.paramMultiArgs.containsKey(index)) {
+                final Class<?> paramType = this.paramMultiArgs.get(index);
+                final Optional<Annotation> optionalAnnotation = Arrays.stream(this.paramAnnotations.get(index))
+                        .filter(annotation -> annotation.annotationType().equals(Args.class))
+                        .findAny();
+
+                if (!optionalAnnotation.isPresent()) {
+                    throw new RuntimeException("Annotation @Args not found (critical bug)");
+                }
+
+                final Args args = (Args) optionalAnnotation.get();
+                final String skip = StringUtil.join(params, " ",
+                        args.min() == -1 ? 0 : Math.min(args.min(), params.length),
+                        args.max() == -1 ? params.length : Math.min(args.max(), params.length));
+
+                final Object[] array = Arrays.stream(skip.split(" "))
+                        .map(input -> {
+
+                            final Optional<?> optionalObject = resolverService.resolve(paramType.getComponentType(), input);
+                            if (!optionalObject.isPresent()) {
+                                throw new RuntimeException("Cannot resolve param " + input + " as a " + paramType.getSimpleName());
+                            }
+
+                            return optionalObject.get();
+                        })
+                        .toArray();
+
+                objects.add(resolverService.resolveArray(paramType, array)
+                        .orElseThrow(() -> new RuntimeException("Cannot resolve array: " + paramType)));
             }
 
             if (this.paramBinds.containsKey(index)) {

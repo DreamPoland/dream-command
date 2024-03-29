@@ -1,4 +1,4 @@
-package cc.dreamcode.command.resolver;
+package cc.dreamcode.command.resolver.transformer;
 
 import lombok.NonNull;
 

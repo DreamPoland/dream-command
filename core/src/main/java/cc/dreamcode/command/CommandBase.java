@@ -1,26 +1,29 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Executor;
-import cc.dreamcode.utilities.builder.MapBuilder;
+import cc.dreamcode.utilities.builder.ListBuilder;
+import lombok.NonNull;
 
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.util.List;
 
 public interface CommandBase {
 
-    default Map<Executor, Method> getMethods() {
-        final MapBuilder<Executor, Method> commandMethods = new MapBuilder<>();
+    default List<CommandExecutor> getExecutors(@NonNull CommandMeta commandMeta) {
+        final ListBuilder<CommandExecutor> executors = new ListBuilder<>();
 
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
+            declaredMethod.setAccessible(true);
 
             final Executor executor = declaredMethod.getAnnotation(Executor.class);
             if (executor == null) {
                 continue;
             }
 
-            commandMethods.put(executor, declaredMethod);
+            final CommandExecutor commandExecutor = new CommandExecutor(commandMeta, declaredMethod, executor);
+            executors.add(commandExecutor);
         }
 
-        return commandMethods.build();
+        return executors.build();
     }
 }

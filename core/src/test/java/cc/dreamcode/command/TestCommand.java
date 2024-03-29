@@ -6,8 +6,6 @@ import cc.dreamcode.command.annotation.Executor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-
 class TestCommand {
 
     private CommandProvider commandProvider;
@@ -24,18 +22,34 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example example test 1d";
-        this.commandProvider.call(this.testSender, input);
+        String input = "/example test test2 te3";
+
+        for (int i = 0; i < 100; i++) {
+            this.commandProvider.call(this.testSender, input);
+        }
     }
 
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
-        @Executor(path = "example test")
-        public void example(@Arg Duration duration, TestSender testSender) {
-            testSender.getHandler().println("czesc");
+        @Executor()
+        public void emptyMethod(TestSender testSender) {
+            System.out.println(testSender.getName() + " empty");
+        }
 
-            System.out.println("example: " + duration);
+        @Executor()
+        public void argMethod(TestSender testSender, @Arg String text) {
+            System.out.println(testSender.getName() + " +1 " + text);
+        }
+
+        @Executor(path = "test")
+        public void pathMethod(TestSender testSender) {
+            System.out.println(testSender.getName() + " + test");
+        }
+
+        @Executor(path = "test test2")
+        public void dupPathMethod(TestSender testSender, @Arg String test) {
+            System.out.println(testSender.getName() + " + test duo " + test);
         }
     }
 }

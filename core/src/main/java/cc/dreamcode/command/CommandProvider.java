@@ -1,7 +1,8 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.bind.BindResolver;
-import cc.dreamcode.command.resolver.ObjectTransformer;
+import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
+import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
 import lombok.NonNull;
 
 public interface CommandProvider {
@@ -14,7 +15,9 @@ public interface CommandProvider {
 
     CommandProviderImpl registerTransformer(@NonNull ObjectTransformer<?> objectTransformer);
 
-    CommandProviderImpl unregisterTransformer(@NonNull Class<?> classTransformer);
+    CommandProviderImpl registerTransformer(@NonNull ArrayTransformer<?> arrayTransformer);
+
+    CommandProviderImpl unregisterTransformer(@NonNull Class<?> classTransformer, boolean array);
 
     CommandProviderImpl registerBind(@NonNull BindResolver<?> bindResolver);
 

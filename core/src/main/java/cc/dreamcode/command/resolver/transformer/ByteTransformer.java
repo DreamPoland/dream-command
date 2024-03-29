@@ -1,6 +1,5 @@
 package cc.dreamcode.command.resolver.transformer;
 
-import cc.dreamcode.command.resolver.ObjectTransformer;
 import cc.dreamcode.utilities.ParseUtil;
 import lombok.NonNull;
 
