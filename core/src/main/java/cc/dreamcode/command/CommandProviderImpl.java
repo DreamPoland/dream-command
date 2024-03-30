@@ -173,14 +173,6 @@ public class CommandProviderImpl implements CommandProvider {
 
         final CommandContext commandContext = new CommandContext(command);
         final CommandMeta commandMeta = new CommandMeta(this.suggestionService, this.resolverService, commandContext, commandBase);
-        if (commandMeta.getCommandPaths()
-                .stream()
-                .anyMatch(commandPathMeta1 -> commandMeta.getCommandPaths()
-                        .stream()
-                        .anyMatch(commandPathMeta2 -> commandPathMeta1.getPath().equalsIgnoreCase(commandPathMeta2.getPath()) &&
-                                commandPathMeta1.getUsage().equals(commandPathMeta2.getUsage())))) {
-            throw new RuntimeException("Duplicate executors [/" + command.name() + "]");
-        }
 
         this.commandMap.put(commandContext.getName(), commandMeta);
         Arrays.stream(commandContext.getAliases()).forEach(label ->
