@@ -2,7 +2,6 @@ package cc.dreamcode.command.suggestion.supplier;
 
 import lombok.NonNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +11,7 @@ public class EnumSupplier implements SuggestionSupplier {
     @Override
     public List<String> supply(@NonNull Class<?> paramType) {
         if (!Enum.class.isAssignableFrom(paramType)) {
-            return new ArrayList<>();
+            throw new RuntimeException("Parameter is not Enum class (" + paramType.getSimpleName() + ")");
         }
 
         final Class<? extends Enum> enumClass = (Class<? extends Enum>) paramType;

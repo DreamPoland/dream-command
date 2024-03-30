@@ -32,13 +32,13 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example type no";
+        String input = "/example ";
         this.commandProvider.call(this.testSender, input);
     }
 
     @Test
     void testSuggestion() {
-        String input = "/example type ";
+        String input = "/example type n";
         System.out.println(this.commandProvider.getSuggestion(input));
     }
 
@@ -46,7 +46,7 @@ class TestCommand {
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
-        @Executor(path = "optional type")
+        @Executor()
         @Permission(name = "example.permission")
         @Completion(arg = "test", value = {"sug1", "sug2"})
         @Completion(arg = "test2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
