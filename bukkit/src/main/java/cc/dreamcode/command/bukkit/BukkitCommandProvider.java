@@ -2,6 +2,7 @@ package cc.dreamcode.command.bukkit;
 
 import cc.dreamcode.command.CommandProviderImpl;
 import cc.dreamcode.command.bukkit.bind.BukkitSenderBind;
+import cc.dreamcode.command.bukkit.bind.PlayerBind;
 import cc.dreamcode.command.bukkit.resolver.PlayerTransformer;
 import cc.dreamcode.command.bukkit.resolver.WorldTransformer;
 import cc.dreamcode.command.bukkit.suggestion.supplier.AllPlayerSupplier;
@@ -16,6 +17,7 @@ public class BukkitCommandProvider extends CommandProviderImpl {
         this.setCommandRegistry(new BukkitCommandRegistry(plugin, this));
 
         this.registerBind(new BukkitSenderBind());
+        this.registerBind(new PlayerBind());
 
         this.registerTransformer(new PlayerTransformer(plugin));
         this.registerTransformer(new WorldTransformer(plugin));
