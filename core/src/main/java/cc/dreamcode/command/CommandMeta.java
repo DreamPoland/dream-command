@@ -88,14 +88,19 @@ public class CommandMeta {
                 })
                 .filter(commandPathMeta -> {
 
-                    if (commandInput.getArguments().length < commandPathMeta.getParamArgs().size()) {
+                    final int pathLength = commandPathMeta.getPath().isEmpty() ? 0 : commandPathMeta.getPath().split(" ").length;
+
+                    final String[] params = new String[commandInput.getArguments().length - pathLength];
+                    System.arraycopy(commandInput.getArguments(), pathLength, params, 0, params.length);
+
+                    if (params.length < commandPathMeta.getParamArgs().size()) {
                         return false;
                     }
 
                     final List<Class<?>> argClasses = new ArrayList<>(commandPathMeta.getParamArgs().values());
                     for (int index = 0; index < commandPathMeta.getParamArgs().size(); index++) {
 
-                        final String input = commandInput.getArguments()[index];
+                        final String input = params[index];
                         final Class<?> paramType = argClasses.get(index);
 
                         // check transformers
@@ -126,9 +131,9 @@ public class CommandMeta {
                         }
 
                         final Args args = (Args) optionalAnnotation.get();
-                        final String skip = StringUtil.join(commandInput.getArguments(), " ",
-                                args.min() == -1 ? 0 : Math.min(args.min(), commandInput.getArguments().length),
-                                args.max() == -1 ? commandInput.getArguments().length : Math.min(args.max(), commandInput.getArguments().length));
+                        final String skip = StringUtil.join(params, " ",
+                                args.min() == -1 ? 0 : Math.min(args.min(), params.length),
+                                args.max() == -1 ? params.length : Math.min(args.max(), params.length));
 
                         for (String restParam : skip.split(" ")) {
                             if (!this.resolverService.support(paramType, restParam)) {

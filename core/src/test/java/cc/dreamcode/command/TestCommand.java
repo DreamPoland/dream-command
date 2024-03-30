@@ -1,18 +1,13 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
-import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Completion;
-import cc.dreamcode.command.annotation.CompletionFilter;
 import cc.dreamcode.command.annotation.Executor;
-import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 class TestCommand {
 
@@ -32,7 +27,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example ";
+        String input = "/example type nah";
         this.commandProvider.call(this.testSender, input);
     }
 
@@ -45,16 +40,6 @@ class TestCommand {
     @Permission(name = "example.permission")
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
-
-        @Executor()
-        @Permission(name = "example.permission")
-        @Completion(arg = "test", value = {"sug1", "sug2"})
-        @Completion(arg = "test2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
-        void optionalMethod(@Arg String test, @Arg String test2, @OptArg(name = "optional-test") String optionalTest, @Args(min = 1, max = 3) String[] args) {
-            System.out.println("test2 - " + test2);
-            System.out.println("OPTIONAL - " + optionalTest);
-            System.out.println(Arrays.toString(args));
-        }
 
         @Executor(path = "type")
         @Completion(arg = "exampleEnum", value = "@enum")

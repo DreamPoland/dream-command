@@ -45,10 +45,10 @@ public class CommandExecutor {
         final String path = this.commandPathMeta.getPath();
 
         final ListBuilder<Object> objects = new ListBuilder<>();
-        final int patterns = path.isEmpty() ? 0 : path.split(" ").length;
+        final int pathLength = path.isEmpty() ? 0 : path.split(" ").length;
 
-        final String[] params = new String[commandInput.getArguments().length - patterns];
-        System.arraycopy(commandInput.getArguments(), patterns, params, 0, params.length);
+        final String[] params = new String[commandInput.getArguments().length - pathLength];
+        System.arraycopy(commandInput.getArguments(), pathLength, params, 0, params.length);
 
         final AtomicInteger atomicArg = new AtomicInteger();
         for (int index = 0; index < this.commandPathMeta.getMethod().getParameterCount(); index++) {
