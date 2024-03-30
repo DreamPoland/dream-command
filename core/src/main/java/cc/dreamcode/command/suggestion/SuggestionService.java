@@ -17,7 +17,7 @@ public class SuggestionService {
 
     private final SuggestionCache suggestionCache;
 
-    public List<String> getSuggestion(@NonNull Completion completion) {
+    public List<String> getSuggestion(@NonNull Class<?> paramType, @NonNull Completion completion) {
 
         final List<String> suggestions = new ArrayList<>();
 
@@ -35,7 +35,7 @@ public class SuggestionService {
             }
 
             final SuggestionSupplier supplier = optionalSupplier.get();
-            final AtomicReference<List<String>> reference = new AtomicReference<>(supplier.supply());
+            final AtomicReference<List<String>> reference = new AtomicReference<>(supplier.supply(paramType));
 
             final CompletionFilter[] completionFilterArray = completion.filter();
             for (CompletionFilter completionFilter : completionFilterArray) {

@@ -32,9 +32,13 @@ public class CommandPathMeta {
     private final CommandMeta commandMeta;
 
     private final Method method;
+
+    // ignore binds
+    private final Map<Integer, Class<?>> paramClasses;
     private final Map<Integer, CommandArgument> paramNames;
     private final Map<Integer, CommandArgument> paramDisplayNames;
 
+    // all parameters
     private final Map<Integer, Annotation[]> paramAnnotations;
     private final Map<Integer, Class<?>> paramArgs;
     private final Map<Integer, Class<?>> paramMultiArgs;
@@ -58,6 +62,7 @@ public class CommandPathMeta {
             this.paramAnnotations.put(index, this.method.getParameterAnnotations()[index]);
         }
 
+        this.paramClasses = new HashMap<>();
         this.paramNames = new HashMap<>();
         this.paramDisplayNames = new HashMap<>();
         final AtomicInteger atomicNameIndex = new AtomicInteger();
@@ -71,6 +76,7 @@ public class CommandPathMeta {
                 final Arg arg = (Arg) optionalArg.get();
                 final String name = Objects.equals(arg.name(), "") ? parameter.getName() : arg.name();
 
+                this.paramClasses.put(atomicNameIndex.get(), parameter.getType());
                 this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARG, name));
                 this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARG, "<" + name + ">"));
 
@@ -85,6 +91,7 @@ public class CommandPathMeta {
                 final Args args = (Args) optionalArgs.get();
                 final String name = Objects.equals(args.name(), "") ? parameter.getName() : args.name();
 
+                this.paramClasses.put(atomicNameIndex.get(), parameter.getType());
                 this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARGS, name));
                 this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARGS, "(" + name + ")"));
 
@@ -99,6 +106,7 @@ public class CommandPathMeta {
                 final OptArg optArg = (OptArg) optionalOptArg.get();
                 final String name = Objects.equals(optArg.name(), "") ? parameter.getName() : optArg.name();
 
+                this.paramClasses.put(atomicNameIndex.get(), parameter.getType());
                 this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, name));
                 this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, "[" + name + "]"));
             }
@@ -197,10 +205,28 @@ public class CommandPathMeta {
 
     public List<String> getSuggestion(@NonNull SuggestionService suggestionService, @NonNull CommandInput commandInput) {
 
-        final String[] arguments = commandInput.getArguments();
-        final int argumentLength = arguments.length - 1 == -1 ? (commandInput.isSpaceAtTheEnd() ? 0 : -1) : commandInput.isSpaceAtTheEnd() ? arguments.length : arguments.length - 1;
-
         final ListBuilder<String> listBuilder = new ListBuilder<>();
+
+        final String[] splitPath = this.path.split(" ");
+        int splitPathLength = this.path.isEmpty() ? 0 : splitPath.length;
+
+        final String[] arguments = commandInput.getArguments();
+        final String joinArguments = StringUtil.join(arguments, " ");
+        if (arguments.length > splitPathLength && !joinArguments.startsWith(this.path)) {
+            return listBuilder.build();
+        }
+
+        if (arguments.length <= splitPathLength && !this.path.startsWith(joinArguments)) {
+            return listBuilder.build();
+        }
+
+        final int argumentLength = arguments.length - 1 == -1 ? (commandInput.isSpaceAtTheEnd() ? 0 : -1) : commandInput.isSpaceAtTheEnd() ? arguments.length : arguments.length - 1;
+        final int argumentParamLength = argumentLength - splitPathLength;
+
+        if (argumentParamLength != 0 && splitPathLength > argumentParamLength) {
+            listBuilder.add(splitPath[argumentLength]);
+            return listBuilder.build();
+        }
 
         this.paramMultiArgs.forEach((index, classType) -> {
             final Optional<Annotation> optionalAnnotation = Arrays.stream(this.paramAnnotations.get(index))
@@ -214,39 +240,37 @@ public class CommandPathMeta {
             final Args args = (Args) optionalAnnotation.get();
 
             final int min = args.min() == -1 ? 0 : args.min();
-            final int max = args.max() == -1 ? argumentLength : args.max();
+            final int max = args.max() == -1 ? argumentParamLength : args.max();
 
-            if (argumentLength >= min && argumentLength <= max) {
+            if (argumentParamLength >= min && argumentParamLength <= max) {
                 final String displayName = this.paramDisplayNames.get(index).getValue();
                 listBuilder.add(displayName);
             }
         });
 
-        final String lastWord = arguments.length == 0 ? "" : arguments[arguments.length - 1];
+        final String lastWord = commandInput.isSpaceAtTheEnd() ? "" : arguments.length == 0 ? "" : arguments[arguments.length - 1];
 
-        if (!this.paramNames.containsKey(argumentLength)) {
+        if (!this.paramNames.containsKey(argumentParamLength)) {
             return listBuilder.build();
         }
 
-        final CommandArgument commandArgument = this.paramNames.get(argumentLength);
+        final CommandArgument commandArgument = this.paramNames.get(argumentParamLength);
         final Optional<Completion> optionalCompletion = Arrays.stream(this.method.getAnnotationsByType(Completion.class))
                 .filter(completion -> Objects.equals(completion.arg(), commandArgument.getValue()))
                 .findAny();
 
         if (!optionalCompletion.isPresent()) {
-            if (this.paramDisplayNames.containsKey(argumentLength)) {
-                final CommandArgument commandDisplayArgument = this.paramDisplayNames.get(argumentLength);
+            final CommandArgument commandDisplayArgument = this.paramDisplayNames.get(argumentParamLength);
 
-                if (!commandDisplayArgument.getType().equals(CommandArgument.Type.ARGS)) {
-                    listBuilder.add(commandDisplayArgument.getValue());
-                }
+            if (!commandDisplayArgument.getType().equals(CommandArgument.Type.ARGS)) {
+                listBuilder.add(commandDisplayArgument.getValue());
             }
 
             return listBuilder.build();
         }
 
         final Completion completion = optionalCompletion.get();
-        suggestionService.getSuggestion(completion)
+        suggestionService.getSuggestion(this.paramClasses.get(argumentParamLength), completion)
                 .stream()
                 .filter(text -> text.startsWith("[") || text.startsWith("(") || text.startsWith("<") || text.startsWith(lastWord))
                 .forEach(listBuilder::add);

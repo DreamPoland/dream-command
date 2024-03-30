@@ -1,6 +1,7 @@
 package cc.dreamcode.command.bukkit.suggestion.supplier;
 
 import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -14,7 +15,7 @@ public class AllPlayerSupplier implements SuggestionSupplier {
     private final Plugin plugin;
 
     @Override
-    public List<String> supply() {
+    public List<String> supply(@NonNull Class<?> paramType) {
         return this.plugin.getServer().getOnlinePlayers()
                 .stream()
                 .map(Player::getName)

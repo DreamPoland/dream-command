@@ -22,7 +22,7 @@ class TestCommand {
     @BeforeEach
     void setUp() {
         this.commandProvider = new CommandProviderImpl(true);
-        this.commandProvider.registerSuggestion("@all-players", () -> ListBuilder.of("nick1", "nick2", "nick3", "nick4", "nick5", "nick6", "nick7", "nick8"));
+        this.commandProvider.registerSuggestion("@all-players", (paramType) -> ListBuilder.of("nick1", "nick2", "nick3", "nick4", "nick5", "nick6", "nick7", "nick8"));
 
         this.testSender = new TestSender();
         this.commandProvider.registerBind(new TestSenderBind());
@@ -32,13 +32,13 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example nick3 2";
+        String input = "/example type no";
         this.commandProvider.call(this.testSender, input);
     }
 
     @Test
     void testSuggestion() {
-        String input = "/example sug v";
+        String input = "/example type ";
         System.out.println(this.commandProvider.getSuggestion(input));
     }
 
@@ -46,14 +46,20 @@ class TestCommand {
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
-        @Executor()
+        @Executor(path = "optional type")
         @Permission(name = "example.permission")
         @Completion(arg = "test", value = {"sug1", "sug2"})
         @Completion(arg = "test2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
-        public void optionalMethod(@Arg String test, @Arg String test2, @OptArg(name = "optional-test") String optionalTest, @Args(min = 1, max = 3) String[] args) {
+        void optionalMethod(@Arg String test, @Arg String test2, @OptArg(name = "optional-test") String optionalTest, @Args(min = 1, max = 3) String[] args) {
             System.out.println("test2 - " + test2);
             System.out.println("OPTIONAL - " + optionalTest);
             System.out.println(Arrays.toString(args));
+        }
+
+        @Executor(path = "type")
+        @Completion(arg = "exampleEnum", value = "@enum")
+        void suggestEnum(@Arg ExampleEnum exampleEnum) {
+            System.out.println(exampleEnum);
         }
     }
 }
