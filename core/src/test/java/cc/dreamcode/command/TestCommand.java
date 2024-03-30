@@ -38,7 +38,7 @@ class TestCommand {
 
     @Test
     void testSuggestion() {
-        String input = "/example nana 2";
+        String input = "/example sug v";
         System.out.println(this.commandProvider.getSuggestion(input));
     }
 
@@ -50,13 +50,7 @@ class TestCommand {
         @Permission(name = "example.permission")
         @Completion(arg = "test", value = {"sug1", "sug2"})
         @Completion(arg = "test2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
-        public void optionalMethod(
-                @Arg(name = "test") String test,
-                @Arg(name = "test2") String test2,
-                @OptArg(name = "optional-test") String optionalTest,
-                @Args(name = "argsmen", min = 1, max = 3) String[] args
-        ) {
-
+        public void optionalMethod(@Arg String test, @Arg String test2, @OptArg(name = "optional-test") String optionalTest, @Args(min = 1, max = 3) String[] args) {
             System.out.println("test2 - " + test2);
             System.out.println("OPTIONAL - " + optionalTest);
             System.out.println(Arrays.toString(args));

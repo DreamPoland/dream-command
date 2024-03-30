@@ -15,6 +15,7 @@ import lombok.NonNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,14 +62,17 @@ public class CommandPathMeta {
         this.paramDisplayNames = new HashMap<>();
         final AtomicInteger atomicNameIndex = new AtomicInteger();
         for (int index = 0; index < this.method.getParameters().length; index++) {
+            final Parameter parameter = this.method.getParameters()[index];
             final Optional<Annotation> optionalArg = Arrays.stream(this.paramAnnotations.get(index))
                     .filter(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))
                     .findAny();
 
             if (optionalArg.isPresent()) {
                 final Arg arg = (Arg) optionalArg.get();
-                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARG, arg.name()));
-                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARG, "<" + arg.name() + ">"));
+                final String name = Objects.equals(arg.name(), "") ? parameter.getName() : arg.name();
+
+                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARG, name));
+                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARG, "<" + name + ">"));
 
                 continue;
             }
@@ -79,8 +83,10 @@ public class CommandPathMeta {
 
             if (optionalArgs.isPresent()) {
                 final Args args = (Args) optionalArgs.get();
-                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARGS, args.name()));
-                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARGS, "(" + args.name() + ")"));
+                final String name = Objects.equals(args.name(), "") ? parameter.getName() : args.name();
+
+                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARGS, name));
+                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARGS, "(" + name + ")"));
 
                 continue;
             }
@@ -91,8 +97,10 @@ public class CommandPathMeta {
 
             if (optionalOptArg.isPresent()) {
                 final OptArg optArg = (OptArg) optionalOptArg.get();
-                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, optArg.name()));
-                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, "[" + optArg.name() + "]"));
+                final String name = Objects.equals(optArg.name(), "") ? parameter.getName() : optArg.name();
+
+                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, name));
+                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, "[" + name + "]"));
             }
         }
 
@@ -209,7 +217,8 @@ public class CommandPathMeta {
             final int max = args.max() == -1 ? argumentLength : args.max();
 
             if (argumentLength >= min && argumentLength <= max) {
-                listBuilder.add("(" + args.name() + ")");
+                final String displayName = this.paramDisplayNames.get(index).getValue();
+                listBuilder.add(displayName);
             }
         });
 
