@@ -6,11 +6,12 @@ Simple command library for easy command creations.
 ## Platforms
 
 - Bukkit/Spigot/Paper - [bukkit](https://github.com/DreamPoland/dream-command/tree/master/bukkit)
+- Bungee/Waterfall - [bungee](https://github.com/DreamPoland/dream-command/tree/master/bungee)
 
 ### Warning
-Bukkit module require that method: (on-enable)
+Bukkit/Bungee module require that method: (on-enable)
 
-`BukkitCommandProvider.create(this)`
+`BukkitCommandProvider.create(this)` or `BungeeCommandProvider.create(this)`
 
 ## Maven/Gradle
 
