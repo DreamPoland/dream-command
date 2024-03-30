@@ -13,6 +13,8 @@ Bukkit/Bungee module require that method: (on-enable)
 
 `BukkitCommandProvider.create(this)` or `BungeeCommandProvider.create(this)`
 
+For better support, add `-parameters` flag to your compiler.
+
 ## Maven/Gradle
 
 ### Maven
