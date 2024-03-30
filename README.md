@@ -55,10 +55,10 @@ public class ExampleCommand implements CommandBase {
     @Completion(arg = "arg1", value = {"key1", "value2", "magic"})
     @Completion(arg = "arg2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
     void example(
-            @Arg(name = "arg1") String arg1,
-            @Arg(name = "arg2") String arg2,
+            @Arg String arg1,
+            @Arg String arg2,
             @OptArg(name = "optional-arg") String optionalArg,
-            @Args(name = "args", min = 1, max = 5) String[] args
+            @Args(min = 1, max = 5) String[] args
     ) {
         // default arg
         System.out.println(arg);
