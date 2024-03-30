@@ -6,6 +6,11 @@ import java.util.Optional;
 
 public class ByteArrayTransformer implements ArrayTransformer<Byte> {
     @Override
+    public Class<?> getGeneric() {
+        return Byte[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return Byte[].class.isAssignableFrom(type);
     }

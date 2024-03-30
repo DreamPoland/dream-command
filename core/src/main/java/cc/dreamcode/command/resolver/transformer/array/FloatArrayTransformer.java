@@ -6,6 +6,11 @@ import java.util.Optional;
 
 public class FloatArrayTransformer implements ArrayTransformer<Float> {
     @Override
+    public Class<?> getGeneric() {
+        return Float[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return Float[].class.isAssignableFrom(type);
     }

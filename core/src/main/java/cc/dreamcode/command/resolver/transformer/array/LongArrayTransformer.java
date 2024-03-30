@@ -6,6 +6,11 @@ import java.util.Optional;
 
 public class LongArrayTransformer implements ArrayTransformer<Long> {
     @Override
+    public Class<?> getGeneric() {
+        return Long[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return Long[].class.isAssignableFrom(type);
     }

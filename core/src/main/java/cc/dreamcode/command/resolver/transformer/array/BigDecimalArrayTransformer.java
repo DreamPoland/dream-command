@@ -7,6 +7,11 @@ import java.util.Optional;
 
 public class BigDecimalArrayTransformer implements ArrayTransformer<BigDecimal> {
     @Override
+    public Class<?> getGeneric() {
+        return BigDecimal[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return BigDecimal[].class.isAssignableFrom(type);
     }

@@ -22,9 +22,15 @@ public class SuggestionService {
         final List<String> suggestions = new ArrayList<>();
 
         for (String value : completion.value()) {
-            final Optional<SuggestionSupplier> optionalSupplier = this.suggestionCache.getSuggestion(value);
+            final String[] split = value.split(" ");
+            if (split.length == 0) {
+                continue;
+            }
+
+            final String firstValue = split[0];
+            final Optional<SuggestionSupplier> optionalSupplier = this.suggestionCache.getSuggestion(firstValue);
             if (!optionalSupplier.isPresent()) {
-                suggestions.add(value);
+                suggestions.add(firstValue);
                 continue;
             }
 

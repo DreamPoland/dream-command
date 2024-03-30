@@ -6,6 +6,11 @@ import java.util.Optional;
 
 public class CharacterArrayTransformer implements ArrayTransformer<Character> {
     @Override
+    public Class<?> getGeneric() {
+        return Character[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return Character[].class.isAssignableFrom(type);
     }

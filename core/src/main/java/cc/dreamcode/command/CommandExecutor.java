@@ -69,7 +69,7 @@ public class CommandExecutor {
 
             if (this.getCommandPathMeta().getParamOptionalArgs().containsKey(index)) {
 
-                final Class<?> paramType = this.getCommandPathMeta().getParamOptionalArgs().get(atomicArg.get());
+                final Class<?> paramType = this.getCommandPathMeta().getParamOptionalArgs().get(index);
                 if (params.length <= atomicArg.get()) {
                     objects.add(Optional.class.isAssignableFrom(paramType) ? Optional.empty() : null);
                     atomicArg.incrementAndGet();

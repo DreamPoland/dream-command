@@ -1,44 +1,39 @@
 package cc.dreamcode.command;
 
-import cc.dreamcode.utilities.StringUtil;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 public class CommandInput {
 
-    private final String input;
-    @Getter private final boolean spaceAtTheEnd;
+    private final String label;
+    private final String[] arguments;
+    private final boolean spaceAtTheEnd;
 
     public CommandInput(@NonNull String input) {
-        this.input = input.replace("/", "");
-        this.spaceAtTheEnd = input.endsWith(" ");
-    }
 
-    public CommandInput(@NonNull String label, @NonNull String[] args, boolean spaceAtTheEnd) {
-        this.input = label + " " + StringUtil.join(args, " ");
-        this.spaceAtTheEnd = spaceAtTheEnd;
-    }
-
-    public String[] getParams() {
-        return this.input.split(" ");
-    }
-
-    public String getLabel() {
-
-        final String[] params = this.getParams();
+        final String[] params = input.replace("/", "").split(" ");
         if (params.length == 0) {
             throw new RuntimeException("Parse params cannot be empty (input)");
         }
 
-        return params[0];
+        this.label = params[0];
+
+        this.arguments = new String[params.length - 1];
+        System.arraycopy(params, 1, this.arguments, 0, this.arguments.length);
+
+        this.spaceAtTheEnd = input.endsWith(" ");
     }
 
-    public String[] getArguments() {
+    public String[] getParams() {
 
-        final String[] params = this.getParams();
-        final String[] arguments = new String[params.length - 1];
+        final String[] params = new String[this.arguments.length + 1];
 
-        System.arraycopy(params, 1, arguments, 0, arguments.length);
-        return arguments;
+        params[0] = this.label;
+        System.arraycopy(this.arguments, 0, params, 1, this.arguments.length);
+
+        return params;
     }
 }

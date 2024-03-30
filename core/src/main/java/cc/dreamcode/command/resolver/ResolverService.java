@@ -20,18 +20,18 @@ public class ResolverService {
         return this.resolveArray(expectingClass, input).isPresent();
     }
 
-    public Optional<?> resolve(@NonNull Class<?> expectingClass, @NonNull String input) {
+    public <T> Optional<T> resolve(@NonNull Class<T> expectingClass, @NonNull String input) {
 
-        final ObjectTransformer<?> objectTransformer = this.resolverCache.get(expectingClass)
-                .orElseThrow(() -> new RuntimeException("Cannot find resolver for class " + expectingClass));
+        final ObjectTransformer<T> objectTransformer = this.resolverCache.get(expectingClass)
+                .orElseThrow(() -> new RuntimeException("Cannot find resolver for " + expectingClass));
 
         return objectTransformer.transform(expectingClass, input);
     }
 
-    public Optional<?> resolveArray(@NonNull Class<?> expectingClass, @NonNull Object[] input) {
+    public <T> Optional<T[]> resolveArray(@NonNull Class<T> expectingClass, @NonNull Object[] input) {
 
-        final ArrayTransformer<?> arrayTransformerTransformer = this.resolverCache.getArray(expectingClass)
-                .orElseThrow(() -> new RuntimeException("Cannot find array-resolver for class " + expectingClass));
+        final ArrayTransformer<T> arrayTransformerTransformer = this.resolverCache.getArray(expectingClass)
+                .orElseThrow(() -> new RuntimeException("Cannot find array-resolver for " + expectingClass));
 
         return arrayTransformerTransformer.transform(expectingClass, input);
     }

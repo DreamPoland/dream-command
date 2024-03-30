@@ -8,7 +8,6 @@ import cc.dreamcode.command.annotation.CompletionFilter;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.annotation.Permission;
-import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,32 +32,32 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example nick3";
+        String input = "/example nick3 2";
         this.commandProvider.call(this.testSender, input);
     }
 
     @Test
     void testSuggestion() {
-        String input = "/example n n";
+        String input = "/example nana 2";
         System.out.println(this.commandProvider.getSuggestion(input));
     }
 
     @Permission(name = "example.permission")
-    @Sender(type = DreamSender.Type.CLIENT)
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
         @Executor()
         @Permission(name = "example.permission")
-        @Completion(arg = "test", value = {"kolo", "kofo", "nanana"})
+        @Completion(arg = "test", value = {"sug1", "sug2"})
         @Completion(arg = "test2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
         public void optionalMethod(
                 @Arg(name = "test") String test,
                 @Arg(name = "test2") String test2,
                 @OptArg(name = "optional-test") String optionalTest,
-                @Args(name = "argsmen", min = 1, max = 5) String[] args
+                @Args(name = "argsmen", min = 1, max = 3) String[] args
         ) {
 
+            System.out.println("test2 - " + test2);
             System.out.println("OPTIONAL - " + optionalTest);
             System.out.println(Arrays.toString(args));
         }

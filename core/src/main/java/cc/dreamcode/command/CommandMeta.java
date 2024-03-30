@@ -3,6 +3,7 @@ package cc.dreamcode.command;
 import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.command.annotation.Sender;
+import cc.dreamcode.command.handler.exception.InvalidInputException;
 import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Data
 public class CommandMeta {
@@ -26,7 +28,12 @@ public class CommandMeta {
     private final DreamSender.Type[] baseSenderTypes;
     private final List<CommandPathMeta> commandPaths;
 
-    public CommandMeta(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
+    private final SuggestionService suggestionService;
+    private final ResolverService resolverService;
+
+    public CommandMeta(@NonNull SuggestionService suggestionService, @NonNull ResolverService resolverService, @NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
+        this.suggestionService = suggestionService;
+        this.resolverService = resolverService;
         this.commandContext = commandContext;
         this.commandBase = commandBase;
 
@@ -43,36 +50,33 @@ public class CommandMeta {
         this.commandPaths = commandBase.getCommandPaths(this);
     }
 
-    public List<String> getSuggestion(@NonNull SuggestionService suggestionService, @NonNull CommandInput commandInput) {
+    public List<String> getSuggestion(@NonNull CommandInput commandInput) {
 
         final ListBuilder<String> listBuilder = new ListBuilder<>();
 
         for (CommandPathMeta commandPath : this.commandPaths) {
-            listBuilder.addAll(commandPath.getSuggestion(suggestionService, commandInput));
+            listBuilder.addAll(commandPath.getSuggestion(this.suggestionService, commandInput));
         }
 
         return listBuilder.build();
     }
 
-    public Optional<CommandPathMeta> findExecutor(@NonNull ResolverService resolverService, @NonNull CommandInput commandInput) {
-
-        final String[] splitArguments = commandInput.getArguments();
-        final String arguments = StringUtil.join(splitArguments, " ");
+    public Stream<CommandPathMeta> findExecutor(@NonNull CommandInput commandInput, boolean throwInvalidInput) {
         return this.commandPaths
                 .stream()
                 .filter(commandPathMeta -> {
 
                     final int pathLength = commandPathMeta.getPath().isEmpty() ? 0 : commandPathMeta.getPath().split(" ").length;
-                    if (splitArguments.length < pathLength) {
+                    if (commandInput.getArguments().length < pathLength) {
                         return false;
                     }
 
                     if (commandPathMeta.getParamMultiArgs().isEmpty() &&
-                            splitArguments.length > pathLength + commandPathMeta.getParamArgs().size() + commandPathMeta.getParamOptionalArgs().size()) {
+                            commandInput.getArguments().length > pathLength + commandPathMeta.getParamArgs().size() + commandPathMeta.getParamOptionalArgs().size()) {
                         return false;
                     }
 
-                    final String argumentEntry = StringUtil.join(splitArguments, " ", 0, pathLength);
+                    final String argumentEntry = StringUtil.join(commandInput.getArguments(), " ", 0, pathLength);
                     return commandPathMeta.getPath().equalsIgnoreCase(argumentEntry);
                 })
                 .sorted((o1, o2) -> {
@@ -84,21 +88,22 @@ public class CommandMeta {
                 })
                 .filter(commandPathMeta -> {
 
-                    final String scaledParams = arguments.replace(commandPathMeta.getPath() + " ", "");
-                    final String[] params = scaledParams.isEmpty() ? new String[0] : scaledParams.split(" ");
-
-                    if (params.length < commandPathMeta.getParamArgs().size()) {
+                    if (commandInput.getArguments().length < commandPathMeta.getParamArgs().size()) {
                         return false;
                     }
 
                     final List<Class<?>> argClasses = new ArrayList<>(commandPathMeta.getParamArgs().values());
                     for (int index = 0; index < commandPathMeta.getParamArgs().size(); index++) {
 
-                        final String input = params[index];
+                        final String input = commandInput.getArguments()[index];
                         final Class<?> paramType = argClasses.get(index);
 
                         // check transformers
-                        if (!resolverService.support(paramType, input)) {
+                        if (!this.resolverService.support(paramType, input)) {
+                            if (throwInvalidInput) {
+                                throw new InvalidInputException(paramType, input, "Cannot resolve param " + input + " as a " + paramType.getSimpleName());
+                            }
+
                             return false;
                         }
                     }
@@ -121,19 +126,22 @@ public class CommandMeta {
                         }
 
                         final Args args = (Args) optionalAnnotation.get();
-                        final String skip = StringUtil.join(params, " ",
-                                args.min() == -1 ? 0 : Math.min(args.min(), params.length),
-                                args.max() == -1 ? params.length : Math.min(args.max(), params.length));
+                        final String skip = StringUtil.join(commandInput.getArguments(), " ",
+                                args.min() == -1 ? 0 : Math.min(args.min(), commandInput.getArguments().length),
+                                args.max() == -1 ? commandInput.getArguments().length : Math.min(args.max(), commandInput.getArguments().length));
 
                         for (String restParam : skip.split(" ")) {
-                            if (!resolverService.support(paramType, restParam)) {
+                            if (!this.resolverService.support(paramType, restParam)) {
+                                if (throwInvalidInput) {
+                                    throw new InvalidInputException(paramType, restParam, "Cannot resolve param " + restParam + " as a " + paramType.getSimpleName());
+                                }
+
                                 return false;
                             }
                         }
                     }
 
                     return true;
-                })
-                .findFirst();
+                });
     }
 }

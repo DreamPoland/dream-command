@@ -15,7 +15,6 @@ import lombok.NonNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 public class CommandPathMeta {
@@ -32,11 +31,13 @@ public class CommandPathMeta {
     private final CommandMeta commandMeta;
 
     private final Method method;
-    private final Map<Integer, String> paramNames;
+    private final Map<Integer, CommandArgument> paramNames;
+    private final Map<Integer, CommandArgument> paramDisplayNames;
+
     private final Map<Integer, Annotation[]> paramAnnotations;
     private final Map<Integer, Class<?>> paramArgs;
     private final Map<Integer, Class<?>> paramMultiArgs;
-    private final Map<Integer, Class<Optional<?>>> paramOptionalArgs;
+    private final Map<Integer, Class<?>> paramOptionalArgs;
     private final Map<Integer, Class<?>> paramBinds;
 
     private final String path;
@@ -47,7 +48,6 @@ public class CommandPathMeta {
 
     private final CommandExecutor commandExecutor;
 
-    @SuppressWarnings("unchecked")
     public CommandPathMeta(@NonNull CommandMeta commandMeta, @NonNull Method method, @NonNull Executor executor) {
         this.commandMeta = commandMeta;
         this.method = method;
@@ -58,16 +58,17 @@ public class CommandPathMeta {
         }
 
         this.paramNames = new HashMap<>();
+        this.paramDisplayNames = new HashMap<>();
+        final AtomicInteger atomicNameIndex = new AtomicInteger();
         for (int index = 0; index < this.method.getParameters().length; index++) {
-            final Parameter parameter = this.method.getParameters()[index];
-
             final Optional<Annotation> optionalArg = Arrays.stream(this.paramAnnotations.get(index))
                     .filter(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))
                     .findAny();
 
             if (optionalArg.isPresent()) {
                 final Arg arg = (Arg) optionalArg.get();
-                this.paramNames.put(index, arg.name());
+                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARG, arg.name()));
+                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARG, "<" + arg.name() + ">"));
 
                 continue;
             }
@@ -78,7 +79,8 @@ public class CommandPathMeta {
 
             if (optionalArgs.isPresent()) {
                 final Args args = (Args) optionalArgs.get();
-                this.paramNames.put(index, args.name());
+                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARGS, args.name()));
+                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARGS, "(" + args.name() + ")"));
 
                 continue;
             }
@@ -89,12 +91,9 @@ public class CommandPathMeta {
 
             if (optionalOptArg.isPresent()) {
                 final OptArg optArg = (OptArg) optionalOptArg.get();
-                this.paramNames.put(index, optArg.name());
-
-                continue;
+                this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, optArg.name()));
+                this.paramDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, "[" + optArg.name() + "]"));
             }
-
-            this.paramNames.put(index, parameter.getName());
         }
 
         this.paramArgs = new HashMap<>();
@@ -129,7 +128,7 @@ public class CommandPathMeta {
             if (Arrays.stream(this.paramAnnotations.get(index))
                     .anyMatch(annotation -> OptArg.class.isAssignableFrom(annotation.annotationType()))) {
 
-                this.paramOptionalArgs.put(index, (Class<Optional<?>>) this.method.getParameterTypes()[index]);
+                this.paramOptionalArgs.put(index, this.method.getParameterTypes()[index]);
                 continue;
             }
 
@@ -171,36 +170,27 @@ public class CommandPathMeta {
         return senderTypes;
     }
 
-    public String getUsage(boolean renderJoiningArgs) {
+    public String getUsage() {
 
         final List<String> listBuilder = new ArrayList<>();
+        listBuilder.add("/" + this.commandMeta.getCommandContext().getName());
 
         if (!this.path.isEmpty()) {
             listBuilder.addAll(Arrays.asList(this.path.split(" ")));
         }
 
-        this.paramAnnotations.forEach((index, annotations) -> {
-
-            if (this.paramArgs.containsKey(index)) {
-                listBuilder.add("<" + this.paramNames.get(index) + ">");
-                return;
-            }
-
-            if (renderJoiningArgs && this.paramMultiArgs.containsKey(index)) {
-                listBuilder.add("<" + this.paramNames.get(index) + ">");
-                return;
-            }
-
-            if (this.paramOptionalArgs.containsKey(index)) {
-                listBuilder.add("[" + this.paramNames.get(index) + "]");
-            }
-        });
+        this.paramDisplayNames.values()
+                .stream()
+                .map(CommandArgument::getValue)
+                .forEach(listBuilder::add);
 
         return StringUtil.join(listBuilder, " ");
     }
 
     public List<String> getSuggestion(@NonNull SuggestionService suggestionService, @NonNull CommandInput commandInput) {
-        final int commandArgumentLength = commandInput.getArguments().length;
+
+        final String[] arguments = commandInput.getArguments();
+        final int argumentLength = arguments.length - 1 == -1 ? (commandInput.isSpaceAtTheEnd() ? 0 : -1) : commandInput.isSpaceAtTheEnd() ? arguments.length : arguments.length - 1;
 
         final ListBuilder<String> listBuilder = new ListBuilder<>();
 
@@ -215,68 +205,42 @@ public class CommandPathMeta {
 
             final Args args = (Args) optionalAnnotation.get();
 
-            if (commandInput.isSpaceAtTheEnd()) {
-                final int min = args.min() == -1 ? 0 : args.min();
-                final int max = args.max() == -1 ? commandArgumentLength + 1 : args.max();
-
-                if (commandArgumentLength + 1 >= min && commandArgumentLength + 1 <= max) {
-                    listBuilder.add("<" + args.name() + ">");
-                }
-
-                return;
-            }
-
             final int min = args.min() == -1 ? 0 : args.min();
-            final int max = args.max() == -1 ? commandArgumentLength : args.max();
+            final int max = args.max() == -1 ? argumentLength : args.max();
 
-            if (commandArgumentLength >= min && commandArgumentLength <= max) {
-                listBuilder.add("<" + args.name() + ">");
+            if (argumentLength >= min && argumentLength <= max) {
+                listBuilder.add("(" + args.name() + ")");
             }
         });
 
-        if (commandArgumentLength == 0) {
+        final String lastWord = arguments.length == 0 ? "" : arguments[arguments.length - 1];
 
-            if (!commandInput.isSpaceAtTheEnd() || !this.paramNames.containsKey(0)) {
-                return listBuilder.build();
-            }
-
-            final String arg = this.paramNames.get(0);
-            final Optional<Completion> optionalCompletion = Arrays.stream(this.method.getAnnotationsByType(Completion.class))
-                    .filter(completion -> Objects.equals(completion.arg(), arg))
-                    .findAny();
-
-            if (!optionalCompletion.isPresent()) {
-                listBuilder.add("<" + arg + ">");
-                return listBuilder.build();
-            }
-
-            final Completion completion = optionalCompletion.get();
-            listBuilder.addAll(suggestionService.getSuggestion(completion));
+        if (!this.paramNames.containsKey(argumentLength)) {
             return listBuilder.build();
         }
 
-        final int index = commandArgumentLength - 1;
-        final String lastWord = commandInput.getArguments()[index];
-
-        if (!this.paramNames.containsKey(index)) {
-            return listBuilder.build();
-        }
-
-        final String arg = this.paramNames.get(index);
+        final CommandArgument commandArgument = this.paramNames.get(argumentLength);
         final Optional<Completion> optionalCompletion = Arrays.stream(this.method.getAnnotationsByType(Completion.class))
-                .filter(completion -> Objects.equals(completion.arg(), arg))
+                .filter(completion -> Objects.equals(completion.arg(), commandArgument.getValue()))
                 .findAny();
 
         if (!optionalCompletion.isPresent()) {
-            listBuilder.add("<" + arg + ">");
+            if (this.paramDisplayNames.containsKey(argumentLength)) {
+                final CommandArgument commandDisplayArgument = this.paramDisplayNames.get(argumentLength);
+
+                if (!commandDisplayArgument.getType().equals(CommandArgument.Type.ARGS)) {
+                    listBuilder.add(commandDisplayArgument.getValue());
+                }
+            }
+
             return listBuilder.build();
         }
 
         final Completion completion = optionalCompletion.get();
-        listBuilder.addAll(suggestionService.getSuggestion(completion)
+        suggestionService.getSuggestion(completion)
                 .stream()
-                .filter(text -> text.startsWith(lastWord))
-                .collect(Collectors.toList()));
+                .filter(text -> text.startsWith("[") || text.startsWith("(") || text.startsWith("<") || text.startsWith(lastWord))
+                .forEach(listBuilder::add);
 
         return listBuilder.build();
     }

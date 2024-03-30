@@ -7,6 +7,11 @@ Simple command library for easy command creations.
 
 - Bukkit/Spigot/Paper - [bukkit](https://github.com/DreamPoland/dream-command/tree/master/bukkit)
 
+### Warning
+Bukkit module require that method: (on-enable)
+
+`BukkitCommandProvider.create(this)`
+
 ## Maven/Gradle
 
 ### Maven

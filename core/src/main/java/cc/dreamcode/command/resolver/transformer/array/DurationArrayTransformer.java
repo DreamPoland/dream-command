@@ -7,6 +7,11 @@ import java.util.Optional;
 
 public class DurationArrayTransformer implements ArrayTransformer<Duration> {
     @Override
+    public Class<?> getGeneric() {
+        return Duration[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return Duration[].class.isAssignableFrom(type);
     }

@@ -6,6 +6,11 @@ import java.util.Optional;
 
 public class BooleanArrayTransformer implements ArrayTransformer<Boolean> {
     @Override
+    public Class<?> getGeneric() {
+        return Boolean[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return Boolean[].class.isAssignableFrom(type);
     }

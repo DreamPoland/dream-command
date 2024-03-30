@@ -42,8 +42,8 @@ public class BukkitCommandWrapper extends Command implements PluginIdentifiableC
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-        final CommandInput commandInput = new CommandInput(this.getLabel(), args, false);
 
+        final CommandInput commandInput = new CommandInput(this.getLabel(), args, false);
         return this.bukkitCommandProvider.getSuggestion(commandInput);
     }
 }

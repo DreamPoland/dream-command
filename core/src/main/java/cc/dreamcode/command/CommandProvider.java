@@ -66,4 +66,8 @@ public interface CommandProvider {
     CommandRegistry getCommandRegistry();
 
     CommandProviderImpl setCommandRegistry(@NonNull CommandRegistry commandRegistry);
+
+    CommandProviderImpl registerAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to);
+
+    CommandProviderImpl unregisterAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to);
 }

@@ -6,6 +6,11 @@ import java.util.Optional;
 
 public class StringArrayTransformer implements ArrayTransformer<String> {
     @Override
+    public Class<?> getGeneric() {
+        return String[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return String[].class.isAssignableFrom(type);
     }

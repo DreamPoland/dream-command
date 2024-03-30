@@ -7,6 +7,11 @@ import java.util.Optional;
 
 public class BigIntegerArrayTransformer implements ArrayTransformer<BigInteger> {
     @Override
+    public Class<?> getGeneric() {
+        return BigInteger[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return BigInteger[].class.isAssignableFrom(type);
     }

@@ -6,6 +6,11 @@ import java.util.Optional;
 
 public class ShortArrayTransformer implements ArrayTransformer<Short> {
     @Override
+    public Class<?> getGeneric() {
+        return Short[].class;
+    }
+
+    @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
         return Short[].class.isAssignableFrom(type);
     }

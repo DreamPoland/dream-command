@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CommandProviderImpl implements CommandProvider {
 
@@ -74,7 +75,7 @@ public class CommandProviderImpl implements CommandProvider {
         return this.commandMap.entrySet()
                 .stream()
                 .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
-                .map(entry -> entry.getValue().getSuggestion(this.suggestionService, commandInput))
+                .map(entry -> entry.getValue().getSuggestion(commandInput))
                 .findAny()
                 .orElse(new ArrayList<>());
     }
@@ -86,37 +87,40 @@ public class CommandProviderImpl implements CommandProvider {
 
     @Override
     public CommandProviderImpl call(@NonNull DreamSender<?> dreamSender, @NonNull CommandInput commandInput) {
-
-        final Optional<CommandMeta> optionalCommandMeta = this.commandMap.entrySet()
-                .stream()
-                .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
-                .map(Map.Entry::getValue)
-                .findAny();
-
-        final Optional<CommandPathMeta> optionalCommandPathMeta = optionalCommandMeta
-                .map(commandMeta -> commandMeta.findExecutor(this.resolverService, commandInput))
-                .filter(Optional::isPresent)
-                .map(Optional::get);
-
         try {
-            if (!optionalCommandPathMeta.isPresent()) {
+            final Optional<CommandMeta> optionalCommandMeta = this.commandMap.entrySet()
+                    .stream()
+                    .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .findAny();
 
-                if (optionalCommandMeta.isPresent()) {
-                    final CommandMeta commandMeta = optionalCommandMeta.get();
-
-                    if (this.invalidUsageHandler != null) {
-                        this.invalidUsageHandler.handle(dreamSender, Optional.of(commandMeta), commandInput);
-                        return this;
-                    }
-
-                    throw new InvalidUsageException(commandMeta, commandInput, "Cannot find any path with input: " + Arrays.toString(commandInput.getParams()));
-                }
-
+            if (!optionalCommandMeta.isPresent()) {
                 throw new InvalidUsageException(null, commandInput, "Cannot find any method with input: " + Arrays.toString(commandInput.getParams()));
             }
 
-            final CommandPathMeta commandPathMeta = optionalCommandPathMeta.get();
+            final CommandMeta commandMeta = optionalCommandMeta.get();
 
+            Optional<CommandPathMeta> optionalCommandPathMeta;
+            try {
+                optionalCommandPathMeta = commandMeta.findExecutor(commandInput, true).findFirst();
+            }
+            catch (InvalidInputException e) {
+
+                final List<CommandPathMeta> commandPathMetas = commandMeta.findExecutor(commandInput, false)
+                        .collect(Collectors.toList());
+
+                if (commandPathMetas.isEmpty()) {
+                    throw e;
+                }
+
+                optionalCommandPathMeta = Optional.of(commandPathMetas.get(0));
+            }
+
+            if (!optionalCommandPathMeta.isPresent()) {
+                throw new InvalidUsageException(commandMeta, commandInput, "Cannot find any path with input: " + Arrays.toString(commandInput.getParams()));
+            }
+
+            final CommandPathMeta commandPathMeta = optionalCommandPathMeta.get();
             final CommandExecutor commandExecutor = commandPathMeta.getCommandExecutor();
             commandExecutor.invoke(this.resolverService, this.bindService, commandInput, dreamSender);
         }
@@ -168,7 +172,15 @@ public class CommandProviderImpl implements CommandProvider {
         }
 
         final CommandContext commandContext = new CommandContext(command);
-        final CommandMeta commandMeta = new CommandMeta(commandContext, commandBase);
+        final CommandMeta commandMeta = new CommandMeta(this.suggestionService, this.resolverService, commandContext, commandBase);
+        if (commandMeta.getCommandPaths()
+                .stream()
+                .anyMatch(commandPathMeta1 -> commandMeta.getCommandPaths()
+                        .stream()
+                        .anyMatch(commandPathMeta2 -> commandPathMeta1.getPath().equalsIgnoreCase(commandPathMeta2.getPath()) &&
+                                commandPathMeta1.getUsage().equals(commandPathMeta2.getUsage())))) {
+            throw new RuntimeException("Duplicate executors [/" + command.name() + "]");
+        }
 
         this.commandMap.put(commandContext.getName(), commandMeta);
         Arrays.stream(commandContext.getAliases()).forEach(label ->
@@ -311,6 +323,18 @@ public class CommandProviderImpl implements CommandProvider {
     @Override
     public CommandProviderImpl setCommandRegistry(@NonNull CommandRegistry commandRegistry) {
         this.commandRegistry = commandRegistry;
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl registerAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to) {
+        this.resolverCache.addAssignableClass(from, to);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl unregisterAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to) {
+        this.resolverCache.removeAssignableClass(from, to);
         return this;
     }
 }
