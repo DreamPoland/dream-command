@@ -26,7 +26,7 @@ Bukkit module require that method: (on-enable)
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>{platform}</artifactId>
-  <version>2.0-pre.2</version>
+  <version>2.0-pre.3</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ maven { url "https://repo.dreamcode.cc/releases" }
 ```
 
 ```groovy
-implementation "cc.dreamcode.command:{platform}:2.0-pre.2"
+implementation "cc.dreamcode.command:{platform}:2.0-pre.3"
 ```
 
 ## Example
