@@ -50,19 +50,19 @@ public class ExampleCommand implements CommandBase {
     @Executor(path = "param", description = "Example method usage.")
     @Sender(type = DreamSender.Type.CLIENT)
     @Permission(name = "example.permission.param")
-    @Completion(arg = "test", value = {"kolo", "kofo", "nanana"})
-    @Completion(arg = "test2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
-    public void optionalMethod(
-            @Arg(name = "test") String test,
-            @Arg(name = "test2") String test2,
-            @OptArg(name = "optional-test") String optionalTest,
-            @Args(name = "argsmen", min = 1, max = 5) String[] args
+    @Completion(arg = "arg1", value = {"key1", "value2", "magic"})
+    @Completion(arg = "arg2", value = "@all-players", filter = @CompletionFilter(name = "limit", value = "5"))
+    void example(
+            @Arg(name = "arg1") String arg1,
+            @Arg(name = "arg2") String arg2,
+            @OptArg(name = "optional-arg") String optionalArg,
+            @Args(name = "args", min = 1, max = 5) String[] args
     ) {
         // default arg
-        System.out.println(test);
+        System.out.println(arg);
 
         // optional arg
-        System.out.println("OPTIONAL - " + optionalTest);
+        System.out.println("OPTIONAL - " + optionalArg);
 
         // many args
         System.out.println(Arrays.toString(args));
