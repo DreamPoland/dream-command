@@ -34,10 +34,10 @@ class TestCommand {
     @Test
     void testSuggestion() {
         String input = "/example type n";
-        System.out.println(this.commandProvider.getSuggestion(input));
+        System.out.println(this.commandProvider.getSuggestion(this.testSender, input));
     }
 
-    @Permission(name = "example.permission")
+    @Permission(name = "test")
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 

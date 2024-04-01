@@ -26,8 +26,9 @@ public class BungeeCommandWrapper extends Command implements TabExecutor {
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-
+        final BungeeSender bungeeSender = new BungeeSender(sender);
         final CommandInput commandInput = new CommandInput(this.getName(), args, false);
-        return this.bungeeCommandProvider.getSuggestion(commandInput);
+
+        return this.bungeeCommandProvider.getSuggestion(bungeeSender, commandInput);
     }
 }

@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Data
@@ -50,11 +51,30 @@ public class CommandMeta {
         this.commandPaths = commandBase.getCommandPaths(this);
     }
 
-    public List<String> getSuggestion(@NonNull CommandInput commandInput) {
+    public List<CommandPathMeta> getFilteredCommandPaths(@NonNull DreamSender<?> sender) {
+        return this.commandPaths
+                .stream()
+                .filter(commandPathMeta -> {
+                    final List<DreamSender.Type> senderTypes = commandPathMeta.getSendersType();
+                    return senderTypes.isEmpty() || senderTypes.contains(sender.getType());
+                })
+                .filter(commandPathMeta -> {
+                    for (String permission : commandPathMeta.getPermissions()) {
+                        if (!sender.hasPermission(permission)) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getSuggestion(@NonNull DreamSender<?> sender, @NonNull CommandInput commandInput) {
 
         final ListBuilder<String> listBuilder = new ListBuilder<>();
 
-        for (CommandPathMeta commandPath : this.commandPaths) {
+        for (CommandPathMeta commandPath : this.getFilteredCommandPaths(sender)) {
             listBuilder.addAll(commandPath.getSuggestion(this.suggestionService, commandInput));
         }
 

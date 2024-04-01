@@ -66,16 +66,16 @@ public class CommandProviderImpl implements CommandProvider {
     }
 
     @Override
-    public List<String> getSuggestion(@NonNull String input) {
-        return this.getSuggestion(new CommandInput(input));
+    public List<String> getSuggestion(@NonNull DreamSender<?> sender, @NonNull String input) {
+        return this.getSuggestion(sender, new CommandInput(input));
     }
 
     @Override
-    public List<String> getSuggestion(@NonNull CommandInput commandInput) {
+    public List<String> getSuggestion(@NonNull DreamSender<?> sender, @NonNull CommandInput commandInput) {
         return this.commandMap.entrySet()
                 .stream()
                 .filter(entry -> commandInput.getLabel().equalsIgnoreCase(entry.getKey()))
-                .map(entry -> entry.getValue().getSuggestion(commandInput))
+                .map(entry -> entry.getValue().getSuggestion(sender, commandInput))
                 .findAny()
                 .orElse(new ArrayList<>());
     }

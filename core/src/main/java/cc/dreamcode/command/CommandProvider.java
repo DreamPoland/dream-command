@@ -15,13 +15,13 @@ import java.util.List;
 
 public interface CommandProvider {
 
-    List<String> getSuggestion(@NonNull String input);
+    List<String> getSuggestion(@NonNull DreamSender<?> sender, @NonNull String input);
 
-    List<String> getSuggestion(@NonNull CommandInput commandInput);
+    List<String> getSuggestion(@NonNull DreamSender<?> sender, @NonNull CommandInput commandInput);
 
-    CommandProviderImpl call(@NonNull DreamSender<?> dreamSender, @NonNull String input);
+    CommandProviderImpl call(@NonNull DreamSender<?> sender, @NonNull String input);
 
-    CommandProviderImpl call(@NonNull DreamSender<?> dreamSender, @NonNull CommandInput commandInput);
+    CommandProviderImpl call(@NonNull DreamSender<?> sender, @NonNull CommandInput commandInput);
 
     CommandProviderImpl register(@NonNull CommandBase commandBase);
 

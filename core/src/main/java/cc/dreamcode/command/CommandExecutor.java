@@ -28,12 +28,9 @@ public class CommandExecutor {
 
     public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull DreamSender<?> sender) throws InvocationTargetException, IllegalAccessException {
 
-        if (!this.commandPathMeta.getSendersType().isEmpty()) {
-            final List<DreamSender.Type> senderTypes = this.commandPathMeta.getSendersType();
-
-            if (!senderTypes.contains(sender.getType())) {
-                throw new InvalidSenderException(senderTypes, "Sender type is unacceptable (" + sender.getType() + ")");
-            }
+        final List<DreamSender.Type> senderTypes = this.commandPathMeta.getSendersType();
+        if (!senderTypes.isEmpty() && !senderTypes.contains(sender.getType())) {
+            throw new InvalidSenderException(senderTypes, "Sender type is unacceptable (" + sender.getType() + ")");
         }
 
         for (String permission : this.commandPathMeta.getPermissions()) {
