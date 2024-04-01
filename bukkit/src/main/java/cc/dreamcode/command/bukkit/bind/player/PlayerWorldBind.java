@@ -1,26 +1,28 @@
-package cc.dreamcode.command.bungee.bind;
+package cc.dreamcode.command.bukkit.bind.player;
 
 import cc.dreamcode.command.DreamSender;
 import cc.dreamcode.command.bind.BindResolver;
 import cc.dreamcode.command.handler.exception.InvalidSenderException;
 import lombok.NonNull;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 
-public class ProxiedPlayerBind implements BindResolver<ProxiedPlayer> {
+public class PlayerWorldBind implements BindResolver<World> {
     @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return ProxiedPlayer.class.isAssignableFrom(type);
+        return World.class.isAssignableFrom(type);
     }
 
     @Override
-    public @NonNull ProxiedPlayer resolveBind(@NonNull DreamSender<?> sender) {
+    public @NonNull World resolveBind(@NonNull DreamSender<?> sender) {
 
-        if (!(sender.getHandler() instanceof ProxiedPlayer)) {
+        if (!(sender.getHandler() instanceof Player)) {
             throw new InvalidSenderException(Collections.singletonList(DreamSender.Type.CLIENT), "Sender type is unacceptable (" + sender.getType() + ")");
         }
 
-        return (ProxiedPlayer) sender.getHandler();
+        final Player player = (Player) sender.getHandler();
+        return player.getWorld();
     }
 }

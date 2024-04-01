@@ -2,7 +2,9 @@ package cc.dreamcode.command.bungee;
 
 import cc.dreamcode.command.CommandProviderImpl;
 import cc.dreamcode.command.bungee.bind.BungeeSenderBind;
+import cc.dreamcode.command.bungee.bind.CommandSenderBind;
 import cc.dreamcode.command.bungee.bind.ProxiedPlayerBind;
+import cc.dreamcode.command.bungee.bind.player.PlayerServerBind;
 import cc.dreamcode.command.bungee.resolver.ProxiedPlayerTransformer;
 import cc.dreamcode.command.bungee.suggestion.supplier.AllPlayerSupplier;
 import lombok.NonNull;
@@ -17,6 +19,8 @@ public class BungeeCommandProvider extends CommandProviderImpl {
 
         this.registerBind(new BungeeSenderBind());
         this.registerBind(new ProxiedPlayerBind());
+        this.registerBind(new CommandSenderBind());
+        this.registerBind(new PlayerServerBind());
 
         this.registerTransformer(new ProxiedPlayerTransformer(plugin));
 
