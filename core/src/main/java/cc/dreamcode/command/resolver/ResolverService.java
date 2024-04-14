@@ -2,11 +2,13 @@ package cc.dreamcode.command.resolver;
 
 import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
 import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
+@Getter
 @RequiredArgsConstructor
 public class ResolverService {
 

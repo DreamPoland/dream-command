@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OptArg {
-    Class<?> generic() default Class.class;
+    String value() default "";
 
-    String name() default "";
+    Class<?> generic() default String.class;
 }

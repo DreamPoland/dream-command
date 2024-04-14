@@ -40,12 +40,12 @@ public class CommandMeta {
 
         final Permission[] permissionsArray = commandBase.getClass().getAnnotationsByType(Permission.class);
         this.basePermissions = Arrays.stream(permissionsArray)
-                .map(Permission::name)
+                .map(Permission::value)
                 .toArray(String[]::new);
 
         final Sender[] sendersArray = commandBase.getClass().getAnnotationsByType(Sender.class);
         this.baseSenderTypes = Arrays.stream(sendersArray)
-                .map(Sender::type)
+                .map(Sender::value)
                 .toArray(DreamSender.Type[]::new);
 
         this.commandPaths = commandBase.getCommandPaths(this);

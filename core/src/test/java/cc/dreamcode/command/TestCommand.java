@@ -37,7 +37,7 @@ class TestCommand {
         System.out.println(this.commandProvider.getSuggestion(this.testSender, input));
     }
 
-    @Permission(name = "test")
+    @Permission("test")
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 

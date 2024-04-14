@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Args {
-    String name() default "";
+    String value() default "";
 
     int min() default -1;
 

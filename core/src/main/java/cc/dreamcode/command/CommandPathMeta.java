@@ -74,7 +74,7 @@ public class CommandPathMeta {
 
             if (optionalArg.isPresent()) {
                 final Arg arg = (Arg) optionalArg.get();
-                final String name = Objects.equals(arg.name(), "") ? parameter.getName() : arg.name();
+                final String name = Objects.equals(arg.value(), "") ? parameter.getName() : arg.value();
 
                 this.paramClasses.put(atomicNameIndex.get(), parameter.getType());
                 this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARG, name));
@@ -89,7 +89,7 @@ public class CommandPathMeta {
 
             if (optionalArgs.isPresent()) {
                 final Args args = (Args) optionalArgs.get();
-                final String name = Objects.equals(args.name(), "") ? parameter.getName() : args.name();
+                final String name = Objects.equals(args.value(), "") ? parameter.getName() : args.value();
 
                 this.paramClasses.put(atomicNameIndex.get(), parameter.getType());
                 this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARGS, name));
@@ -104,7 +104,7 @@ public class CommandPathMeta {
 
             if (optionalOptArg.isPresent()) {
                 final OptArg optArg = (OptArg) optionalOptArg.get();
-                final String name = Objects.equals(optArg.name(), "") ? parameter.getName() : optArg.name();
+                final String name = Objects.equals(optArg.value(), "") ? parameter.getName() : optArg.value();
 
                 this.paramClasses.put(atomicNameIndex.get(), parameter.getType());
                 this.paramNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, name));
@@ -157,12 +157,12 @@ public class CommandPathMeta {
 
         final Permission[] permissionsArray = this.method.getAnnotationsByType(Permission.class);
         this.pathPermissions = Arrays.stream(permissionsArray)
-                .map(Permission::name)
+                .map(Permission::value)
                 .toArray(String[]::new);
 
         final Sender[] sendersArray = this.method.getAnnotationsByType(Sender.class);
         this.pathSenderTypes = Arrays.stream(sendersArray)
-                .map(Sender::type)
+                .map(Sender::value)
                 .toArray(DreamSender.Type[]::new);
 
         this.commandExecutor = new CommandExecutor(commandMeta, this);
