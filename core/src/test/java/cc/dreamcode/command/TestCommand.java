@@ -1,13 +1,15 @@
 package cc.dreamcode.command;
 
-import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Completion;
 import cc.dreamcode.command.annotation.Executor;
+import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 class TestCommand {
 
@@ -27,7 +29,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example type nah";
+        String input = "/example type na";
         this.commandProvider.call(this.testSender, input);
     }
 
@@ -43,8 +45,8 @@ class TestCommand {
 
         @Executor(path = "type")
         @Completion(arg = "exampleEnum", value = "@enum")
-        void suggestEnum(@Arg ExampleEnum exampleEnum) {
-            System.out.println(exampleEnum);
+        void suggestEnum(@OptArg(generic = ExampleEnum.class) Optional<ExampleEnum> exampleEnum) {
+            System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
         }
     }
 }

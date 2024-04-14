@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 public @interface OptArg {
     String value() default "";
 
-    Class<?> generic() default String.class;
+    Class<?> generic() default Class.class;
 }
