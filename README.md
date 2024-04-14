@@ -29,7 +29,7 @@ For better support, add `-parameters` flag to your compiler.
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>{platform}</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ maven { url "https://repo.dreamcode.cc/releases" }
 ```
 
 ```groovy
-implementation "cc.dreamcode.command:{platform}:2.0.0"
+implementation "cc.dreamcode.command:{platform}:2.0.1"
 ```
 
 ## Example
