@@ -290,7 +290,12 @@ public class CommandPathMeta {
             }
 
             final OptArg optArg = (OptArg) optionalAnnotation.get();
-            suggestionParamType = optArg.generic();
+            final Class<?> optionalType = optArg.generic();
+            if (optionalType.equals(Class.class)) {
+                throw new RuntimeException("Optional requires generic argument in @OptArg annotation");
+            }
+
+            suggestionParamType = optionalType;
         }
 
         suggestionService.getSuggestion(suggestionParamType, completion)
