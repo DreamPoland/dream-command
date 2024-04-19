@@ -16,6 +16,7 @@ public class BungeeCommandProvider extends CommandProviderImpl {
         super(true);
 
         this.setCommandRegistry(new BungeeCommandRegistry(plugin, this));
+        this.setCommandScheduler(new BungeeCommandScheduler(plugin));
 
         this.registerBind(new BungeeSenderBind());
         this.registerBind(new ProxiedPlayerBind());

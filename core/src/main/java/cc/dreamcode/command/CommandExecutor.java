@@ -26,7 +26,7 @@ public class CommandExecutor {
     private final CommandMeta commandMeta;
     private final CommandPathMeta commandPathMeta;
 
-    public void invoke(@NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull DreamSender<?> sender) throws InvocationTargetException, IllegalAccessException {
+    public void invoke(@NonNull CommandScheduler commandScheduler, @NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull DreamSender<?> sender) {
 
         final List<DreamSender.Type> senderTypes = this.commandPathMeta.getSendersType();
         if (!senderTypes.isEmpty() && !senderTypes.contains(sender.getType())) {
@@ -154,6 +154,20 @@ public class CommandExecutor {
             }
         }
 
-        this.commandPathMeta.getMethod().invoke(this.commandMeta.getCommandBase(), objects.build().toArray());
+        final Runnable invoke = () -> {
+            try {
+                this.commandPathMeta.getMethod().invoke(this.commandMeta.getCommandBase(), objects.build().toArray());
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException("Cannot invoke command-path /" + this.commandMeta.getCommandContext().getName() + " " + this.commandPathMeta.getPath(), e);
+            }
+        };
+
+        if (this.commandPathMeta.isAsync()) {
+            commandScheduler.async(invoke);
+        }
+        else {
+            commandScheduler.sync(invoke);
+        }
     }
 }

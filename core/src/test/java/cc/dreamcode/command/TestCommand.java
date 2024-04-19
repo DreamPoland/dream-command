@@ -1,5 +1,6 @@
 package cc.dreamcode.command;
 
+import cc.dreamcode.command.annotation.Async;
 import cc.dreamcode.command.annotation.Command;
 import cc.dreamcode.command.annotation.Completion;
 import cc.dreamcode.command.annotation.Executor;
@@ -29,7 +30,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example type na";
+        String input = "/example type nah";
         this.commandProvider.call(this.testSender, input);
     }
 
@@ -43,9 +44,16 @@ class TestCommand {
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
+        @Async
         @Executor(path = "type")
         @Completion(arg = "exampleEnum", value = "@enum")
         void suggestEnum(@OptArg(generic = ExampleEnum.class) Optional<ExampleEnum> exampleEnum) {
+            System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
+        }
+
+        @Executor(path = "typesafe")
+        @Completion(arg = "exampleEnum", value = "notakkk")
+        void suggestSafeEnum(@OptArg(generic = ExampleEnum.class) Optional<ExampleEnum> exampleEnum) {
             System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
         }
     }

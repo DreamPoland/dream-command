@@ -1,6 +1,7 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Args;
+import cc.dreamcode.command.annotation.Async;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.command.handler.exception.InvalidInputException;
@@ -25,8 +26,11 @@ public class CommandMeta {
 
     private final CommandContext commandContext;
     private final CommandBase commandBase;
+
+    private final boolean async;
     private final String[] basePermissions;
     private final DreamSender.Type[] baseSenderTypes;
+
     private final List<CommandPathMeta> commandPaths;
 
     private final SuggestionService suggestionService;
@@ -37,6 +41,8 @@ public class CommandMeta {
         this.resolverService = resolverService;
         this.commandContext = commandContext;
         this.commandBase = commandBase;
+
+        this.async = commandBase.getClass().getAnnotation(Async.class) != null;
 
         final Permission[] permissionsArray = commandBase.getClass().getAnnotationsByType(Permission.class);
         this.basePermissions = Arrays.stream(permissionsArray)

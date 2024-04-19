@@ -24,7 +24,6 @@ import cc.dreamcode.command.suggestion.filter.SuggestionFilter;
 import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
 import lombok.NonNull;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +42,7 @@ public class CommandProviderImpl implements CommandProvider {
     private final SuggestionService suggestionService;
 
     private CommandRegistry commandRegistry;
+    private CommandScheduler commandScheduler;
 
     private InvalidPermissionHandler invalidPermissionHandler;
     private InvalidSenderHandler invalidSenderHandler;
@@ -58,6 +58,10 @@ public class CommandProviderImpl implements CommandProvider {
         this.resolverService = new ResolverService(this.resolverCache);
         this.suggestionCache = new SuggestionCache();
         this.suggestionService = new SuggestionService(this.suggestionCache);
+
+        this.commandScheduler = runnable -> {
+            throw new RuntimeException("Cannot invoke async method without async command-scheduler implementation");
+        };
 
         if (registerDefaults) {
             this.registerExtension(new DefaultTransformers());
@@ -122,10 +126,8 @@ public class CommandProviderImpl implements CommandProvider {
 
             final CommandPathMeta commandPathMeta = optionalCommandPathMeta.get();
             final CommandExecutor commandExecutor = commandPathMeta.getCommandExecutor();
-            commandExecutor.invoke(this.resolverService, this.bindService, commandInput, dreamSender);
-        }
-        catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+
+            commandExecutor.invoke(this.commandScheduler, this.resolverService, this.bindService, commandInput, dreamSender);
         }
         catch (InvalidInputException e) {
             if (this.invalidInputHandler != null) {
@@ -327,6 +329,17 @@ public class CommandProviderImpl implements CommandProvider {
     @Override
     public CommandProviderImpl unregisterAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to) {
         this.resolverCache.removeAssignableClass(from, to);
+        return this;
+    }
+
+    @Override
+    public CommandScheduler getCommandScheduler() {
+        return this.commandScheduler;
+    }
+
+    @Override
+    public CommandProviderImpl setCommandScheduler(@NonNull CommandScheduler commandScheduler) {
+        this.commandScheduler = commandScheduler;
         return this;
     }
 }

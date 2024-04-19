@@ -22,6 +22,7 @@ public class BukkitCommandProvider extends CommandProviderImpl {
         super(true);
 
         this.setCommandRegistry(new BukkitCommandRegistry(plugin, this));
+        this.setCommandScheduler(new BukkitCommandScheduler(plugin));
 
         this.registerBind(new BukkitSenderBind());
         this.registerBind(new PlayerBind());

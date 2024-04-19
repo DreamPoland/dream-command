@@ -70,4 +70,8 @@ public interface CommandProvider {
     CommandProviderImpl registerAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to);
 
     CommandProviderImpl unregisterAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to);
+
+    CommandScheduler getCommandScheduler();
+
+    CommandProviderImpl setCommandScheduler(@NonNull CommandScheduler commandScheduler);
 }

@@ -2,6 +2,7 @@ package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Args;
+import cc.dreamcode.command.annotation.Async;
 import cc.dreamcode.command.annotation.Completion;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
@@ -49,6 +50,7 @@ public class CommandPathMeta {
     private final String path;
     private final String description;
 
+    private final boolean async;
     private final String[] pathPermissions;
     private final DreamSender.Type[] pathSenderTypes;
 
@@ -162,6 +164,8 @@ public class CommandPathMeta {
         this.path = executor.path();
         this.description = executor.description();
 
+        this.async = this.method.getAnnotation(Async.class) != null;
+
         final Permission[] permissionsArray = this.method.getAnnotationsByType(Permission.class);
         this.pathPermissions = Arrays.stream(permissionsArray)
                 .map(Permission::value)
@@ -173,6 +177,14 @@ public class CommandPathMeta {
                 .toArray(DreamSender.Type[]::new);
 
         this.commandExecutor = new CommandExecutor(commandMeta, this);
+    }
+
+    public boolean isAsync() {
+        if (this.commandMeta.isAsync()) {
+            return true;
+        }
+
+        return this.async;
     }
 
     public List<String> getPermissions() {
