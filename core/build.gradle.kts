@@ -1,6 +1,6 @@
 dependencies {
     // -- dream-utilities --
-    implementation("cc.dreamcode:utilities:1.3.0")
+    implementation("cc.dreamcode:utilities:1.3.2")
 
     // -- tests --
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
