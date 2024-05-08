@@ -262,7 +262,7 @@ public class CommandPathMeta {
             final int max = args.max() == -1 ? argumentParamLength : args.max();
 
             if (argumentParamLength >= min && argumentParamLength <= max) {
-                final String displayName = this.argDisplayNames.get(index).getValue();
+                final String displayName = this.argDisplayNames.get(argumentParamLength).getValue();
                 listBuilder.add(displayName);
             }
         });
