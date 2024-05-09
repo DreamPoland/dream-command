@@ -26,7 +26,7 @@ public class CommandExecutor {
     private final CommandMeta commandMeta;
     private final CommandPathMeta commandPathMeta;
 
-    public void invoke(@NonNull CommandScheduler commandScheduler, @NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull CommandInput commandInput, @NonNull DreamSender<?> sender) {
+    public void execute(@NonNull CommandScheduler commandScheduler, @NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull DreamSender<?> sender, @NonNull CommandInput commandInput) {
 
         final List<DreamSender.Type> senderTypes = this.commandPathMeta.getSendersType();
         if (!senderTypes.isEmpty() && !senderTypes.contains(sender.getType())) {

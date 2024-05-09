@@ -127,7 +127,7 @@ public class CommandProviderImpl implements CommandProvider {
             final CommandPathMeta commandPathMeta = optionalCommandPathMeta.get();
             final CommandExecutor commandExecutor = commandPathMeta.getCommandExecutor();
 
-            commandExecutor.invoke(this.commandScheduler, this.resolverService, this.bindService, commandInput, dreamSender);
+            commandExecutor.execute(this.commandScheduler, this.resolverService, this.bindService, dreamSender, commandInput);
         }
         catch (InvalidInputException e) {
             if (this.invalidInputHandler != null) {
