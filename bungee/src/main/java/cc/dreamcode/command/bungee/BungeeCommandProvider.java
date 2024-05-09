@@ -6,7 +6,7 @@ import cc.dreamcode.command.bungee.bind.CommandSenderBind;
 import cc.dreamcode.command.bungee.bind.ProxiedPlayerBind;
 import cc.dreamcode.command.bungee.bind.player.PlayerServerBind;
 import cc.dreamcode.command.bungee.resolver.ProxiedPlayerTransformer;
-import cc.dreamcode.command.bungee.suggestion.supplier.AllPlayerSupplier;
+import cc.dreamcode.command.bungee.suggestion.AllPlayersSuggestion;
 import lombok.NonNull;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -25,8 +25,9 @@ public class BungeeCommandProvider extends CommandProviderImpl {
 
         this.registerTransformer(new ProxiedPlayerTransformer(plugin));
 
-        this.registerSuggestion("@allplayer", new AllPlayerSupplier(plugin));
-        this.registerSuggestion("@allplayers", new AllPlayerSupplier(plugin));
+        final AllPlayersSuggestion allPlayersSuggestion = new AllPlayersSuggestion(plugin);
+        this.registerSuggestion("@allplayers", allPlayersSuggestion);
+        this.registerSuggestion("@all-players", allPlayersSuggestion);
     }
 
     public static BungeeCommandProvider create(@NonNull Plugin plugin) {

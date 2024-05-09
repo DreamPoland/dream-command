@@ -1,24 +1,24 @@
-package cc.dreamcode.command.bungee.suggestion.supplier;
+package cc.dreamcode.command.bukkit.suggestion;
 
 import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Plugin;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class AllPlayerSupplier implements SuggestionSupplier {
+public class AllPlayersSuggestion implements SuggestionSupplier {
 
     private final Plugin plugin;
 
     @Override
     public List<String> supply(@NonNull Class<?> paramType) {
-        return this.plugin.getProxy().getPlayers()
+        return this.plugin.getServer().getOnlinePlayers()
                 .stream()
-                .map(ProxiedPlayer::getName)
+                .map(Player::getName)
                 .collect(Collectors.toList());
     }
 }

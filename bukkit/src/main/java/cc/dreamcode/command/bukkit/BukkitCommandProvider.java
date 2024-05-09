@@ -10,9 +10,11 @@ import cc.dreamcode.command.bukkit.bind.player.PlayerGamemodeBind;
 import cc.dreamcode.command.bukkit.bind.player.PlayerInventoryBind;
 import cc.dreamcode.command.bukkit.bind.player.PlayerLocationBind;
 import cc.dreamcode.command.bukkit.bind.player.PlayerWorldBind;
+import cc.dreamcode.command.bukkit.resolver.OfflinePlayerTransformer;
 import cc.dreamcode.command.bukkit.resolver.PlayerTransformer;
 import cc.dreamcode.command.bukkit.resolver.WorldTransformer;
-import cc.dreamcode.command.bukkit.suggestion.supplier.AllPlayerSupplier;
+import cc.dreamcode.command.bukkit.suggestion.AllPlayersSuggestion;
+import cc.dreamcode.command.bukkit.suggestion.OfflinePlayersSuggestion;
 import lombok.NonNull;
 import org.bukkit.plugin.Plugin;
 
@@ -37,9 +39,15 @@ public class BukkitCommandProvider extends CommandProviderImpl {
 
         this.registerTransformer(new PlayerTransformer(plugin));
         this.registerTransformer(new WorldTransformer(plugin));
+        this.registerTransformer(new OfflinePlayerTransformer(plugin));
 
-        this.registerSuggestion("@allplayer", new AllPlayerSupplier(plugin));
-        this.registerSuggestion("@allplayers", new AllPlayerSupplier(plugin));
+        final AllPlayersSuggestion allPlayersSuggestion = new AllPlayersSuggestion(plugin);
+        this.registerSuggestion("@allplayers", allPlayersSuggestion);
+        this.registerSuggestion("@all-players", allPlayersSuggestion);
+
+        final OfflinePlayersSuggestion offlinePlayersSuggestion = new OfflinePlayersSuggestion(plugin);
+        this.registerSuggestion("@offlineplayers", offlinePlayersSuggestion);
+        this.registerSuggestion("@offline-players", offlinePlayersSuggestion);
     }
 
     public static BukkitCommandProvider create(@NonNull Plugin plugin) {
