@@ -115,7 +115,8 @@ public class ExampleCommand implements CommandBase {
     // bind is a class resolved from command-sender instance
     // provided without any command annotation in method params
     //
-    // can bind Server class instance from sender.getServer(), or Player by object-cast
+    // executor can bind Server class instance from sender.getServer(), or Player from object-cast
+    // (object-cast - for example: cow.class -> entity.class)
     @Executor(path = "sender", description = "Executor to send message to sender.")
     void bind(TestSender testSender, Server server) {
         testSender.sendMessage("You're on " + server.getName());
