@@ -17,7 +17,7 @@ public class BungeeCommandRegistry implements CommandRegistry {
 
     @Override
     public void register(@NonNull CommandContext commandContext, @NonNull CommandMeta commandMeta) {
-        final BungeeCommandWrapper bungeeCommandWrapper = new BungeeCommandWrapper(commandContext, this.bungeeCommandProvider);
+        final BungeeCommandWrapper bungeeCommandWrapper = new BungeeCommandWrapper(this.bungeeCommandProvider, commandContext);
         this.plugin.getProxy().getPluginManager().registerCommand(this.plugin, bungeeCommandWrapper);
     }
 
