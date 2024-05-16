@@ -7,6 +7,7 @@ import cc.dreamcode.command.resolver.transformer.BigIntegerTransformer;
 import cc.dreamcode.command.resolver.transformer.BooleanTransformer;
 import cc.dreamcode.command.resolver.transformer.ByteTransformer;
 import cc.dreamcode.command.resolver.transformer.CharacterTransformer;
+import cc.dreamcode.command.resolver.transformer.DoubleTransformer;
 import cc.dreamcode.command.resolver.transformer.DurationTransformer;
 import cc.dreamcode.command.resolver.transformer.EnumTransformer;
 import cc.dreamcode.command.resolver.transformer.FloatTransformer;
@@ -19,6 +20,7 @@ import cc.dreamcode.command.resolver.transformer.array.BigIntegerArrayTransforme
 import cc.dreamcode.command.resolver.transformer.array.BooleanArrayTransformer;
 import cc.dreamcode.command.resolver.transformer.array.ByteArrayTransformer;
 import cc.dreamcode.command.resolver.transformer.array.CharacterArrayTransformer;
+import cc.dreamcode.command.resolver.transformer.array.DoubleArrayTransformer;
 import cc.dreamcode.command.resolver.transformer.array.DurationArrayTransformer;
 import cc.dreamcode.command.resolver.transformer.array.FloatArrayTransformer;
 import cc.dreamcode.command.resolver.transformer.array.IntegerArrayTransformer;
@@ -46,6 +48,8 @@ public class DefaultTransformers implements CommandExtension {
         commandProvider.registerAssignableClass(Float.class, float.class);
         commandProvider.registerTransformer(new IntegerTransformer());
         commandProvider.registerAssignableClass(Integer.class, int.class);
+        commandProvider.registerTransformer(new DoubleTransformer());
+        commandProvider.registerAssignableClass(Double.class, double.class);
         commandProvider.registerTransformer(new LongTransformer());
         commandProvider.registerAssignableClass(Long.class, long.class);
         commandProvider.registerTransformer(new ShortTransformer());
@@ -65,6 +69,8 @@ public class DefaultTransformers implements CommandExtension {
         commandProvider.registerAssignableClass(Float[].class, float[].class);
         commandProvider.registerTransformer(new IntegerArrayTransformer());
         commandProvider.registerAssignableClass(Integer[].class, int[].class);
+        commandProvider.registerTransformer(new DoubleArrayTransformer());
+        commandProvider.registerAssignableClass(Double[].class, double[].class);
         commandProvider.registerTransformer(new LongArrayTransformer());
         commandProvider.registerAssignableClass(Long[].class, long[].class);
         commandProvider.registerTransformer(new ShortArrayTransformer());
