@@ -25,8 +25,6 @@ public interface CommandProvider {
 
     CommandProviderImpl register(@NonNull CommandBase commandBase);
 
-    CommandProviderImpl register(@NonNull CommandBase commandBase, @NonNull Object instance);
-
     CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase);
 
     CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase, @NonNull Object instance);
