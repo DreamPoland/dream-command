@@ -3,8 +3,10 @@ package cc.dreamcode.command;
 import cc.dreamcode.command.annotation.Command;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Data
+@RequiredArgsConstructor
 public class CommandContext {
 
     private final String name;
