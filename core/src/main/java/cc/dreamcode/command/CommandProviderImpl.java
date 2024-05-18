@@ -173,7 +173,12 @@ public class CommandProviderImpl implements CommandProvider {
             throw new RuntimeException("Cannot find @Command annotation in class " + commandBase.getClass().getSimpleName());
         }
 
-        final CommandContext commandContext = new CommandContext(command);
+        return this.register(new CommandContext(command), commandBase);
+    }
+
+    @Override
+    public CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
+
         final CommandMeta commandMeta = new CommandMeta(this.suggestionService, this.resolverService, commandContext, commandBase);
 
         this.commandMap.put(commandContext.getName(), commandMeta);

@@ -25,6 +25,8 @@ public interface CommandProvider {
 
     CommandProviderImpl register(@NonNull CommandBase commandBase);
 
+    CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase);
+
     CommandProviderImpl unregister(@NonNull CommandContext commandContext);
 
     CommandProviderImpl registerExtension(@NonNull CommandExtension commandExtension);
