@@ -26,6 +26,7 @@ public class CommandMeta {
 
     private final CommandContext commandContext;
     private final CommandBase commandBase;
+    private final Object commandInstance;
 
     private final boolean async;
     private final String[] basePermissions;
@@ -36,11 +37,12 @@ public class CommandMeta {
     private final SuggestionService suggestionService;
     private final ResolverService resolverService;
 
-    public CommandMeta(@NonNull SuggestionService suggestionService, @NonNull ResolverService resolverService, @NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
+    public CommandMeta(@NonNull SuggestionService suggestionService, @NonNull ResolverService resolverService, @NonNull CommandContext commandContext, @NonNull CommandBase commandBase, @NonNull Object commandInstance) {
         this.suggestionService = suggestionService;
         this.resolverService = resolverService;
         this.commandContext = commandContext;
         this.commandBase = commandBase;
+        this.commandInstance = commandInstance;
 
         this.async = commandBase.getClass().getAnnotation(Async.class) != null;
 

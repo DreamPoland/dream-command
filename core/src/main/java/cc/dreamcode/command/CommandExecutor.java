@@ -156,7 +156,7 @@ public class CommandExecutor {
 
         final Runnable invoke = () -> {
             try {
-                this.commandPathMeta.getMethod().invoke(this.commandMeta.getCommandBase(), objects.build().toArray());
+                this.commandPathMeta.getMethod().invoke(this.commandMeta.getCommandInstance(), objects.build().toArray());
             }
             catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Cannot invoke command-path /" + this.commandMeta.getCommandContext().getName() + " " + this.commandPathMeta.getPath(), e);
