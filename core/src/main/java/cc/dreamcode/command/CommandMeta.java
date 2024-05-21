@@ -86,7 +86,10 @@ public class CommandMeta {
             listBuilder.addAll(commandPath.getSuggestion(this.suggestionService, commandInput));
         }
 
-        return listBuilder.build();
+        return listBuilder.build()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public Stream<CommandPathMeta> findExecutor(@NonNull CommandInput commandInput, boolean throwInvalidInput) {

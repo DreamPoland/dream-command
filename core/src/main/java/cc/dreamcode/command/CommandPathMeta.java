@@ -240,9 +240,12 @@ public class CommandPathMeta {
         }
 
         final int argumentLength = arguments.length - 1 == -1 ? (commandInput.isSpaceAtTheEnd() ? 0 : -1) : commandInput.isSpaceAtTheEnd() ? arguments.length : arguments.length - 1;
-        final int argumentParamLength = argumentLength - splitPathLength;
+        if (argumentLength == -1) {
+            return listBuilder.build();
+        }
 
-        if (argumentParamLength != 0 && splitPathLength > argumentParamLength) {
+        final int argumentParamLength = argumentLength - splitPathLength;
+        if (argumentParamLength < 0) {
             listBuilder.add(splitPath[argumentLength]);
             return listBuilder.build();
         }
