@@ -171,7 +171,7 @@ public class ExampleCommand implements CommandBase {
         player.setGamemode(gamemode == null ? Gamemode.SURVIVAL : gamemode);
     }
 
-    // executor with enum
+    // executor with enum and long path
     // input: /executor type some <enum>
     //
     // enum arguments are not requiring special transformer
