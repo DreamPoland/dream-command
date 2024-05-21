@@ -1,6 +1,6 @@
 # Dream-Command (2.0)
 
-An advanced annotation-based command framework for simple command creation.
+Advanced annotation-based command library for simple command creation.
 
 
 ## Platforms
