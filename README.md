@@ -1,6 +1,6 @@
 # Dream-Command (2.0)
 
-Simple command library for easy command creations.
+An advanced annotation-based command framework for simple command creation.
 
 
 ## Platforms
@@ -9,7 +9,7 @@ Simple command library for easy command creations.
 - Bungee/Waterfall - [bungee](https://github.com/DreamPoland/dream-command/tree/master/bungee)
 
 ### Warning
-Bukkit/Bungee module require that method: (on-enable)
+Bukkit/Bungee modules require this method on startup:
 
 `BukkitCommandProvider.create(this)` or `BungeeCommandProvider.create(this)`
 
