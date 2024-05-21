@@ -47,9 +47,9 @@ implementation "cc.dreamcode.command:{platform}:2.0.15"
 ```java
 // makes all executors async, without annotation is sync
 @Async
-// adds permission to all executors
+// adds permission requirement to all executors
 @Permission("example.permission.base")
-// adds console/client check to all executors
+// adds console/client requirement to all executors
 @Sender(DreamSender.Type.CLIENT)
 // provide command context (label/name, aliases) using annotation @Command
 // description is used by custom help/usage-builder
@@ -58,9 +58,9 @@ public class ExampleCommand implements CommandBase {
 
     // makes this executor async
     @Async
-    // adds permission to this executor
+    // adds permission requirement to this executor
     @Permission("example.permission.executor")
-    // adds console/client to this executor
+    // adds console/client requirement to this executor
     @Sender(DreamSender.Type.CLIENT)
     // empty executor without arguments
     // input: /example
