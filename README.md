@@ -172,7 +172,7 @@ public class ExampleCommand implements CommandBase {
     }
 
     // executor with enum
-    // input: /executor type <enum>
+    // input: /executor type some <enum>
     //
     // enum arguments are not requiring special transformer
     // they're transforming by self to enum that you're requiring
@@ -182,7 +182,7 @@ public class ExampleCommand implements CommandBase {
     //
     // and by @CompletionFilter you can filter values like streams
     // filter annotation requires SuggestionFilter registry in command-provider
-    @Executor(path = "type")
+    @Executor(path = "type some")
     @Completion(arg = "exampleEnum", value = "@enum", filter = @CompletionFilter(name = "limit", value = "5"))
     void suggestEnum(@Arg ExampleEnum exampleEnum) {
         System.out.println(exampleEnum);
