@@ -45,7 +45,7 @@ implementation "cc.dreamcode.command:{platform}:2.0.15"
 ## Example
 
 ```java
-// makes all executors async, without annotation is sync
+// makes all executors async
 @Async
 // adds permission requirement to all executors
 @Permission("example.permission.base")
