@@ -59,13 +59,13 @@ class TestCommand {
 
         @Executor(path = "type")
         @Completion(arg = "exampleEnum", value = "@enum")
-        void suggestEnum(@OptArg(generic = ExampleEnum.class) Optional<ExampleEnum> exampleEnum) {
+        void suggestEnum(@OptArg Optional<ExampleEnum> exampleEnum) {
             System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
         }
 
         @Executor(path = "typesafe")
         @Completion(arg = "exampleEnum", value = "notakkk")
-        void suggestSafeEnum(@OptArg(generic = ExampleEnum.class) Optional<ExampleEnum> exampleEnum) {
+        void suggestSafeEnum(@OptArg Optional<ExampleEnum> exampleEnum) {
             System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
         }
 

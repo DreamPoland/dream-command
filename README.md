@@ -165,7 +165,6 @@ public class ExampleCommand implements CommandBase {
     // it is recommended to put these annotation at the end of @Arg annotations
     //
     // it can be optional by setting Optional<Gamemode>
-    // and adding generic: @OptArg(generic = Gamemode.class)
     @Executor(path = "opt", description = "Executor to registry optional value.")
     void optional_value(@Arg Player player, @OptArg Gamemode gamemode) {
         player.setGamemode(gamemode == null ? Gamemode.SURVIVAL : gamemode);

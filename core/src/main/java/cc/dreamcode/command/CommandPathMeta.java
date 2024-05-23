@@ -11,12 +11,16 @@ import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
+import cc.dreamcode.utilities.collection.element.Duo;
+import cc.dreamcode.utilities.option.Option;
 import lombok.Data;
 import lombok.NonNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,7 +48,7 @@ public class CommandPathMeta {
     private final Map<Integer, Annotation[]> paramAnnotations;
     private final Map<Integer, Class<?>> paramArgs;
     private final Map<Integer, Class<?>> paramMultiArgs;
-    private final Map<Integer, Class<?>> paramOptionalArgs;
+    private final Map<Integer, Duo<Class<?>, Boolean>> paramOptionalArgs; // true if is optional type
     private final Map<Integer, Class<?>> paramBinds;
 
     private final String path;
@@ -114,7 +118,19 @@ public class CommandPathMeta {
                 final OptArg optArg = (OptArg) optionalOptArg.get();
                 final String name = Objects.equals(optArg.value(), "") ? parameter.getName() : optArg.value();
 
-                this.argClasses.put(atomicNameIndex.get(), parameter.getType());
+                Class<?> rawType = parameter.getType();
+                if (Optional.class.isAssignableFrom(rawType) || Option.class.isAssignableFrom(rawType)) {
+
+                    ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+                    if (parameterizedType.getActualTypeArguments().length == 1) {
+                        Type paramType = parameterizedType.getActualTypeArguments()[0];
+                        if (paramType instanceof Class<?>) {
+                            rawType = (Class<?>) paramType;
+                        }
+                    }
+                }
+
+                this.argClasses.put(atomicNameIndex.get(), rawType);
                 this.argNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, name));
                 this.argDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, "[" + name + "]"));
             }
@@ -125,7 +141,9 @@ public class CommandPathMeta {
         this.paramOptionalArgs = new HashMap<>();
         this.paramBinds = new HashMap<>();
 
-        for (int index = 0; index < this.method.getParameterTypes().length; index++) {
+        for (int index = 0; index < this.method.getParameters().length; index++) {
+
+            final Parameter parameter = this.method.getParameters()[index];
 
             if (Arrays.stream(this.paramAnnotations.get(index))
                     .anyMatch(annotation -> Arg.class.isAssignableFrom(annotation.annotationType()))) {
@@ -138,7 +156,7 @@ public class CommandPathMeta {
                 }
 
                 // arg (transformer)
-                this.paramArgs.put(index, this.method.getParameterTypes()[index]);
+                this.paramArgs.put(index, parameter.getType());
                 continue;
             }
 
@@ -146,19 +164,33 @@ public class CommandPathMeta {
                     .anyMatch(annotation -> Args.class.isAssignableFrom(annotation.annotationType()))) {
 
                 // multi-arg (transformer)
-                this.paramMultiArgs.put(index, this.method.getParameterTypes()[index]);
+                this.paramMultiArgs.put(index, parameter.getType());
                 continue;
             }
 
             if (Arrays.stream(this.paramAnnotations.get(index))
                     .anyMatch(annotation -> OptArg.class.isAssignableFrom(annotation.annotationType()))) {
 
-                this.paramOptionalArgs.put(index, this.method.getParameterTypes()[index]);
-                continue;
+                Class<?> rawOptionalType = parameter.getType();
+                if (!Optional.class.isAssignableFrom(rawOptionalType) && !Option.class.isAssignableFrom(rawOptionalType)) {
+                    this.paramOptionalArgs.put(index, new Duo<>(rawOptionalType, false));
+                    continue;
+                }
+
+                ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+                if (parameterizedType.getActualTypeArguments().length == 1) {
+                    Type paramType = parameterizedType.getActualTypeArguments()[0];
+                    if (paramType instanceof Class<?>) {
+                        this.paramOptionalArgs.put(index, new Duo<>((Class<?>) paramType, true));
+                        continue;
+                    }
+                }
+
+                throw new RuntimeException("Cannot resolve optional value by index " + index);
             }
 
             // bind
-            this.paramBinds.put(index, this.method.getParameterTypes()[index]);
+            this.paramBinds.put(index, parameter.getType());
         }
 
         this.path = executor.path();
@@ -292,26 +324,7 @@ public class CommandPathMeta {
         }
 
         final Completion completion = optionalCompletion.get();
-
-        Class<?> suggestionParamType = this.argClasses.get(argumentParamLength);
-        if (Optional.class.isAssignableFrom(suggestionParamType)) {
-
-            final Optional<Annotation> optionalAnnotation = Arrays.stream(this.argAnnotations.get(argumentParamLength))
-                    .filter(annotation -> annotation.annotationType().equals(OptArg.class))
-                    .findAny();
-
-            if (!optionalAnnotation.isPresent()) {
-                throw new RuntimeException("Annotation @OptArg not found (critical bug)");
-            }
-
-            final OptArg optArg = (OptArg) optionalAnnotation.get();
-            final Class<?> optionalType = optArg.generic();
-            if (optionalType.equals(Class.class)) {
-                throw new RuntimeException("Optional requires generic argument in @OptArg annotation");
-            }
-
-            suggestionParamType = optionalType;
-        }
+        final Class<?> suggestionParamType = this.argClasses.get(argumentParamLength);
 
         suggestionService.getSuggestion(suggestionParamType, completion)
                 .stream()

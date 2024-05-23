@@ -9,6 +9,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OptArg {
     String value() default "";
-
-    Class<?> generic() default Class.class;
 }

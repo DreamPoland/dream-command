@@ -1,7 +1,6 @@
 package cc.dreamcode.command;
 
 import cc.dreamcode.command.annotation.Args;
-import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.bind.BindService;
 import cc.dreamcode.command.handler.exception.InvalidInputException;
 import cc.dreamcode.command.handler.exception.InvalidPermissionException;
@@ -9,6 +8,7 @@ import cc.dreamcode.command.handler.exception.InvalidSenderException;
 import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
+import cc.dreamcode.utilities.collection.element.Duo;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -66,46 +66,23 @@ public class CommandExecutor {
 
             if (this.getCommandPathMeta().getParamOptionalArgs().containsKey(index)) {
 
-                final Class<?> paramType = this.getCommandPathMeta().getParamOptionalArgs().get(index);
+                final Duo<Class<?>, Boolean> paramOptDuo = this.getCommandPathMeta().getParamOptionalArgs().get(index);
+                final Class<?> rawType = paramOptDuo.getFirst();
+                final boolean optional = paramOptDuo.getSecond();
+
                 if (params.length <= atomicArg.get()) {
-                    objects.add(Optional.class.isAssignableFrom(paramType) ? Optional.empty() : null);
+                    objects.add(optional ? Optional.empty() : null);
                     atomicArg.incrementAndGet();
                     continue;
                 }
 
-                final Optional<Annotation> optionalAnnotation = Arrays.stream(this.getCommandPathMeta().getParamAnnotations().get(index))
-                        .filter(annotation -> annotation.annotationType().equals(OptArg.class))
-                        .findAny();
-
-                if (!optionalAnnotation.isPresent()) {
-                    throw new RuntimeException("Annotation @OptArg not found (critical bug)");
-                }
-
-                final OptArg optArg = (OptArg) optionalAnnotation.get();
                 final String input = params[atomicArg.get()];
-
-                if (Optional.class.isAssignableFrom(paramType)) {
-                    final Class<?> optionalType = optArg.generic();
-                    if (optionalType.equals(Class.class)) {
-                        throw new RuntimeException("Optional requires generic argument in @OptArg annotation");
-                    }
-
-                    final Optional<?> optionalObject = resolverService.resolve(optionalType, input);
-                    if (!optionalObject.isPresent()) {
-                        throw new InvalidInputException(optionalType, input, "Cannot resolve optional-param " + input + " as a " + optionalType.getSimpleName());
-                    }
-
-                    objects.add(optionalObject);
-                    atomicArg.incrementAndGet();
-                    continue;
-                }
-
-                final Optional<?> optionalObject = resolverService.resolve(paramType, input);
+                final Optional<?> optionalObject = resolverService.resolve(rawType, input);
                 if (!optionalObject.isPresent()) {
-                    throw new InvalidInputException(paramType, input, "Cannot resolve optional-param " + input + " as a " + paramType.getSimpleName());
+                    throw new InvalidInputException(rawType, input, "Cannot resolve optional-param " + input + " as a " + rawType.getSimpleName());
                 }
 
-                objects.add(optionalObject.get());
+                objects.add(optional ? optionalObject : optionalObject.get());
                 atomicArg.incrementAndGet();
                 continue;
             }
