@@ -153,7 +153,7 @@ public class ExampleCommand implements CommandBase {
     // for example: ["broadcast", "arg1", "arg2"...]
     // but it can be trimmed by min = 1 (or max): ["arg1", "arg2"...]
     @Executor(path = "broadcast", description = "Broadcast message")
-    void broadcast(@Args(min = 1) String[] arguments) {
+    void broadcast(@Args String[] arguments) {
         final String message = StringUtil.join(arguments, " ");
         System.out.println("[BROADCAST] " + message);
     }
