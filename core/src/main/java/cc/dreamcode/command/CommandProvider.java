@@ -7,6 +7,7 @@ import cc.dreamcode.command.handler.InvalidSenderHandler;
 import cc.dreamcode.command.handler.InvalidUsageHandler;
 import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
 import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
+import cc.dreamcode.command.result.ResultResolver;
 import cc.dreamcode.command.suggestion.filter.SuggestionFilter;
 import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
 import lombok.NonNull;
@@ -42,6 +43,10 @@ public interface CommandProvider {
     CommandProviderImpl registerBind(@NonNull BindResolver<?> bindResolver);
 
     CommandProviderImpl unregisterBind(@NonNull Class<?> bindClass);
+
+    CommandProviderImpl registerResult(@NonNull ResultResolver resultResolver);
+
+    CommandProviderImpl unregisterResult(@NonNull Class<?> resultClass);
 
     CommandProviderImpl registerSuggestion(@NonNull String key, @NonNull SuggestionSupplier suggestionSupplier);
 

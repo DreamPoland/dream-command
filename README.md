@@ -144,7 +144,7 @@ public class ExampleCommand implements CommandBase {
     // input: /executor broadcast <message>
     //
     // long message can be stored in array by using @Args annotation
-    // can be setup by min and max values.
+    // can be setup by min and max values inside annotation.
     //
     // also @Args array-value can be transformed to every object
     // by registering array-transformer class in command-provider
@@ -185,6 +185,16 @@ public class ExampleCommand implements CommandBase {
     @Completion(arg = "exampleEnum", value = "@enum", filter = @CompletionFilter(name = "limit", value = "5"))
     void suggestEnum(@Arg ExampleEnum exampleEnum) {
         System.out.println(exampleEnum);
+    }
+    
+    // executor with return value
+    // input: /executor return <text>
+    //
+    // return value from method can be used to provide return messages
+    // type of objects can be registered by return-resolver class
+    @Executor(path = "return", description = "Executor to return message.")
+    String return_value(@Arg String text) {
+        return text; // will println input
     }
 }
 ```

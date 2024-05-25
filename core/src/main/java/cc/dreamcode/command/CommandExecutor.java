@@ -6,6 +6,7 @@ import cc.dreamcode.command.handler.exception.InvalidInputException;
 import cc.dreamcode.command.handler.exception.InvalidPermissionException;
 import cc.dreamcode.command.handler.exception.InvalidSenderException;
 import cc.dreamcode.command.resolver.ResolverService;
+import cc.dreamcode.command.result.ResultService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
 import cc.dreamcode.utilities.collection.element.Duo;
@@ -26,7 +27,7 @@ public class CommandExecutor {
     private final CommandMeta commandMeta;
     private final CommandPathMeta commandPathMeta;
 
-    public void execute(@NonNull CommandScheduler commandScheduler, @NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull DreamSender<?> sender, @NonNull CommandInput commandInput) {
+    public void execute(@NonNull CommandScheduler commandScheduler, @NonNull ResolverService resolverService, @NonNull BindService bindService, @NonNull ResultService resultService, @NonNull DreamSender<?> sender, @NonNull CommandInput commandInput) {
 
         final List<DreamSender.Type> senderTypes = this.commandPathMeta.getSendersType();
         if (!senderTypes.isEmpty() && !senderTypes.contains(sender.getType())) {
@@ -133,7 +134,11 @@ public class CommandExecutor {
 
         final Runnable invoke = () -> {
             try {
-                this.commandPathMeta.getMethod().invoke(this.commandMeta.getCommandInstance(), objects.build().toArray());
+                Object object = this.commandPathMeta.getMethod().invoke(this.commandMeta.getCommandInstance(), objects.build().toArray());
+
+                if (object != null) {
+                    resultService.resolveResult(sender, object.getClass(), object);
+                }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Cannot invoke command-path /" + this.commandMeta.getCommandContext().getName() + " " + this.commandPathMeta.getPath(), e);

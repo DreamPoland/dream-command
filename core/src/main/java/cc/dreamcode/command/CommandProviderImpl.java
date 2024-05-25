@@ -17,6 +17,9 @@ import cc.dreamcode.command.resolver.ResolverCache;
 import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
 import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
+import cc.dreamcode.command.result.ResultCache;
+import cc.dreamcode.command.result.ResultResolver;
+import cc.dreamcode.command.result.ResultService;
 import cc.dreamcode.command.suggestion.DefaultSuggestions;
 import cc.dreamcode.command.suggestion.SuggestionCache;
 import cc.dreamcode.command.suggestion.SuggestionService;
@@ -38,6 +41,8 @@ public class CommandProviderImpl implements CommandProvider {
     private final BindService bindService;
     private final ResolverCache resolverCache;
     private final ResolverService resolverService;
+    private final ResultCache resultCache;
+    private final ResultService resultService;
     private final SuggestionCache suggestionCache;
     private final SuggestionService suggestionService;
 
@@ -56,6 +61,8 @@ public class CommandProviderImpl implements CommandProvider {
         this.bindService = new BindService(this.bindCache);
         this.resolverCache = new ResolverCache();
         this.resolverService = new ResolverService(this.resolverCache);
+        this.resultCache = new ResultCache();
+        this.resultService = new ResultService(this.resultCache);
         this.suggestionCache = new SuggestionCache();
         this.suggestionService = new SuggestionService(this.suggestionCache);
 
@@ -127,7 +134,7 @@ public class CommandProviderImpl implements CommandProvider {
             final CommandPathMeta commandPathMeta = optionalCommandPathMeta.get();
             final CommandExecutor commandExecutor = commandPathMeta.getCommandExecutor();
 
-            commandExecutor.execute(this.commandScheduler, this.resolverService, this.bindService, dreamSender, commandInput);
+            commandExecutor.execute(this.commandScheduler, this.resolverService, this.bindService, this.resultService, dreamSender, commandInput);
         }
         catch (InvalidInputException e) {
             if (this.invalidInputHandler != null) {
@@ -259,6 +266,18 @@ public class CommandProviderImpl implements CommandProvider {
     @Override
     public CommandProviderImpl unregisterBind(@NonNull Class<?> bindClass) {
         this.bindCache.unregisterBind(bindClass);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl registerResult(@NonNull ResultResolver resultResolver) {
+        this.resultCache.registerResult(resultResolver);
+        return this;
+    }
+
+    @Override
+    public CommandProviderImpl unregisterResult(@NonNull Class<?> resultClass) {
+        this.resultCache.unregisterResult(resultClass);
         return this;
     }
 
