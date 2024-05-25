@@ -190,8 +190,8 @@ public class ExampleCommand implements CommandBase {
     // executor with return value
     // input: /executor return <text>
     //
-    // return value from method can be used to provide return messages
-    // type of objects can be registered by return-resolver class
+    // return method value can invoke result-resolver to send message
+    // type of objects can be registered by return-resolver class in command-provider
     @Executor(path = "return", description = "Executor to return message.")
     String return_value(@Arg String text) {
         return text; // will println input
