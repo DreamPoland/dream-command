@@ -1,4 +1,5 @@
 # Dream-Command (2.0)
+[![Build](https://github.com/DreamPoland/dream-command/actions/workflows/gradle.yml/badge.svg)](https://github.com/DreamPoland/dream-command/actions/workflows/gradle.yml)
 
 Advanced annotation-based command library for simple command creation.
 
