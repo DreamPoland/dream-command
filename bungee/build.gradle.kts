@@ -10,5 +10,5 @@ dependencies {
     compileOnly("net.md-5:bungeecord-api:1.20-R0.1-SNAPSHOT")
 
     // -- dream-utilities --
-    implementation("cc.dreamcode:utilities:1.4.2")
+    implementation("cc.dreamcode:utilities:1.4.5")
 }
