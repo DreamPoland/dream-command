@@ -9,7 +9,7 @@ import cc.dreamcode.command.resolver.ResolverService;
 import cc.dreamcode.command.result.ResultService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
-import cc.dreamcode.utilities.collection.element.Duo;
+import cc.dreamcode.utilities.object.Duo;
 import lombok.Data;
 import lombok.NonNull;
 

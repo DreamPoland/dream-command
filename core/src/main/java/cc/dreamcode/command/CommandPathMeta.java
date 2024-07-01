@@ -11,7 +11,7 @@ import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.command.suggestion.SuggestionService;
 import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
-import cc.dreamcode.utilities.collection.element.Duo;
+import cc.dreamcode.utilities.object.Duo;
 import cc.dreamcode.utilities.option.Option;
 import lombok.Data;
 import lombok.NonNull;
