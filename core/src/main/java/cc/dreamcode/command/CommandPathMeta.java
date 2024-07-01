@@ -173,7 +173,7 @@ public class CommandPathMeta {
 
                 Class<?> rawOptionalType = parameter.getType();
                 if (!Optional.class.isAssignableFrom(rawOptionalType) && !Option.class.isAssignableFrom(rawOptionalType)) {
-                    this.paramOptionalArgs.put(index, new Duo<>(rawOptionalType, false));
+                    this.paramOptionalArgs.put(index, Duo.of(rawOptionalType, false));
                     continue;
                 }
 
@@ -181,7 +181,7 @@ public class CommandPathMeta {
                 if (parameterizedType.getActualTypeArguments().length == 1) {
                     Type paramType = parameterizedType.getActualTypeArguments()[0];
                     if (paramType instanceof Class<?>) {
-                        this.paramOptionalArgs.put(index, new Duo<>((Class<?>) paramType, true));
+                        this.paramOptionalArgs.put(index, Duo.of((Class<?>) paramType, true));
                         continue;
                     }
                 }
