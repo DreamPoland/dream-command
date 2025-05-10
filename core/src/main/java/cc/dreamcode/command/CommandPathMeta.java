@@ -41,8 +41,8 @@ public class CommandPathMeta {
     // ignore binds
     private final Map<Integer, Annotation[]> argAnnotations;
     private final Map<Integer, Class<?>> argClasses;
-    private final Map<Integer, CommandArgument> argNames;
-    private final Map<Integer, CommandArgument> argDisplayNames;
+    private final Map<Integer, ArgumentEntry> argNames;
+    private final Map<Integer, ArgumentEntry> argDisplayNames;
 
     // all parameters
     private final Map<Integer, Annotation[]> paramAnnotations;
@@ -89,8 +89,8 @@ public class CommandPathMeta {
                 final String name = Objects.equals(arg.value(), "") ? parameter.getName() : arg.value();
 
                 this.argClasses.put(atomicNameIndex.get(), parameter.getType());
-                this.argNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARG, name));
-                this.argDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARG, "<" + name + ">"));
+                this.argNames.put(atomicNameIndex.get(), new ArgumentEntry(ArgumentEntry.Type.ARG, name));
+                this.argDisplayNames.put(atomicNameIndex.getAndIncrement(), new ArgumentEntry(ArgumentEntry.Type.ARG, "<" + name + ">"));
 
                 continue;
             }
@@ -104,8 +104,8 @@ public class CommandPathMeta {
                 final String name = Objects.equals(args.value(), "") ? parameter.getName() : args.value();
 
                 this.argClasses.put(atomicNameIndex.get(), parameter.getType());
-                this.argNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.ARGS, name));
-                this.argDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.ARGS, "(" + name + ")"));
+                this.argNames.put(atomicNameIndex.get(), new ArgumentEntry(ArgumentEntry.Type.ARGS, name));
+                this.argDisplayNames.put(atomicNameIndex.getAndIncrement(), new ArgumentEntry(ArgumentEntry.Type.ARGS, "(" + name + ")"));
 
                 continue;
             }
@@ -131,8 +131,8 @@ public class CommandPathMeta {
                 }
 
                 this.argClasses.put(atomicNameIndex.get(), rawType);
-                this.argNames.put(atomicNameIndex.get(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, name));
-                this.argDisplayNames.put(atomicNameIndex.getAndIncrement(), new CommandArgument(CommandArgument.Type.OPTIONAL_ARG, "[" + name + "]"));
+                this.argNames.put(atomicNameIndex.get(), new ArgumentEntry(ArgumentEntry.Type.OPTIONAL_ARG, name));
+                this.argDisplayNames.put(atomicNameIndex.getAndIncrement(), new ArgumentEntry(ArgumentEntry.Type.OPTIONAL_ARG, "[" + name + "]"));
             }
         }
 
@@ -240,7 +240,7 @@ public class CommandPathMeta {
     public String getUsage() {
 
         final List<String> listBuilder = new ArrayList<>();
-        listBuilder.add("/" + this.commandMeta.getCommandContext().getName());
+        listBuilder.add("/" + this.commandMeta.getCommandEntry().getName());
 
         if (!this.path.isEmpty()) {
             listBuilder.addAll(Arrays.asList(this.path.split(" ")));
@@ -248,7 +248,7 @@ public class CommandPathMeta {
 
         this.argDisplayNames.values()
                 .stream()
-                .map(CommandArgument::getValue)
+                .map(ArgumentEntry::getValue)
                 .forEach(listBuilder::add);
 
         return StringUtil.join(listBuilder, " ");
@@ -308,15 +308,15 @@ public class CommandPathMeta {
             return listBuilder.build();
         }
 
-        final CommandArgument commandArgument = this.argNames.get(argumentParamLength);
+        final ArgumentEntry argumentEntry = this.argNames.get(argumentParamLength);
         final Optional<Completion> optionalCompletion = Arrays.stream(this.method.getAnnotationsByType(Completion.class))
-                .filter(completion -> Objects.equals(completion.arg(), commandArgument.getValue()))
+                .filter(completion -> Objects.equals(completion.arg(), argumentEntry.getValue()))
                 .findAny();
 
         if (!optionalCompletion.isPresent()) {
-            final CommandArgument commandDisplayArgument = this.argDisplayNames.get(argumentParamLength);
+            final ArgumentEntry commandDisplayArgument = this.argDisplayNames.get(argumentParamLength);
 
-            if (!commandDisplayArgument.getType().equals(CommandArgument.Type.ARGS)) {
+            if (!commandDisplayArgument.getType().equals(ArgumentEntry.Type.ARGS)) {
                 listBuilder.add(commandDisplayArgument.getValue());
             }
 

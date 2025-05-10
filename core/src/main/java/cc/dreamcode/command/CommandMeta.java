@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 @Data
 public class CommandMeta {
 
-    private final CommandContext commandContext;
+    private final CommandEntry commandEntry;
     private final CommandBase commandBase;
     private final Object commandInstance;
 
@@ -37,10 +37,10 @@ public class CommandMeta {
     private final SuggestionService suggestionService;
     private final ResolverService resolverService;
 
-    public CommandMeta(@NonNull SuggestionService suggestionService, @NonNull ResolverService resolverService, @NonNull CommandContext commandContext, @NonNull CommandBase commandBase, @NonNull Object commandInstance) {
+    public CommandMeta(@NonNull SuggestionService suggestionService, @NonNull ResolverService resolverService, @NonNull CommandEntry commandEntry, @NonNull CommandBase commandBase, @NonNull Object commandInstance) {
         this.suggestionService = suggestionService;
         this.resolverService = resolverService;
-        this.commandContext = commandContext;
+        this.commandEntry = commandEntry;
         this.commandBase = commandBase;
         this.commandInstance = commandInstance;
 

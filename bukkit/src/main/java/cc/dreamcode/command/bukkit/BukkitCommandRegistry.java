@@ -1,6 +1,6 @@
 package cc.dreamcode.command.bukkit;
 
-import cc.dreamcode.command.CommandContext;
+import cc.dreamcode.command.CommandEntry;
 import cc.dreamcode.command.CommandMeta;
 import cc.dreamcode.command.CommandRegistry;
 import lombok.NonNull;
@@ -26,13 +26,13 @@ public class BukkitCommandRegistry implements CommandRegistry {
     }
 
     @Override
-    public void register(@NonNull CommandContext commandContext, @NonNull CommandMeta commandMeta) {
-        final BukkitCommandWrapper bukkitCommandWrapper = new BukkitCommandWrapper(this.plugin, commandContext, this.bukkitCommandProvider);
-        this.bukkitCommandMap.register(commandContext.getName(), this.plugin.getName(), bukkitCommandWrapper);
+    public void register(@NonNull CommandEntry commandEntry, @NonNull CommandMeta commandMeta) {
+        final BukkitCommandWrapper bukkitCommandWrapper = new BukkitCommandWrapper(this.plugin, commandEntry, this.bukkitCommandProvider);
+        this.bukkitCommandMap.register(commandEntry.getName(), this.plugin.getName(), bukkitCommandWrapper);
     }
 
     @Override
-    public void unregister(@NonNull CommandContext commandContext) {
-        this.bukkitCommandMap.getCommand(commandContext.getName()).unregister(this.bukkitCommandMap);
+    public void unregister(@NonNull CommandEntry commandEntry) {
+        this.bukkitCommandMap.getCommand(commandEntry.getName()).unregister(this.bukkitCommandMap);
     }
 }

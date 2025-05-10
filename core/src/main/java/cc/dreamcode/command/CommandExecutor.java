@@ -141,7 +141,7 @@ public class CommandExecutor {
                 }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException("Cannot invoke command-path /" + this.commandMeta.getCommandContext().getName() + " " + this.commandPathMeta.getPath(), e);
+                throw new RuntimeException("Cannot invoke command-path /" + this.commandMeta.getCommandEntry().getName() + " " + this.commandPathMeta.getPath(), e);
             }
         };
 

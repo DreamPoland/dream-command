@@ -26,11 +26,11 @@ public interface CommandProvider {
 
     CommandProviderImpl register(@NonNull CommandBase commandBase);
 
-    CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase);
+    CommandProviderImpl register(@NonNull CommandEntry commandEntry, @NonNull CommandBase commandBase);
 
-    CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase, @NonNull Object instance);
+    CommandProviderImpl register(@NonNull CommandEntry commandEntry, @NonNull CommandBase commandBase, @NonNull Object instance);
 
-    CommandProviderImpl unregister(@NonNull CommandContext commandContext);
+    CommandProviderImpl unregister(@NonNull CommandEntry commandEntry);
 
     CommandProviderImpl registerExtension(@NonNull CommandExtension commandExtension);
 

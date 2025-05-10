@@ -4,7 +4,7 @@ import lombok.NonNull;
 
 public interface CommandRegistry {
 
-    void register(@NonNull CommandContext commandContext, @NonNull CommandMeta commandMeta);
+    void register(@NonNull CommandEntry commandEntry, @NonNull CommandMeta commandMeta);
 
-    void unregister(@NonNull CommandContext commandContext);
+    void unregister(@NonNull CommandEntry commandEntry);
 }

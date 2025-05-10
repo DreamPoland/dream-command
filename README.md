@@ -52,7 +52,7 @@ implementation "cc.dreamcode.command:{platform}:2.1.3"
 @Permission("example.permission.base")
 // adds console/client requirement to all executors (optional)
 @Sender(DreamSender.Type.CLIENT)
-// provide command context (label/name, aliases) using annotation @Command
+// provide command entry (label/name, aliases) using annotation @Command
 // description is used by custom help/usage-builder
 @Command(name = "example", description = "Example command.")
 public class ExampleCommand implements CommandBase {

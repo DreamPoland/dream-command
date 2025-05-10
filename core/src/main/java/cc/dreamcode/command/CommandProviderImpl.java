@@ -180,49 +180,49 @@ public class CommandProviderImpl implements CommandProvider {
             throw new RuntimeException("Cannot find @Command annotation in class " + commandBase.getClass().getSimpleName());
         }
 
-        return this.register(new CommandContext(command), commandBase);
+        return this.register(new CommandEntry(command), commandBase);
     }
 
     @Override
-    public CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase) {
+    public CommandProviderImpl register(@NonNull CommandEntry commandEntry, @NonNull CommandBase commandBase) {
 
-        final CommandMeta commandMeta = new CommandMeta(this.suggestionService, this.resolverService, commandContext, commandBase, commandBase);
+        final CommandMeta commandMeta = new CommandMeta(this.suggestionService, this.resolverService, commandEntry, commandBase, commandBase);
 
-        this.commandMap.put(commandContext.getName(), commandMeta);
-        Arrays.stream(commandContext.getAliases()).forEach(label ->
+        this.commandMap.put(commandEntry.getName(), commandMeta);
+        Arrays.stream(commandEntry.getAliases()).forEach(label ->
                 this.commandMap.put(label, commandMeta));
 
         if (this.commandRegistry != null) {
-            this.commandRegistry.register(commandContext, commandMeta);
+            this.commandRegistry.register(commandEntry, commandMeta);
         }
 
         return this;
     }
 
     @Override
-    public CommandProviderImpl register(@NonNull CommandContext commandContext, @NonNull CommandBase commandBase, @NonNull Object instance) {
+    public CommandProviderImpl register(@NonNull CommandEntry commandEntry, @NonNull CommandBase commandBase, @NonNull Object instance) {
 
-        final CommandMeta commandMeta = new CommandMeta(this.suggestionService, this.resolverService, commandContext, commandBase, instance);
+        final CommandMeta commandMeta = new CommandMeta(this.suggestionService, this.resolverService, commandEntry, commandBase, instance);
 
-        this.commandMap.put(commandContext.getName(), commandMeta);
-        Arrays.stream(commandContext.getAliases()).forEach(label ->
+        this.commandMap.put(commandEntry.getName(), commandMeta);
+        Arrays.stream(commandEntry.getAliases()).forEach(label ->
                 this.commandMap.put(label, commandMeta));
 
         if (this.commandRegistry != null) {
-            this.commandRegistry.register(commandContext, commandMeta);
+            this.commandRegistry.register(commandEntry, commandMeta);
         }
 
         return this;
     }
 
     @Override
-    public CommandProviderImpl unregister(@NonNull CommandContext commandContext) {
+    public CommandProviderImpl unregister(@NonNull CommandEntry commandEntry) {
 
-        this.commandMap.remove(commandContext.getName());
-        Arrays.stream(commandContext.getAliases()).forEach(this.commandMap::remove);
+        this.commandMap.remove(commandEntry.getName());
+        Arrays.stream(commandEntry.getAliases()).forEach(this.commandMap::remove);
 
         if (this.commandRegistry != null) {
-            this.commandRegistry.unregister(commandContext);
+            this.commandRegistry.unregister(commandEntry);
         }
 
         return this;

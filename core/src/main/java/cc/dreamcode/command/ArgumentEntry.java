@@ -3,7 +3,7 @@ package cc.dreamcode.command;
 import lombok.Data;
 
 @Data
-public class CommandArgument {
+public class ArgumentEntry {
 
     private final Type type;
     private final String value;
