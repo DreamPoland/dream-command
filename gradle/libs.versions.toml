@@ -1,0 +1,11 @@
+[versions]
+lombok = "1.18.38"
+spigot-api = "1.16.5-R0.1-SNAPSHOT"
+bungeecord-api = "1.20-R0.1-SNAPSHOT"
+dream-utilties = "1.5.2"
+
+[libraries]
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
+bungeecord-api = { module = "net.md-5:bungeecord-api", version.ref = "bungeecord-api" }
+dream-utilties = { module = "cc.dreamcode:utilities", version.ref = "dream-utilties" }

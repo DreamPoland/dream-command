@@ -5,11 +5,11 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":core"))
+    api(project(":core"))
 
     // -- bungee api -- (base)
-    compileOnly("net.md-5:bungeecord-api:1.20-R0.1-SNAPSHOT")
+    compileOnly(libs.bungeecord.api)
 
     // -- dream-utilities --
-    implementation("cc.dreamcode:utilities:1.5.1")
+    api(libs.dream.utilties)
 }
