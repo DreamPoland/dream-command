@@ -58,7 +58,7 @@ class TestCommand {
 
     @Test
     void testCall() {
-        String input = "/example broadcast test test";
+        String input = "/example test1 BRO";
         this.commandProvider.call(this.testSender, input);
     }
 
@@ -72,14 +72,14 @@ class TestCommand {
     @Command(name = "example", description = "Example command.")
     public static class ExampleCommand implements CommandBase {
 
-        @Executor(path = "type")
+        @Executor(path = {"type", "test1"})
         @Completion(arg = "exampleEnum", value = "@enum")
         void suggestEnum(@OptArg Optional<ExampleEnum> exampleEnum) {
             System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
         }
 
         @Executor(path = "typesafe")
-        @Completion(arg = "exampleEnum", value = "notakkk")
+        @Completion(arg = "exampleEnum", value = "test")
         void suggestSafeEnum(@OptArg Optional<ExampleEnum> exampleEnum) {
             System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
         }
@@ -92,7 +92,7 @@ class TestCommand {
 
         @Executor(path = "holo add testowo")
         void holo3(@Arg(value = "id") String id, @Arg(value = "id4") String id4, @Args(value = "text", min = 2) String[] text) {
-
+            System.out.println(id + " " + id4 + " " + Arrays.toString(text));
         }
 
         @Executor(path = "broadcast", description = "Broadcast message")

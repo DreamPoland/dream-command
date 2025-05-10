@@ -4,7 +4,6 @@ import cc.dreamcode.command.annotation.Arg;
 import cc.dreamcode.command.annotation.Args;
 import cc.dreamcode.command.annotation.Async;
 import cc.dreamcode.command.annotation.Completion;
-import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.annotation.Permission;
 import cc.dreamcode.command.annotation.Sender;
@@ -60,7 +59,7 @@ public class CommandPathMeta {
 
     private final CommandExecutor commandExecutor;
 
-    public CommandPathMeta(@NonNull CommandMeta commandMeta, @NonNull Method method, @NonNull Executor executor) {
+    public CommandPathMeta(@NonNull CommandMeta commandMeta, @NonNull Method method, @NonNull String path, @NonNull String description) {
         this.commandMeta = commandMeta;
         this.method = method;
 
@@ -118,17 +117,7 @@ public class CommandPathMeta {
                 final OptArg optArg = (OptArg) optionalOptArg.get();
                 final String name = Objects.equals(optArg.value(), "") ? parameter.getName() : optArg.value();
 
-                Class<?> rawType = parameter.getType();
-                if (Optional.class.isAssignableFrom(rawType) || Option.class.isAssignableFrom(rawType)) {
-
-                    ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
-                    if (parameterizedType.getActualTypeArguments().length == 1) {
-                        Type paramType = parameterizedType.getActualTypeArguments()[0];
-                        if (paramType instanceof Class<?>) {
-                            rawType = (Class<?>) paramType;
-                        }
-                    }
-                }
+                final Class<?> rawType = getRawType(parameter);
 
                 this.argClasses.put(atomicNameIndex.get(), rawType);
                 this.argNames.put(atomicNameIndex.get(), new ArgumentEntry(ArgumentEntry.Type.OPTIONAL_ARG, name));
@@ -193,8 +182,8 @@ public class CommandPathMeta {
             this.paramBinds.put(index, parameter.getType());
         }
 
-        this.path = executor.path();
-        this.description = executor.description();
+        this.path = path;
+        this.description = description;
 
         this.async = this.method.getAnnotation(Async.class) != null;
 
@@ -209,6 +198,21 @@ public class CommandPathMeta {
                 .toArray(DreamSender.Type[]::new);
 
         this.commandExecutor = new CommandExecutor(commandMeta, this);
+    }
+
+    private static Class<?> getRawType(@NonNull Parameter parameter) {
+        Class<?> rawType = parameter.getType();
+        if (Optional.class.isAssignableFrom(rawType) || Option.class.isAssignableFrom(rawType)) {
+
+            ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+            if (parameterizedType.getActualTypeArguments().length == 1) {
+                Type paramType = parameterizedType.getActualTypeArguments()[0];
+                if (paramType instanceof Class<?>) {
+                    rawType = (Class<?>) paramType;
+                }
+            }
+        }
+        return rawType;
     }
 
     public boolean isAsync() {
