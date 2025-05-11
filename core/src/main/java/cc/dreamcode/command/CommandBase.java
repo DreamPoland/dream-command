@@ -20,15 +20,14 @@ public interface CommandBase {
 
         Map<String, Duo<Integer, Integer>> usedPaths = new HashMap<>();
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
-            declaredMethod.setAccessible(true);
 
             final Executor executor = declaredMethod.getAnnotation(Executor.class);
             if (executor == null) {
                 continue;
             }
 
+            // check path copy
             for (String path : executor.path()) {
-
                 int totalArgs = 0;
                 int totalOptArgs = 0;
                 for (Annotation[] parameterAnnotation : declaredMethod.getParameterAnnotations()) {
@@ -57,6 +56,8 @@ public interface CommandBase {
             if (executor == null) {
                 continue;
             }
+
+            declaredMethod.setAccessible(true);
 
             for (String path : executor.path()) {
                 final CommandPathMeta commandPathMeta = new CommandPathMeta(commandMeta, declaredMethod, path, executor.description());
