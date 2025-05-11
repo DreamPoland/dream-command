@@ -8,7 +8,4 @@ dependencies {
 
     // -- spigot api -- (base)
     compileOnly(libs.spigot.api)
-
-    // -- dream-utilities --
-    implementation(libs.dream.utilties)
 }

@@ -1,6 +1,6 @@
 dependencies {
     // -- dream-utilities --
-    implementation(libs.dream.utilties)
+    api(libs.dream.utilties)
 
     // -- tests --
     testImplementation(platform("org.junit:junit-bom:5.11.1"))

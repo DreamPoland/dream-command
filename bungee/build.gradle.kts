@@ -9,7 +9,4 @@ dependencies {
 
     // -- bungee api -- (base)
     compileOnly(libs.bungeecord.api)
-
-    // -- dream-utilities --
-    implementation(libs.dream.utilties)
 }
