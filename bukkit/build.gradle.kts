@@ -10,5 +10,5 @@ dependencies {
     compileOnly(libs.spigot.api)
 
     // -- dream-utilities --
-    api(libs.dream.utilties)
+    implementation(libs.dream.utilties)
 }

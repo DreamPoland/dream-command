@@ -11,5 +11,5 @@ dependencies {
     compileOnly(libs.bungeecord.api)
 
     // -- dream-utilities --
-    api(libs.dream.utilties)
+    implementation(libs.dream.utilties)
 }
