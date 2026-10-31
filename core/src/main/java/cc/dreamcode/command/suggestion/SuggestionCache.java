@@ -4,14 +4,14 @@ import cc.dreamcode.command.suggestion.filter.SuggestionFilter;
 import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
 import lombok.NonNull;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SuggestionCache {
 
-    private final Map<String, SuggestionSupplier> suggestionMap = new HashMap<>();
-    private final Map<String, SuggestionFilter> suggestionFilterMap = new HashMap<>();
+    private final Map<String, SuggestionSupplier> suggestionMap = new ConcurrentHashMap<>();
+    private final Map<String, SuggestionFilter> suggestionFilterMap = new ConcurrentHashMap<>();
 
     public Optional<SuggestionSupplier> getSuggestion(@NonNull String key) {
         return Optional.ofNullable(this.suggestionMap.get(key));
@@ -30,19 +30,10 @@ public class SuggestionCache {
     }
 
     public void removeSuggestion(@NonNull String key) {
-        if (!this.suggestionMap.containsKey(key)) {
-            return;
-        }
-
         this.suggestionMap.remove(key);
     }
 
     public void removeSuggestionFilter(@NonNull String key) {
-        if (!this.suggestionFilterMap.containsKey(key)) {
-            return;
-        }
-
         this.suggestionFilterMap.remove(key);
     }
-
 }

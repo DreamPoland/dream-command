@@ -4,9 +4,9 @@ import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -20,10 +20,22 @@ public class OfflinePlayerTransformer implements ObjectTransformer<OfflinePlayer
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public Optional<OfflinePlayer> transform(@NonNull Class<?> type, @NonNull String input) {
-        return Arrays.stream(this.plugin.getServer().getOfflinePlayers())
-                .filter(offlinePlayer -> offlinePlayer.getName() != null)
-                .filter(offlinePlayer -> offlinePlayer.getName().equalsIgnoreCase(input))
-                .findAny();
+        final Player onlinePlayer = this.plugin.getServer().getPlayerExact(input);
+        if (onlinePlayer != null) {
+            return Optional.of(onlinePlayer);
+        }
+
+        try {
+            final OfflinePlayer offlinePlayer = this.plugin.getServer().getOfflinePlayer(input);
+            if (offlinePlayer.hasPlayedBefore() || offlinePlayer.isOnline()) {
+                return Optional.of(offlinePlayer);
+            }
+        }
+        catch (Exception ignored) {
+        }
+
+        return Optional.empty();
     }
 }

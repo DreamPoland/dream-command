@@ -30,11 +30,11 @@ public class ResolverService {
         return objectTransformer.transform(expectingClass, input);
     }
 
-    public <T> Optional<T[]> resolveArray(@NonNull Class<T> expectingClass, @NonNull Object[] input) {
+    public Optional<?> resolveArray(@NonNull Class<?> expectingClass, @NonNull Object[] input) {
 
-        final ArrayTransformer<T> arrayTransformerTransformer = this.resolverCache.getArray(expectingClass)
+        final ArrayTransformer<?> arrayTransformer = this.resolverCache.getArray(expectingClass)
                 .orElseThrow(() -> new RuntimeException("Cannot find array-resolver for " + expectingClass));
 
-        return arrayTransformerTransformer.transform(expectingClass, input);
+        return arrayTransformer.transform(expectingClass, input);
     }
 }

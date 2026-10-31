@@ -4,7 +4,6 @@ import cc.dreamcode.command.DreamSender;
 import cc.dreamcode.command.bind.BindResolver;
 import cc.dreamcode.command.handler.exception.InvalidSenderException;
 import lombok.NonNull;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
 import java.util.Collections;
@@ -12,7 +11,7 @@ import java.util.Collections;
 public class ConsoleCommandSenderBind implements BindResolver<ConsoleCommandSender> {
     @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return CommandSender.class.isAssignableFrom(type);
+        return ConsoleCommandSender.class.isAssignableFrom(type);
     }
 
     @Override

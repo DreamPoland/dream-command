@@ -128,11 +128,21 @@ public class CommandMeta {
                         return false;
                     }
 
-                    final List<Class<?>> argClasses = new ArrayList<>(commandPathMeta.getParamArgs().values());
-                    for (int index = 0; index < commandPathMeta.getParamArgs().size(); index++) {
+                    for (Map.Entry<Integer, Class<?>> entry : commandPathMeta.getParamArgs().entrySet()) {
+                        // find relative argument index
+                        int argIndex = 0;
+                        for (int i = 0; i < entry.getKey(); i++) {
+                            if (!commandPathMeta.getParamBinds().containsKey(i)) {
+                                argIndex++;
+                            }
+                        }
 
-                        final String input = params[index];
-                        final Class<?> paramType = argClasses.get(index);
+                        if (argIndex >= params.length) {
+                            return false;
+                        }
+
+                        final String input = params[argIndex];
+                        final Class<?> paramType = entry.getValue();
 
                         // check transformers
                         if (!this.resolverService.support(paramType, input)) {
@@ -162,17 +172,19 @@ public class CommandMeta {
                         }
 
                         final Args args = (Args) optionalAnnotation.get();
-                        final String skip = StringUtil.join(params, " ",
-                                args.min() == -1 ? 0 : Math.min(args.min(), params.length),
-                                args.max() == -1 ? params.length : Math.min(args.max(), params.length));
+                        final int min = args.min() == -1 ? 0 : Math.min(args.min(), params.length);
+                        final int max = args.max() == -1 ? params.length : Math.min(args.max(), params.length);
 
-                        for (String restParam : skip.split(" ")) {
-                            if (!this.resolverService.support(paramType, restParam)) {
-                                if (throwInvalidInput) {
-                                    throw new InvalidInputException(paramType, restParam, "Cannot resolve param " + restParam + " as a " + paramType.getSimpleName());
+                        if (min < max && min < params.length) {
+                            for (int i = min; i < max && i < params.length; i++) {
+                                final String restParam = params[i];
+                                if (!this.resolverService.support(paramType, restParam)) {
+                                    if (throwInvalidInput) {
+                                        throw new InvalidInputException(paramType, restParam, "Cannot resolve param " + restParam + " as a " + paramType.getSimpleName());
+                                    }
+
+                                    return false;
                                 }
-
-                                return false;
                             }
                         }
                     }

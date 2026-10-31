@@ -2,20 +2,20 @@ package cc.dreamcode.command.resolver;
 
 import cc.dreamcode.command.resolver.transformer.ObjectTransformer;
 import cc.dreamcode.command.resolver.transformer.array.ArrayTransformer;
-import cc.dreamcode.utilities.builder.ListBuilder;
 import lombok.NonNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ResolverCache {
 
-    private final List<ObjectTransformer<?>> objectTransformers = new ArrayList<>();
-    private final List<ArrayTransformer<?>> arrayTransformers = new ArrayList<>();
-    private final Map<Class<?>, List<Class<?>>> assignableClasses = new HashMap<>(); // Integer.class int.class
+    private final List<ObjectTransformer<?>> objectTransformers = new CopyOnWriteArrayList<>();
+    private final List<ArrayTransformer<?>> arrayTransformers = new CopyOnWriteArrayList<>();
+    private final Map<Class<?>, List<Class<?>>> assignableClasses = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
     public <T> Optional<ObjectTransformer<T>> get(@NonNull Class<T> type) {
@@ -33,8 +33,7 @@ public class ResolverCache {
                 .findAny();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Optional<ArrayTransformer<T>> getArray(@NonNull Class<T> type) {
+    public Optional<ArrayTransformer<?>> getArray(@NonNull Class<?> type) {
         return this.arrayTransformers.stream()
                 .filter(arrayTransformer -> {
 
@@ -45,7 +44,6 @@ public class ResolverCache {
 
                     return arrayTransformer.isAssignableFrom(type) || classList.contains(type);
                 })
-                .map(arrayTransformer -> (ArrayTransformer<T>) arrayTransformer)
                 .findAny();
     }
 
@@ -64,14 +62,7 @@ public class ResolverCache {
     }
 
     public ResolverCache addAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to) {
-
-        final List<Class<?>> classList = this.assignableClasses.get(from);
-        if (classList == null) {
-            this.assignableClasses.put(from, ListBuilder.of(to));
-            return this;
-        }
-
-        classList.add(to);
+        this.assignableClasses.computeIfAbsent(from, k -> new CopyOnWriteArrayList<>()).add(to);
         return this;
     }
 
@@ -87,11 +78,9 @@ public class ResolverCache {
 
     public ResolverCache removeAssignableClass(@NonNull Class<?> from, @NonNull Class<?> to) {
         final List<Class<?>> classList = this.assignableClasses.get(from);
-        if (classList == null) {
-            return this;
+        if (classList != null) {
+            classList.remove(to);
         }
-
-        classList.remove(to);
         return this;
     }
 }

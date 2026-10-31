@@ -12,11 +12,18 @@ public class IntegerArrayTransformer implements ArrayTransformer<Integer> {
 
     @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Integer[].class.isAssignableFrom(type);
+        return Integer[].class.isAssignableFrom(type) || int[].class.isAssignableFrom(type);
     }
 
     @Override
-    public Optional<Integer[]> transform(@NonNull Class<?> type, @NonNull Object[] objects) {
+    public Optional<?> transform(@NonNull Class<?> type, @NonNull Object[] objects) {
+        if (int[].class.isAssignableFrom(type)) {
+            final int[] array = new int[objects.length];
+            for (int index = 0; index < objects.length; index++) {
+                array[index] = ((Number) objects[index]).intValue();
+            }
+            return Optional.of(array);
+        }
 
         final Integer[] array = new Integer[objects.length];
         for (int index = 0; index < objects.length; index++) {

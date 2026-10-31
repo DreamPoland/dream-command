@@ -12,11 +12,18 @@ public class DoubleArrayTransformer implements ArrayTransformer<Double> {
 
     @Override
     public boolean isAssignableFrom(@NonNull Class<?> type) {
-        return Double[].class.isAssignableFrom(type);
+        return Double[].class.isAssignableFrom(type) || double[].class.isAssignableFrom(type);
     }
 
     @Override
-    public Optional<Double[]> transform(@NonNull Class<?> type, @NonNull Object[] objects) {
+    public Optional<?> transform(@NonNull Class<?> type, @NonNull Object[] objects) {
+        if (double[].class.isAssignableFrom(type)) {
+            final double[] array = new double[objects.length];
+            for (int index = 0; index < objects.length; index++) {
+                array[index] = ((Number) objects[index]).doubleValue();
+            }
+            return Optional.of(array);
+        }
 
         final Double[] array = new Double[objects.length];
         for (int index = 0; index < objects.length; index++) {

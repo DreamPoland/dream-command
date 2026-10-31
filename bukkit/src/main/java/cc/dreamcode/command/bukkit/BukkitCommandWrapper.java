@@ -10,6 +10,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 public class BukkitCommandWrapper extends Command implements PluginIdentifiableCommand {
 
@@ -38,14 +39,21 @@ public class BukkitCommandWrapper extends Command implements PluginIdentifiableC
         final BukkitSender bukkitSender = new BukkitSender(sender);
         final CommandInput commandInput = new CommandInput(this.commandEntry.getName(), args, false);
 
-        this.bukkitCommandProvider.call(bukkitSender, commandInput);
+        try {
+            this.bukkitCommandProvider.call(bukkitSender, commandInput);
+        }
+        catch (Exception e) {
+            sender.sendMessage("§cWystąpił nieoczekiwany błąd podczas wykonywania tej komendy.");
+            this.plugin.getLogger().log(Level.SEVERE, "An error occurred while executing command: " + commandLabel, e);
+        }
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
         final BukkitSender bukkitSender = new BukkitSender(sender);
-        final CommandInput commandInput = new CommandInput(this.commandEntry.getName(), args, false);
+        final boolean spaceAtTheEnd = args.length > 0 && args[args.length - 1].isEmpty();
+        final CommandInput commandInput = new CommandInput(this.commandEntry.getName(), args, spaceAtTheEnd);
 
         return this.bukkitCommandProvider.getSuggestion(bukkitSender, commandInput);
     }

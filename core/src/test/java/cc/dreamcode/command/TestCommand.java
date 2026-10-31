@@ -7,38 +7,62 @@ import cc.dreamcode.command.annotation.Completion;
 import cc.dreamcode.command.annotation.Executor;
 import cc.dreamcode.command.annotation.OptArg;
 import cc.dreamcode.command.annotation.Permission;
+import cc.dreamcode.command.annotation.Sender;
 import cc.dreamcode.command.result.ResultResolver;
-import cc.dreamcode.utilities.StringUtil;
 import cc.dreamcode.utilities.builder.ListBuilder;
+import lombok.Getter;
 import lombok.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class TestCommand {
 
     private CommandProvider commandProvider;
     private TestSender testSender;
+    private ExampleCommand exampleCommand;
+
+    private final List<String> invalidUsageLogs = new ArrayList<>();
+    private final AtomicReference<String> lastInvalidPermission = new AtomicReference<>();
+    private final AtomicReference<DreamSender.Type> lastInvalidSender = new AtomicReference<>();
+    private final AtomicReference<String> lastInvalidInput = new AtomicReference<>();
+    private final List<String> resultLogs = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
+        this.invalidUsageLogs.clear();
+        this.lastInvalidPermission.set(null);
+        this.lastInvalidSender.set(null);
+        this.lastInvalidInput.set(null);
+        this.resultLogs.clear();
+
         this.commandProvider = new CommandProviderImpl(true);
-        this.commandProvider.registerSuggestion("@all-players", (paramType) -> ListBuilder.of("nick1", "nick2", "nick3", "nick4", "nick5", "nick6", "nick7", "nick8"));
+        this.commandProvider.registerSuggestion("@all-players", (paramType) ->
+                ListBuilder.of("nick1", "nick2", "nick3", "nick4", "nick5"));
 
         this.testSender = new TestSender();
         this.commandProvider.registerBind(new TestSenderBind());
 
         this.commandProvider.setInvalidUsageHandler((dreamSender, commandMeta, commandInput) -> {
-            if (!commandMeta.isPresent()) {
-                System.out.println("Brak suggesti.");
-                return;
-            }
+            this.invalidUsageLogs.add(commandInput.getLabel());
+        });
 
-            for (CommandPathMeta filteredCommandPath : commandMeta.get().getFilteredCommandPaths(dreamSender)) {
-                System.out.println("- " + filteredCommandPath.getUsage());
-            }
+        this.commandProvider.setInvalidPermissionHandler((dreamSender, permission) -> {
+            this.lastInvalidPermission.set(permission);
+        });
+
+        this.commandProvider.setInvalidSenderHandler((dreamSender, requireTypes) -> {
+            this.lastInvalidSender.set(dreamSender.getType());
+        });
+
+        this.commandProvider.setInvalidInputHandler((dreamSender, requiringClass, input) -> {
+            this.lastInvalidInput.set(input);
         });
 
         this.commandProvider.registerResult(new ResultResolver() {
@@ -49,56 +73,172 @@ class TestCommand {
 
             @Override
             public void resolveResult(@NonNull DreamSender<?> sender, @NonNull Class<?> type, @NonNull Object object) {
-                System.out.println(object);
+                resultLogs.add(object.toString());
             }
         });
 
-        this.commandProvider.register(new ExampleCommand());
+        this.exampleCommand = new ExampleCommand();
+        this.commandProvider.register(this.exampleCommand);
     }
 
     @Test
-    void testCall() {
-        String input = "/example test1 BRO";
-        this.commandProvider.call(this.testSender, input);
+    void shouldExecuteEnumCommand() {
+        this.commandProvider.call(this.testSender, "/example test1 BRO");
+        assertTrue(this.exampleCommand.isEnumExecuted());
+        assertEquals(ExampleEnum.BRO, this.exampleCommand.getLastEnum());
     }
 
     @Test
-    void testSuggestion() {
-        String input = "/example holo add test t sfg sfg";
-        System.out.println(this.commandProvider.getSuggestion(this.testSender, input));
+    void shouldExecutePrimitiveIntArrayCommand() {
+        this.commandProvider.call(this.testSender, "/example numbers 10 20 30");
+        assertTrue(this.exampleCommand.isNumbersExecuted());
+        assertArrayEquals(new int[]{10, 20, 30}, this.exampleCommand.getLastNumbers());
     }
 
-    @Permission("test")
-    @Command(name = "example", description = "Example command.")
+    @Test
+    void shouldExecuteEmptyPrimitiveIntArrayCommand() {
+        this.commandProvider.call(this.testSender, "/example numbers");
+        assertTrue(this.exampleCommand.isNumbersExecuted());
+        assertArrayEquals(new int[0], this.exampleCommand.getLastNumbers());
+    }
+
+    @Test
+    void shouldExecuteSingleArgumentCommand() {
+        this.commandProvider.call(this.testSender, "/example hello Notch");
+        assertEquals("Notch", this.exampleCommand.getLastSingleArg());
+    }
+
+    @Test
+    void shouldExecuteOptionalArgumentWhenProvided() {
+        this.commandProvider.call(this.testSender, "/example opt Notch 25");
+        assertEquals("Notch", this.exampleCommand.getLastOptName());
+        assertEquals(Optional.of(25), this.exampleCommand.getLastOptAge());
+    }
+
+    @Test
+    void shouldExecuteOptionalArgumentWhenOmitted() {
+        this.commandProvider.call(this.testSender, "/example opt Notch");
+        assertEquals("Notch", this.exampleCommand.getLastOptName());
+        assertEquals(Optional.empty(), this.exampleCommand.getLastOptAge());
+    }
+
+    @Test
+    void shouldHandleResultResolver() {
+        this.commandProvider.call(this.testSender, "/example greet Steve");
+        assertEquals(1, this.resultLogs.size());
+        assertEquals("Hello Steve!", this.resultLogs.get(0));
+    }
+
+    @Test
+    void shouldHandleInvalidInput() {
+        this.commandProvider.call(this.testSender, "/example calculate not_a_number");
+        assertEquals("not_a_number", this.lastInvalidInput.get());
+    }
+
+    @Test
+    void shouldHandlePermissionCheck() {
+        TestSender noAdminSender = new TestSender() {
+            @Override
+            public boolean hasPermission(@NonNull String permission) {
+                return permission.equals("example.base");
+            }
+        };
+
+        this.commandProvider.call(noAdminSender, "/example admin");
+        assertEquals("example.admin", this.lastInvalidPermission.get());
+    }
+
+    @Test
+    void shouldHandleSenderTypeCheck() {
+        TestSender clientSender = new TestSender() {
+            @Override
+            public Type getType() {
+                return Type.CLIENT;
+            }
+        };
+
+        this.commandProvider.call(clientSender, "/example consoleonly");
+        assertEquals(DreamSender.Type.CLIENT, this.lastInvalidSender.get());
+    }
+
+    @Test
+    void shouldProvideSuggestions() {
+        List<String> suggestions = this.commandProvider.getSuggestion(this.testSender, "/example type ");
+        assertNotNull(suggestions);
+    }
+
+    @Test
+    void shouldUnregisterCommand() {
+        CommandEntry entry = new CommandEntry("example", new String[0], "Example test command.");
+        this.commandProvider.unregister(entry);
+
+        this.commandProvider.call(this.testSender, "/example test1 BRO");
+        assertTrue(this.invalidUsageLogs.contains("example"));
+    }
+
+    @Permission("example.base")
+    @Command(name = "example", description = "Example test command.")
     public static class ExampleCommand implements CommandBase {
+
+        @Getter
+        private boolean enumExecuted = false;
+        @Getter
+        private ExampleEnum lastEnum;
+
+        @Getter
+        private boolean numbersExecuted = false;
+        @Getter
+        private int[] lastNumbers;
+
+        @Getter
+        private String lastSingleArg;
+
+        @Getter
+        private String lastOptName;
+        @Getter
+        private Optional<Integer> lastOptAge;
 
         @Executor(path = {"type", "test1"})
         @Completion(arg = "exampleEnum", value = "@enum")
         void suggestEnum(@OptArg Optional<ExampleEnum> exampleEnum) {
-            System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
+            this.enumExecuted = true;
+            this.lastEnum = exampleEnum.orElse(null);
         }
 
-        @Executor(path = "typesafe")
-        @Completion(arg = "exampleEnum", value = "test")
-        void suggestSafeEnum(@OptArg Optional<ExampleEnum> exampleEnum) {
-            System.out.println(exampleEnum.get().equals(ExampleEnum.BRO));
+        @Executor(path = "numbers")
+        void numbers(@Args int[] numbers) {
+            this.numbersExecuted = true;
+            this.lastNumbers = numbers;
         }
 
-        @Executor(path = "holo add")
-        void holo(@Arg(value = "id") String id, @Args(value = "text", min = 1) String[] text) {
-            System.out.println(id);
-            System.out.println(Arrays.toString(text));
+        @Executor(path = "hello")
+        void hello(@Arg String name) {
+            this.lastSingleArg = name;
         }
 
-        @Executor(path = "holo add testowo")
-        void holo3(@Arg(value = "id") String id, @Arg(value = "id4") String id4, @Args(value = "text", min = 2) String[] text) {
-            System.out.println(id + " " + id4 + " " + Arrays.toString(text));
+        @Executor(path = "opt")
+        void opt(@Arg String name, @OptArg Optional<Integer> age) {
+            this.lastOptName = name;
+            this.lastOptAge = age;
         }
 
-        @Executor(path = "broadcast", description = "Broadcast message")
-        void broadcast(@Args String[] arguments) {
-            final String message = StringUtil.join(arguments, " ");
-            System.out.println("[BROADCAST] " + message);
+        @Executor(path = "greet")
+        String greet(@Arg String name) {
+            return "Hello " + name + "!";
+        }
+
+        @Executor(path = "calculate")
+        void calculate(@Arg int number) {
+        }
+
+        @Permission("example.admin")
+        @Executor(path = "admin")
+        void admin() {
+        }
+
+        @Sender(DreamSender.Type.CONSOLE)
+        @Executor(path = "consoleonly")
+        void consoleOnly() {
         }
     }
 }

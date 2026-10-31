@@ -10,5 +10,5 @@ public interface ArrayTransformer<T> {
 
     boolean isAssignableFrom(@NonNull Class<?> type);
 
-    Optional<T[]> transform(@NonNull Class<?> type, @NonNull Object[] objects);
+    Optional<?> transform(@NonNull Class<?> type, @NonNull Object[] objects);
 }

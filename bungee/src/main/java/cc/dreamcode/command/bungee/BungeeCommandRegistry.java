@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.Locale;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class BungeeCommandRegistry implements CommandRegistry {
@@ -23,10 +24,11 @@ public class BungeeCommandRegistry implements CommandRegistry {
 
     @Override
     public void unregister(@NonNull CommandEntry commandEntry) {
-        this.bungeeCommandProvider.unregister(commandEntry);
         this.plugin.getProxy().getPluginManager().getCommands()
                 .stream()
-                .filter(entry -> entry.getKey().equals(commandEntry.getName().toLowerCase(Locale.ROOT)))
-                .forEach(entry -> this.plugin.getProxy().getPluginManager().unregisterCommand(entry.getValue()));
+                .filter(entry -> entry.getKey().equalsIgnoreCase(commandEntry.getName()))
+                .map(Map.Entry::getValue)
+                .findAny()
+                .ifPresent(command -> this.plugin.getProxy().getPluginManager().unregisterCommand(command));
     }
 }

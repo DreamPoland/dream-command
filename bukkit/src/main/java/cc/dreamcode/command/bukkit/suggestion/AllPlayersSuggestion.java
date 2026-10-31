@@ -4,6 +4,7 @@ import cc.dreamcode.command.suggestion.supplier.SuggestionSupplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class AllPlayersSuggestion implements SuggestionSupplier {
     public List<String> supply(@NonNull Class<?> paramType) {
         return this.plugin.getServer().getOnlinePlayers()
                 .stream()
+                .filter(player -> player.getMetadata("vanished").stream().noneMatch(MetadataValue::asBoolean))
                 .map(Player::getName)
                 .collect(Collectors.toList());
     }

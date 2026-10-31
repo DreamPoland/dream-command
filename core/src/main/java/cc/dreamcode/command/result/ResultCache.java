@@ -2,13 +2,13 @@ package cc.dreamcode.command.result;
 
 import lombok.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ResultCache {
 
-    private final List<ResultResolver> resultResolvers = new ArrayList<>();
+    private final List<ResultResolver> resultResolvers = new CopyOnWriteArrayList<>();
 
     public Optional<ResultResolver> get(@NonNull Class<?> type) {
         return this.resultResolvers.stream()

@@ -29,10 +29,10 @@ import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class CommandProviderImpl implements CommandProvider {
@@ -49,12 +49,12 @@ public class CommandProviderImpl implements CommandProvider {
     private CommandRegistry commandRegistry;
     private CommandScheduler commandScheduler;
 
-    private InvalidPermissionHandler invalidPermissionHandler;
-    private InvalidSenderHandler invalidSenderHandler;
-    private InvalidUsageHandler invalidUsageHandler;
-    private InvalidInputHandler invalidInputHandler;
+    private volatile InvalidPermissionHandler invalidPermissionHandler;
+    private volatile InvalidSenderHandler invalidSenderHandler;
+    private volatile InvalidUsageHandler invalidUsageHandler;
+    private volatile InvalidInputHandler invalidInputHandler;
 
-    private final Map<String, CommandMeta> commandMap = new HashMap<>();
+    private final Map<String, CommandMeta> commandMap = new ConcurrentHashMap<>();
 
     public CommandProviderImpl(boolean registerDefaults) {
         this.bindCache = new BindCache();

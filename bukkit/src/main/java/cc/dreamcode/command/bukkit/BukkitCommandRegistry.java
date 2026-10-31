@@ -4,8 +4,11 @@ import cc.dreamcode.command.CommandEntry;
 import cc.dreamcode.command.CommandMeta;
 import cc.dreamcode.command.CommandRegistry;
 import lombok.NonNull;
+import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Map;
 
 public class BukkitCommandRegistry implements CommandRegistry {
 
@@ -33,6 +36,19 @@ public class BukkitCommandRegistry implements CommandRegistry {
 
     @Override
     public void unregister(@NonNull CommandEntry commandEntry) {
-        this.bukkitCommandMap.getCommand(commandEntry.getName()).unregister(this.bukkitCommandMap);
+        final Command command = this.bukkitCommandMap.getCommand(commandEntry.getName());
+        if (command != null) {
+            command.unregister(this.bukkitCommandMap);
+        }
+
+        final Map<String, Command> knownCommands = BukkitCommandReflection.getKnownCommands(this.bukkitCommandMap);
+        if (knownCommands != null) {
+            knownCommands.remove(commandEntry.getName().toLowerCase());
+            knownCommands.remove(this.plugin.getName().toLowerCase() + ":" + commandEntry.getName().toLowerCase());
+            for (String alias : commandEntry.getAliases()) {
+                knownCommands.remove(alias.toLowerCase());
+                knownCommands.remove(this.plugin.getName().toLowerCase() + ":" + alias.toLowerCase());
+            }
+        }
     }
 }

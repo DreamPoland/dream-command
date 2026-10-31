@@ -52,9 +52,12 @@ public class CommandExecutor {
         for (int index = 0; index < this.commandPathMeta.getMethod().getParameterCount(); index++) {
 
             if (this.getCommandPathMeta().getParamArgs().containsKey(index)) {
-                final String input = params[atomicArg.get()];
-                final Class<?> paramType = new ArrayList<>(this.getCommandPathMeta().getParamArgs().values()).get(atomicArg.get());
+                final Class<?> paramType = this.getCommandPathMeta().getParamArgs().get(index);
+                if (params.length <= atomicArg.get()) {
+                    throw new InvalidInputException(paramType, "", "Missing required argument of type " + paramType.getSimpleName());
+                }
 
+                final String input = params[atomicArg.get()];
                 final Optional<?> optionalObject = resolverService.resolve(paramType, input);
                 if (!optionalObject.isPresent()) {
                     throw new InvalidInputException(paramType, input, "Cannot resolve param " + input + " as a " + paramType.getSimpleName());
@@ -99,22 +102,21 @@ public class CommandExecutor {
                 }
 
                 final Args args = (Args) optionalAnnotation.get();
-                final String skip = StringUtil.join(params, " ",
-                        args.min() == -1 ? 0 : Math.min(args.min(), params.length),
-                        args.max() == -1 ? params.length : Math.min(args.max(), params.length));
+                final int min = args.min() == -1 ? 0 : Math.min(args.min(), params.length);
+                final int max = args.max() == -1 ? params.length : Math.min(args.max(), params.length);
 
-                final Object[] array = Arrays.stream(skip.split(" "))
-                        .map(input -> {
+                final int sliceLength = (min >= params.length || min >= max) ? 0 : (max - min);
+                final Object[] array = new Object[sliceLength];
+                for (int i = 0; i < sliceLength; i++) {
+                    final String input = params[min + i];
+                    final Optional<?> optionalObject = resolverService.resolve(paramType.getComponentType(), input);
+                    if (!optionalObject.isPresent()) {
+                        throw new InvalidInputException(paramType, input, "Cannot resolve param " + input + " as a " + paramType.getSimpleName());
+                    }
+                    array[i] = optionalObject.get();
+                }
 
-                            final Optional<?> optionalObject = resolverService.resolve(paramType.getComponentType(), input);
-                            if (!optionalObject.isPresent()) {
-                                throw new InvalidInputException(paramType, input, "Cannot resolve param " + input + " as a " + paramType.getSimpleName());
-                            }
-
-                            return optionalObject.get();
-                        })
-                        .toArray();
-
+                final String skip = sliceLength == 0 ? "" : StringUtil.join(params, " ", min, max);
                 objects.add(resolverService.resolveArray(paramType, array)
                         .orElseThrow(() -> new InvalidInputException(paramType, skip, "Cannot resolve part of array: " + paramType)));
                 continue;
