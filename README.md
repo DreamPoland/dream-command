@@ -1,37 +1,98 @@
-# Dream-Command (2.x)
+# Dream-Command
 
 [![Build](https://github.com/DreamPoland/dream-command/actions/workflows/gradle.yml/badge.svg?branch=2.x)](https://github.com/DreamPoland/dream-command/actions/workflows/gradle.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Java 21](https://img.shields.io/badge/Java-21%2B-blue.svg)](https://adoptium.net/)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://repo.dreamcode.cc/#/releases/cc/dreamcode/command)
+[![Java](https://img.shields.io/badge/java-21%2B-orange.svg)](https://www.oracle.com/java/)
 
-**Dream-Command** to zaawansowana, lekka i bezpieczna wątkowo biblioteka ułatwiająca tworzenie komend w oparciu o adnotacje dla platform **Bukkit/Spigot/Paper** oraz **BungeeCord/Waterfall**.
-
----
-
-## 🚀 Główne możliwości
-
-- **Adnotacje zamiast boilerplate'u:** Twórz komendy za pomocą `@Command`, `@Executor`, `@Arg`, `@OptArg`, `@Args`, `@Permission`, `@Sender`, `@Async`, `@Completion`.
-- **Wieloplatformowość:** Gotowe moduły dla platform **Bukkit** (Spigot, Paper, Purpur) oraz **BungeeCord** (Waterfall).
-- **Automatyczna konwersja typów (Transformers):**
-  - Typy proste oraz ich obiektowe odpowiedniki (`int`, `double`, `boolean`, `long`, `float`, `byte`, `short`, `char`).
-  - Tablice jedno- i wieloargumentowe (np. `@Args int[]`, `@Args String[]`).
-  - Dowolne Enumy (automatyczne dopasowywanie i tab-complete bez dodatkowego kodu).
-  - Obiekty platformowe: `Player`, `OfflinePlayer`, `World`, `ProxiedPlayer`, `Server`.
-- **Wstrzykiwanie kontekstu (Binds):** Bezpośredni dostęp w sygnaturze metody do nadawcy: `Player`, `CommandSender`, `ConsoleCommandSender`, `Server` itp.
-- **Inteligentne auto-uzupełnianie (Tab Completion):** Statyczne listy podpowiedzi, słowa kluczowe (`@all-players`, `@offline-players`, `@enum`) oraz filtry (np. limitowanie wyników).
-- **Bezpieczeństwo wielowątkowe (Thread-Safety):** Zoptymalizowane kolekcje współbieżne (`ConcurrentHashMap`, `CopyOnWriteArrayList`) z pełnym wsparciem komend asynchronicznych (`@Async`).
-- **Gotowa obsługa błędów:** Domyślne, czytelne dla graczy komunikaty przy braku uprawnień, błędnych argumentach czy niepoprawnym typie nadawcy – z możliwością pełnej personalizacji.
+Modern, lightweight, and thread-safe annotation-based Minecraft command framework for **Bukkit / Spigot / Paper** and **BungeeCord / Waterfall**.
 
 ---
 
-## 📦 Instalacja
+## Features
 
-Wymagane środowisko: **Java 21** lub nowsza.
+- **Annotation-Driven Architecture**: Eliminate boilerplate with `@Command`, `@Executor`, `@Arg`, `@OptArg`, `@Args`, `@Permission`, `@Sender`, `@Async`, and `@Completion`.
+- **Multi-Platform Support**:
+  - **Paper / Spigot / Bukkit**: Native integration with Paper/Spigot command map and scheduler.
+  - **BungeeCord / Waterfall**: Native proxy tab-executor and async execution support.
+- **Automatic Type Resolution (Transformers)**:
+  - Primitive and boxed types (`int`, `double`, `boolean`, `long`, `float`, `byte`, `short`, `char`).
+  - Arrays and variadic arguments (e.g. `@Args int[]`, `@Args String[]`).
+  - Enums (automatic reflection resolution and case-insensitive matching).
+  - Platform objects: `Player`, `OfflinePlayer`, `World`, `ProxiedPlayer`, `Server`.
+- **Contextual Dependency Injection (Binds)**: Direct parameter access to `Player`, `CommandSender`, `ConsoleCommandSender`, `Server`, etc.
+- **Smart Tab Completion**:
+  - Static lists, keywords (`@all-players`, `@offline-players`, `@enum`), and stream-like filters (`@CompletionFilter`).
+- **Thread-Safety & Async Execution**:
+  - Safe concurrent structures (`ConcurrentHashMap`, `CopyOnWriteArrayList`) with native `@Async` scheduler offloading.
+- **Built-in Error Handlers**:
+  - Out-of-the-box user-friendly error messages for missing permissions, invalid senders, malformed arguments, and usage help. Fully customizable via handler interfaces.
+
+---
+
+## Requirements
+
+- **Java 21** or newer.
+- **Paper / Spigot / Bukkit** 1.20+ or **BungeeCord** 1.20+.
 
 > [!IMPORTANT]
-> Aby zachować nazwy parametrów metod w podpowiedziach komend, dodaj flagę kompilatora `-parameters` do konfiguracji `compileJava` w swoim projekcie.
+> To preserve method parameter names for command suggestions and usage messages, make sure to add the `-parameters` compiler flag to your build configuration.
+
+---
+
+## Installation
+
+### Maven
+
+Add the repository:
+```xml
+<repositories>
+  <repository>
+    <id>dreamcode-repository-releases</id>
+    <url>https://repo.dreamcode.cc/releases</url>
+  </repository>
+</repositories>
+```
+
+Add the dependency for your platform:
+
+**Bukkit / Spigot / Paper:**
+```xml
+<dependency>
+  <groupId>cc.dreamcode.command</groupId>
+  <artifactId>bukkit</artifactId>
+  <version>2.3.0</version>
+</dependency>
+```
+
+**BungeeCord:**
+```xml
+<dependency>
+  <groupId>cc.dreamcode.command</groupId>
+  <artifactId>bungee</artifactId>
+  <version>2.3.0</version>
+</dependency>
+```
+
+Compiler configuration:
+```xml
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.11.0</version>
+      <configuration>
+        <parameters>true</parameters>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+```
+
+---
 
 ### Gradle (Kotlin DSL)
+
 ```kotlin
 repositories {
     mavenCentral()
@@ -39,8 +100,10 @@ repositories {
 }
 
 dependencies {
-    // Wybierz odpowiednią platformę: bukkit lub bungee
+    // Bukkit / Spigot / Paper
     implementation("cc.dreamcode.command:bukkit:2.3.0")
+
+    // BungeeCord
     // implementation("cc.dreamcode.command:bungee:2.3.0")
 }
 
@@ -49,7 +112,10 @@ tasks.withType<JavaCompile> {
 }
 ```
 
+---
+
 ### Gradle (Groovy)
+
 ```groovy
 repositories {
     mavenCentral()
@@ -57,7 +123,10 @@ repositories {
 }
 
 dependencies {
+    // Bukkit / Spigot / Paper
     implementation "cc.dreamcode.command:bukkit:2.3.0"
+
+    // BungeeCord
     // implementation "cc.dreamcode.command:bungee:2.3.0"
 }
 
@@ -66,44 +135,13 @@ compileJava {
 }
 ```
 
-### Maven
-```xml
-<repositories>
-    <repository>
-        <id>dreamcode-repository-releases</id>
-        <url>https://repo.dreamcode.cc/releases</url>
-    </repository>
-</repositories>
-
-<dependencies>
-    <dependency>
-        <groupId>cc.dreamcode.command</groupId>
-        <artifactId>bukkit</artifactId> <!-- lub bungee -->
-        <version>2.3.0</version>
-    </dependency>
-</dependencies>
-
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.11.0</version>
-            <configuration>
-                <parameters>true</parameters>
-            </configuration>
-        </plugin>
-    </plugins>
-</build>
-```
-
 ---
 
-## ⚙️ Inicjalizacja
+## Usage
 
-Zainicjalizuj provider w metodzie `onEnable()` swojego pluginu:
+### 1. Initializing the Provider
 
-### Bukkit / Paper
+#### On Bukkit / Spigot / Paper:
 ```java
 public class MyPlugin extends JavaPlugin {
 
@@ -113,13 +151,13 @@ public class MyPlugin extends JavaPlugin {
     public void onEnable() {
         this.commandProvider = BukkitCommandProvider.create(this);
 
-        // Rejestracja komendy
-        this.commandProvider.register(new ExampleCommand());
+        // Register commands
+        this.commandProvider.register(new TeleportCommand());
     }
 }
 ```
 
-### BungeeCord
+#### On BungeeCord:
 ```java
 public class MyProxyPlugin extends Plugin {
 
@@ -129,134 +167,125 @@ public class MyProxyPlugin extends Plugin {
     public void onEnable() {
         this.commandProvider = BungeeCommandProvider.create(this);
 
-        // Rejestracja komendy
-        this.commandProvider.register(new ExampleCommand());
+        // Register commands
+        this.commandProvider.register(new TeleportCommand());
     }
 }
 ```
 
 ---
 
-## 💡 Przykłady użycia
+### 2. Basic Command & Subcommands
 
-### 1. Podstawowa komenda z podkomendami i uprawnieniami
+Create a command class by implementing `CommandBase` and annotating it with `@Command`:
 
 ```java
-@Command(name = "teleport", aliases = {"tp"}, description = "System teleportacji")
+@Command(name = "teleport", aliases = {"tp"}, description = "Teleportation system")
 @Permission("plugin.teleport")
 public class TeleportCommand implements CommandBase {
 
-    // Wywołanie: /tp <gracz> (tylko dla gracza, nie dla konsoli)
+    // Matches: /tp <target> (player only)
     @Sender(DreamSender.Type.CLIENT)
-    @Executor(description = "Teleportuje do wskazanego gracza")
-    void tpToPlayer(Player player, @Arg(value = "cel") Player target) {
+    @Executor(description = "Teleport to another player")
+    void tpToPlayer(Player player, @Arg(value = "target") Player target) {
         player.teleport(target.getLocation());
-        player.sendMessage("§aPrzeteleportowano do " + target.getName() + "!");
+        player.sendMessage("Teleported to " + target.getName() + "!");
     }
 
-    // Wywołanie: /tp pos <x> <y> <z>
+    // Matches: /tp pos <x> <y> <z>
     @Sender(DreamSender.Type.CLIENT)
-    @Executor(path = "pos", description = "Teleportuje na podane koordynaty")
+    @Executor(path = "pos", description = "Teleport to coordinates")
     void tpToCoords(Player player, @Arg double x, @Arg double y, @Arg double z) {
         player.teleport(new Location(player.getWorld(), x, y, z));
-        player.sendMessage("§aPrzeteleportowano na koordynaty!");
+        player.sendMessage("Teleported to coordinates!");
     }
 }
 ```
 
 ---
 
-### 2. Opcjonalne argumenty (`@OptArg`) oraz tablice (`@Args`)
+### 3. Argument Handling (`@Arg`, `@OptArg`, `@Args`)
 
 ```java
-@Command(name = "money", description = "Zarządzanie stanem konta")
+@Command(name = "money", description = "Economy management")
 public class MoneyCommand implements CommandBase {
 
-    // Wywołanie: /money pay <gracz> <kwota> [powód]
-    @Executor(path = "pay", description = "Przelewa środki innemu graczowi")
+    // Matches: /money pay <target> <amount> [reason]
+    @Executor(path = "pay", description = "Send money to a player")
     void pay(
         Player sender,
-        @Arg(value = "odbiorca") Player target,
-        @Arg(value = "kwota") double amount,
-        @OptArg(value = "powód") Optional<String> reason
+        @Arg(value = "target") Player target,
+        @Arg(value = "amount") double amount,
+        @OptArg(value = "reason") Optional<String> reason
     ) {
-        sender.sendMessage("Wysłano " + amount + "$ do " + target.getName() +
-            reason.map(r -> " z powodem: " + r).orElse(""));
+        sender.sendMessage("Sent " + amount + "$ to " + target.getName() +
+            reason.map(r -> " for: " + r).orElse(""));
     }
 
-    // Wywołanie: /money addmany <kwoty...> (np. /money addmany 10 20 30 50)
-    @Executor(path = "addmany", description = "Sumuje i dodaje tablicę kwot")
+    // Matches: /money addmany <amounts...> (e.g. /money addmany 10 20 30 50)
+    @Executor(path = "addmany", description = "Sum and deposit multiple values")
     void addMany(CommandSender sender, @Args int[] amounts) {
-        int sum = Arrays.stream(amounts).sum();
-        sender.sendMessage("Suma wprowadzonych kwot: " + sum);
+        int total = Arrays.stream(amounts).sum();
+        sender.sendMessage("Total amount: " + total);
     }
 }
 ```
 
 ---
 
-### 3. Komendy asynchroniczne (`@Async`) i automatyczny Tab-Complete
-
-```java
-@Async
-@Command(name = "user", description = "Informacje o użytkowniku")
-public class UserCommand implements CommandBase {
-
-    // Wywołanie: /user lookup <nick>
-    // Tab-complete automatycznie podpowiada listę graczy online
-    @Completion(arg = "target", value = "@all-players")
-    @Executor(path = "lookup", description = "Sprawdza dane gracza w bazie danych")
-    void lookup(CommandSender sender, @Arg(value = "target") String target) {
-        // Ta metoda wykonuje się asynchronicznie poza głównym wątkiem serwera!
-        String status = Database.queryPlayerStatus(target);
-        sender.sendMessage("Status gracza " + target + ": " + status);
-    }
-}
-```
-
----
-
-### 4. Enumy i filtry podpowiedzi (`@CompletionFilter`)
+### 4. Tab Completion & Suggestions (`@Completion`)
 
 ```java
 public enum Rank {
     VIP, SVIP, ELITE, MODERATOR, ADMIN
 }
 
-@Command(name = "rank", description = "Zarządzanie rangami")
+@Command(name = "rank", description = "Manage player ranks")
 public class RankCommand implements CommandBase {
 
-    // Słowo kluczowe @enum automatycznie podpowiada wszystkie wartości enuma Rank
+    // Uses the built-in @enum keyword to suggest enum constants with a limit filter
     @Completion(arg = "rank", value = "@enum", filter = @CompletionFilter(name = "limit", value = "3"))
-    @Executor(path = "set", description = "Nadaje rangę graczowi")
+    @Executor(path = "set", description = "Set a rank for a player")
     void setRank(CommandSender sender, @Arg Player target, @Arg Rank rank) {
-        sender.sendMessage("Nadano rangę " + rank.name() + " dla " + target.getName());
+        sender.sendMessage("Rank " + rank.name() + " assigned to " + target.getName());
+    }
+
+    // Uses built-in @all-players keyword to suggest online players
+    @Completion(arg = "playerName", value = "@all-players")
+    @Executor(path = "check", description = "Check rank of a player")
+    void checkRank(CommandSender sender, @Arg String playerName) {
+        sender.sendMessage("Checking rank for: " + playerName);
     }
 }
 ```
 
 ---
 
-### 5. Zwracanie wartości i Result Resolvers
-
-Metody wykonawcze mogą zwracać obiekty, które są automatycznie przetwarzane przez zarejestrowany `ResultResolver`:
+### 5. Permissions, Senders & Async Execution
 
 ```java
-@Command(name = "ping", description = "Sprawdza status serwera")
-public class PingCommand implements CommandBase {
+// Execute all executors in this class asynchronously
+@Async
+@Command(name = "user", description = "User information lookup")
+public class UserCommand implements CommandBase {
 
-    @Executor
-    String ping() {
-        return "§aPong!"; // String jest automatycznie wysyłany do nadawcy komendy
+    // Enforces permission check and console-only sender type
+    @Permission("admin.audit")
+    @Sender(DreamSender.Type.CONSOLE)
+    @Executor(path = "audit", description = "Audit user database")
+    void audit(ConsoleCommandSender sender, @Arg String username) {
+        // Runs on an async thread safely
+        Database.audit(username);
+        sender.sendMessage("Audit complete for: " + username);
     }
 }
 ```
 
 ---
 
-## 🛠️ Własne konwertery i handlery błędów
+### 6. Custom Transformers & Error Handlers
 
-### Rejestracja własnego typu (ObjectTransformer)
+#### Custom Object Transformer:
 ```java
 commandProvider.registerTransformer(new ObjectTransformer<Guild>() {
     @Override
@@ -271,21 +300,21 @@ commandProvider.registerTransformer(new ObjectTransformer<Guild>() {
 });
 ```
 
-### Konfiguracja własnych komunikatów błędów
+#### Custom Error Messages:
 ```java
-// Własny komunikat braku uprawnień
+// Custom permission denied message
 commandProvider.setInvalidPermissionHandler((sender, permission) -> {
-    sender.sendMessage("§cOdmowa dostępu! Wymagane uprawnienie: " + permission);
+    sender.sendMessage("Access denied! Required permission: " + permission);
 });
 
-// Własna pomoc przy błędnym użyciu
+// Custom invalid usage message
 commandProvider.setInvalidUsageHandler((sender, commandMeta, commandInput) -> {
-    sender.sendMessage("§eNieprawidłowe użycie. Wpisz §f/" + commandInput.getLabel() + " help §eaby uzyskać pomoc.");
+    sender.sendMessage("Invalid usage. Type /" + commandInput.getLabel() + " help for details.");
 });
 ```
 
 ---
 
-## 📄 Licencja
+## License
 
-Projekt jest udostępniany na licencji [MIT](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
