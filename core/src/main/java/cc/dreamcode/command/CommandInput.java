@@ -2,18 +2,29 @@ package cc.dreamcode.command;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
 public class CommandInput {
 
     private final String label;
     private final String[] arguments;
     private final boolean spaceAtTheEnd;
+
+    public CommandInput(@NonNull String label, @NonNull String[] arguments, boolean spaceAtTheEnd) {
+        this.label = label;
+        this.spaceAtTheEnd = spaceAtTheEnd;
+
+        final List<String> argumentList = new ArrayList<>(arguments.length);
+        for (String argument : arguments) {
+            if (argument != null && !argument.isEmpty()) {
+                argumentList.add(argument);
+            }
+        }
+        this.arguments = argumentList.toArray(new String[0]);
+    }
 
     public CommandInput(@NonNull String input) {
         String cleanInput = input;

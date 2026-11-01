@@ -266,16 +266,34 @@ public class CommandPathMeta {
         int splitPathLength = this.path.isEmpty() ? 0 : splitPath.length;
 
         final String[] arguments = commandInput.getArguments();
-        final String joinArguments = StringUtil.join(arguments, " ");
-        if (arguments.length > splitPathLength && !joinArguments.startsWith(this.path)) {
-            return listBuilder.build();
+
+        if (splitPathLength > 0 && arguments.length > splitPathLength) {
+            final String pathPart = StringUtil.join(arguments, " ", 0, splitPathLength);
+            if (!this.path.equalsIgnoreCase(pathPart)) {
+                return listBuilder.build();
+            }
         }
 
-        if (arguments.length <= splitPathLength && !this.path.startsWith(joinArguments)) {
-            return listBuilder.build();
+        if (splitPathLength > 0 && arguments.length <= splitPathLength) {
+            if (commandInput.isSpaceAtTheEnd()) {
+                for (int i = 0; i < arguments.length; i++) {
+                    if (!splitPath[i].equalsIgnoreCase(arguments[i])) {
+                        return listBuilder.build();
+                    }
+                }
+            } else {
+                for (int i = 0; i < arguments.length - 1; i++) {
+                    if (!splitPath[i].equalsIgnoreCase(arguments[i])) {
+                        return listBuilder.build();
+                    }
+                }
+                if (arguments.length > 0 && !splitPath[arguments.length - 1].toLowerCase().startsWith(arguments[arguments.length - 1].toLowerCase())) {
+                    return listBuilder.build();
+                }
+            }
         }
 
-        final int argumentLength = arguments.length - 1 == -1 ? (commandInput.isSpaceAtTheEnd() ? 0 : -1) : commandInput.isSpaceAtTheEnd() ? arguments.length : arguments.length - 1;
+        final int argumentLength = commandInput.isSpaceAtTheEnd() ? arguments.length : arguments.length - 1;
         if (argumentLength == -1) {
             return listBuilder.build();
         }
@@ -340,7 +358,7 @@ public class CommandPathMeta {
 
         suggestionService.getSuggestion(suggestionParamType, completion)
                 .stream()
-                .filter(text -> text.startsWith("[") || text.startsWith("(") || text.startsWith("<") || text.startsWith(lastWord))
+                .filter(text -> text.startsWith("[") || text.startsWith("(") || text.startsWith("<") || text.toLowerCase().startsWith(lastWord.toLowerCase()))
                 .forEach(listBuilder::add);
 
         return listBuilder.build();

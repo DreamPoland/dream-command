@@ -165,6 +165,67 @@ class TestCommand {
     void shouldProvideSuggestions() {
         List<String> suggestions = this.commandProvider.getSuggestion(this.testSender, "/example type ");
         assertNotNull(suggestions);
+        assertTrue(suggestions.contains("bro"));
+        assertTrue(suggestions.contains("yes"));
+    }
+
+    @Test
+    void shouldSuggestSubpathsOnRootSpace() {
+        List<String> suggestions = this.commandProvider.getSuggestion(this.testSender, "/example ");
+        assertTrue(suggestions.contains("hello"));
+        assertTrue(suggestions.contains("opt"));
+        assertTrue(suggestions.contains("type"));
+        assertFalse(suggestions.contains("<name>"));
+    }
+
+    @Test
+    void shouldSuggestSubpathOnPrefix() {
+        List<String> suggestions = this.commandProvider.getSuggestion(this.testSender, "/example hel");
+        assertEquals(1, suggestions.size());
+        assertEquals("hello", suggestions.get(0));
+    }
+
+    @Test
+    void shouldSuggestFirstArgumentAfterSubpath() {
+        List<String> suggestions = this.commandProvider.getSuggestion(this.testSender, "/example opt ");
+        assertEquals(1, suggestions.size());
+        assertEquals("<name>", suggestions.get(0));
+    }
+
+    @Test
+    void shouldSuggestSecondArgumentAfterFirstArgument() {
+        List<String> suggestions = this.commandProvider.getSuggestion(this.testSender, "/example opt Notch ");
+        assertEquals(1, suggestions.size());
+        assertEquals("[age]", suggestions.get(0));
+    }
+
+    @Test
+    void shouldHandleBukkitStyleCommandInputWithTrailingEmpty() {
+        // Simulates Bukkit tabComplete for "/example " -> args = [""]
+        CommandInput rootInput = new CommandInput("example", new String[]{""}, true);
+        List<String> rootSuggestions = this.commandProvider.getSuggestion(this.testSender, rootInput);
+        assertTrue(rootSuggestions.contains("hello"));
+        assertTrue(rootSuggestions.contains("opt"));
+        assertFalse(rootSuggestions.contains("<name>"));
+
+        // Simulates Bukkit tabComplete for "/example opt " -> args = ["opt", ""]
+        CommandInput optInput = new CommandInput("example", new String[]{"opt", ""}, true);
+        List<String> optSuggestions = this.commandProvider.getSuggestion(this.testSender, optInput);
+        assertEquals(1, optSuggestions.size());
+        assertEquals("<name>", optSuggestions.get(0));
+
+        // Simulates Bukkit tabComplete for "/example opt Notch " -> args = ["opt", "Notch", ""]
+        CommandInput optNotchInput = new CommandInput("example", new String[]{"opt", "Notch", ""}, true);
+        List<String> optNotchSuggestions = this.commandProvider.getSuggestion(this.testSender, optNotchInput);
+        assertEquals(1, optNotchSuggestions.size());
+        assertEquals("[age]", optNotchSuggestions.get(0));
+    }
+
+    @Test
+    void shouldSuggestEnumValuesCaseInsensitive() {
+        List<String> suggestions = this.commandProvider.getSuggestion(this.testSender, "/example type B");
+        assertTrue(suggestions.contains("bro"));
+        assertFalse(suggestions.contains("yes"));
     }
 
     @Test

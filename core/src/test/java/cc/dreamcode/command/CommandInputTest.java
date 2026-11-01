@@ -74,4 +74,25 @@ class CommandInputTest {
         String[] params = input.getParams();
         assertArrayEquals(new String[]{"tp", "Notch", "100", "64", "200"}, params);
     }
+
+    @Test
+    void shouldFilterEmptyArgumentsInArrayConstructor() {
+        CommandInput inputTrailingEmpty = new CommandInput("help", new String[]{""}, true);
+        assertEquals("help", inputTrailingEmpty.getLabel());
+        assertEquals(0, inputTrailingEmpty.getArguments().length);
+        assertTrue(inputTrailingEmpty.isSpaceAtTheEnd());
+
+        CommandInput inputSubcommandWithTrailingEmpty = new CommandInput("g", new String[]{"zaloz", ""}, true);
+        assertEquals("g", inputSubcommandWithTrailingEmpty.getLabel());
+        assertEquals(1, inputSubcommandWithTrailingEmpty.getArguments().length);
+        assertEquals("zaloz", inputSubcommandWithTrailingEmpty.getArguments()[0]);
+        assertTrue(inputSubcommandWithTrailingEmpty.isSpaceAtTheEnd());
+
+        CommandInput inputMultipleEmpty = new CommandInput("msg", new String[]{"", "Notch", "", "hello", ""}, true);
+        assertEquals("msg", inputMultipleEmpty.getLabel());
+        assertEquals(2, inputMultipleEmpty.getArguments().length);
+        assertEquals("Notch", inputMultipleEmpty.getArguments()[0]);
+        assertEquals("hello", inputMultipleEmpty.getArguments()[1]);
+        assertTrue(inputMultipleEmpty.isSpaceAtTheEnd());
+    }
 }
