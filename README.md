@@ -1,7 +1,7 @@
 # Dream-Command
 
 [![Build](https://github.com/DreamPoland/dream-command/actions/workflows/gradle.yml/badge.svg?branch=2.x)](https://github.com/DreamPoland/dream-command/actions/workflows/gradle.yml)
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://repo.dreamcode.cc/#/releases/cc/dreamcode/command)
+[![Version](https://img.shields.io/badge/version-2.4.1-blue.svg)](https://repo.dreamcode.cc/#/releases/cc/dreamcode/command)
 [![Java](https://img.shields.io/badge/java-21%2B-orange.svg)](https://www.oracle.com/java/)
 
 Modern, lightweight, and thread-safe annotation-based Minecraft command framework for **Bukkit / Spigot / Paper** and **BungeeCord / Waterfall**.
@@ -60,7 +60,7 @@ Add the dependency for your platform:
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>bukkit</artifactId>
-  <version>2.3.0</version>
+  <version>2.4.1</version>
 </dependency>
 ```
 
@@ -69,7 +69,7 @@ Add the dependency for your platform:
 <dependency>
   <groupId>cc.dreamcode.command</groupId>
   <artifactId>bungee</artifactId>
-  <version>2.3.0</version>
+  <version>2.4.1</version>
 </dependency>
 ```
 
@@ -101,10 +101,10 @@ repositories {
 
 dependencies {
     // Bukkit / Spigot / Paper
-    implementation("cc.dreamcode.command:bukkit:2.3.0")
+    implementation("cc.dreamcode.command:bukkit:2.4.1")
 
     // BungeeCord
-    // implementation("cc.dreamcode.command:bungee:2.3.0")
+    // implementation("cc.dreamcode.command:bungee:2.4.1")
 }
 
 tasks.withType<JavaCompile> {
@@ -124,10 +124,10 @@ repositories {
 
 dependencies {
     // Bukkit / Spigot / Paper
-    implementation "cc.dreamcode.command:bukkit:2.3.0"
+    implementation "cc.dreamcode.command:bukkit:2.4.1"
 
     // BungeeCord
-    // implementation "cc.dreamcode.command:bungee:2.3.0"
+    // implementation "cc.dreamcode.command:bungee:2.4.1"
 }
 
 compileJava {
